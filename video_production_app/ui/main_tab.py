@@ -18,7 +18,7 @@ from ..core.video_processor import process_video_logic
 from ..core.settings_manager import SettingsManager
 from ..config import ENCODER_OPTIONS
 from ..utils.colors import AppColors
-from ..utils.helpers import format_time, validate_file_path
+from ..utils.helpers import format_time, validate_file_path, load_icon
 
 
 class MainTab:
@@ -85,298 +85,453 @@ class MainTab:
         content_frame.grid(row=0, column=0, sticky="n")
         content_frame.configure(width=900)  # Max width for content
         
-        # Video selection with enhanced styling (exactly as original)
-        self.label_video = ctk.CTkLabel(
-            content_frame, 
-            text="No video file selected.", 
-            anchor="w", 
-            font=("Segoe UI", 11), 
-            justify="left", 
-            width=850,
-            text_color=AppColors.TEXT_MUTED
+        # Track starting row (will be 1 if header exists, 0 otherwise)
+        self.content_start_row = 0
+        
+        # Add header with logo if available (must be done before other widgets)
+        try:
+            logo_path = Path(__file__).parent.parent.parent / "logo.png"
+            if logo_path.exists():
+                from PIL import Image, ImageTk
+                import tkinter as tk
+                
+                # Create header frame
+                header_frame = ctk.CTkFrame(
+                    content_frame,
+                    fg_color=AppColors.BG_CARD,
+                    corner_radius=10,
+                    border_width=1,
+                    border_color=AppColors.BORDER,
+                    height=80
+                )
+                
+                # Load and resize logo
+                logo_image = Image.open(logo_path)
+                logo_image = logo_image.resize((60, 60), Image.Resampling.LANCZOS)
+                logo_photo = ImageTk.PhotoImage(logo_image)
+                
+                # Logo label
+                logo_label = tk.Label(
+                    header_frame,
+                    image=logo_photo,
+                    bg=AppColors.BG_CARD
+                )
+                logo_label.image = logo_photo  # Keep a reference
+                
+                # App title
+                title_label = ctk.CTkLabel(
+                    header_frame,
+                    text="🎬 Video Production Suite v3.0",
+                    font=("Segoe UI", 20, "bold"),
+                    text_color=AppColors.TEXT_PRIMARY
+                )
+                
+                # Subtitle
+                subtitle_label = ctk.CTkLabel(
+                    header_frame,
+                    text="Professional Silence Removal & Video Processing",
+                    font=("Segoe UI", 12),
+                    text_color=AppColors.TEXT_SECONDARY
+                )
+                
+                # Layout header elements using grid
+                header_frame.grid_columnconfigure(1, weight=1)
+                header_frame.grid_rowconfigure(0, weight=1)
+                # Use grid for tk.Label (regular tkinter widget)
+                logo_label.grid(row=0, column=0, rowspan=2, padx=15, pady=10, sticky="w")
+                title_label.grid(row=0, column=1, padx=(10, 0), pady=(10, 0), sticky="w")
+                subtitle_label.grid(row=1, column=1, padx=(10, 0), pady=(0, 10), sticky="w")
+                
+                # Add header_frame to content_frame at the beginning
+                header_frame.grid(row=0, column=0, sticky="ew", padx=15, pady=(10, 5))
+                # Shift all other content down by 1 row
+                self.content_start_row = 1
+                
+                print(f"✅ Added logo to main tab: {logo_path}")
+        except Exception as e:
+            print(f"⚠️ Could not add logo to main tab: {e}")
+        
+        # Video selection panel
+        video_panel = ctk.CTkFrame(
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
         )
+        video_panel.grid(row=self.content_start_row, column=0, sticky="ew", pady=5)
+        video_panel.grid_columnconfigure(1, weight=1)
+        
+        folder_icon = load_icon("folder", 20)
         self.button_video = ctk.CTkButton(
-            content_frame, 
-            text="📁  Select Video File", 
-            command=self.select_video_file, 
-            height=42, 
-            font=("Segoe UI", 14, "bold"), 
-            width=850,
-            fg_color=AppColors.PRIMARY,
-            hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=10
+            video_panel,
+            text="" if folder_icon else "📁",
+            image=folder_icon,
+            width=32,
+            height=32,
+            command=self.select_video_file,
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.PRIMARY,
+            corner_radius=4
         )
+        self.button_video.grid(row=0, column=0, padx=10, pady=10)
         
-        # Save destination with enhanced styling (exactly as original)
-        self.label_save = ctk.CTkLabel(
-            content_frame, 
-            text="No save destination selected.", 
-            anchor="w", 
-            font=("Segoe UI", 11), 
-            justify="left", 
-            width=850,
-            text_color=AppColors.TEXT_MUTED
+        self.label_video = ctk.CTkLabel(
+            video_panel,
+            text="No video file selected.",
+            anchor="w",
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_SECONDARY
         )
+        self.label_video.grid(row=0, column=1, sticky="ew", padx=(0, 10))
+        
+        # Save destination panel
+        save_panel = ctk.CTkFrame(
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        save_panel.grid(row=self.content_start_row + 1, column=0, sticky="ew", pady=5)
+        save_panel.grid_columnconfigure(1, weight=1)
+        
+        save_icon = load_icon("save", 20)
         self.button_save = ctk.CTkButton(
-            content_frame, 
-            text="💾  Select Save Destination", 
-            command=self.select_save_destination, 
-            height=42, 
-            font=("Segoe UI", 14, "bold"), 
-            width=850,
-            fg_color=AppColors.PRIMARY,
-            hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=10
+            save_panel,
+            text="" if save_icon else "💾",
+            image=save_icon,
+            width=32,
+            height=32,
+            command=self.select_save_destination,
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.PRIMARY,
+            corner_radius=4
         )
+        self.button_save.grid(row=0, column=0, padx=10, pady=10)
         
-        # Audio track selection with enhanced styling (exactly as original)
+        self.label_save = ctk.CTkLabel(
+            save_panel,
+            text="No save destination selected.",
+            anchor="w",
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_SECONDARY
+        )
+        self.label_save.grid(row=0, column=1, sticky="ew", padx=(0, 10))
+        
+        # Audio track selection panel
+        audio_track_panel = ctk.CTkFrame(
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        audio_track_panel.grid(row=self.content_start_row + 2, column=0, sticky="ew", pady=5)
+        audio_track_panel.grid_columnconfigure(1, weight=1)
+        
         self.audio_track_var = ctk.StringVar(value="Select a video first...")
         self.label_audio_track = ctk.CTkLabel(
-            content_frame, 
-            text="🎧 Audio Track for Silence Detection:", 
-            font=("Segoe UI", 13, "bold"), 
-            width=850, 
+            audio_track_panel,
+            text="Audio Track for Silence Detection:",
+            font=("Segoe UI", 12),
             anchor="w",
             text_color=AppColors.TEXT_PRIMARY
         )
+        self.label_audio_track.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+        
         self.option_audio_track = ctk.CTkOptionMenu(
-            content_frame, 
-            values=["Select a video first..."], 
-            variable=self.audio_track_var, 
-            state="disabled", 
-            height=38, 
-            width=850,
+            audio_track_panel,
+            values=["Select a video first..."],
+            variable=self.audio_track_var,
+            state="disabled",
+            height=32,
             fg_color=AppColors.BG_LIGHT,
             button_color=AppColors.PRIMARY,
             button_hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=8,
+            corner_radius=4,
             font=("Segoe UI", 12)
         )
+        self.option_audio_track.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
         
-        # Audio track information panel with enhanced styling (exactly as original)
+        # Audio track information panel
         audio_info_frame = ctk.CTkFrame(
-            content_frame, 
-            fg_color=AppColors.BG_CARD, 
-            corner_radius=10,
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
             border_color=AppColors.BORDER,
-            width=850
+            corner_radius=4
         )
+        audio_info_frame.grid(row=self.content_start_row + 3, column=0, sticky="ew", pady=5)
         audio_info_frame.grid_columnconfigure(0, weight=1)
         
-        ctk.CTkLabel(
-            audio_info_frame, 
-            text="🎵 Audio Track Details", 
-            font=("Segoe UI", 13, "bold"),
-            text_color=AppColors.TEXT_PRIMARY
-        ).grid(row=0, column=0, padx=12, pady=(12, 8), sticky="w")
+        audio_header = ctk.CTkFrame(audio_info_frame, fg_color="transparent")
+        audio_header.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
+        audio_header.grid_columnconfigure(0, weight=1)
         
-        # Button to analyze tracks with enhanced styling (exactly as original)
+        ctk.CTkLabel(
+            audio_header,
+            text="Audio Track Details",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=0, column=0, sticky="w")
+        
+        search_icon = load_icon("search", 20)
         self.button_analyze_tracks = ctk.CTkButton(
-            audio_info_frame, 
-            text="🔍 Analyze All Tracks", 
-            command=self.analyze_all_tracks, 
-            height=32, 
-            width=160,
-            fg_color=AppColors.INFO,
-            hover_color=AppColors.PRIMARY_DARK,
-            corner_radius=8,
-            font=("Segoe UI", 11, "bold"),
+            audio_header,
+            text="" if search_icon else "🔍",
+            image=search_icon,
+            width=32,
+            height=32,
+            command=self.analyze_all_tracks,
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.INFO,
+            corner_radius=4,
             state="disabled"
         )
-        self.button_analyze_tracks.grid(row=0, column=1, padx=12, pady=(12, 8), sticky="e")
+        self.button_analyze_tracks.grid(row=0, column=1, sticky="e")
         
         self.audio_info_textbox = ctk.CTkTextbox(
-            audio_info_frame, 
-            height=100, 
-            font=("Consolas", 10), 
+            audio_info_frame,
+            height=100,
+            font=("Consolas", 10),
             fg_color=AppColors.BG_DARK,
             border_width=1,
             border_color=AppColors.BORDER,
-            corner_radius=6,
+            corner_radius=4,
             state="disabled"
         )
-        self.audio_info_textbox.grid(row=1, column=0, columnspan=2, padx=12, pady=(0, 12), sticky="ew")
+        self.audio_info_textbox.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="ew")
         
-        # Trim settings (exactly as original)
-        trim_frame = ctk.CTkFrame(content_frame, fg_color="transparent", width=850)
+        # Trim settings panel
+        trim_frame = ctk.CTkFrame(
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        trim_frame.grid(row=self.content_start_row + 4, column=0, sticky="ew", pady=5)
         trim_frame.grid_columnconfigure((0, 1), weight=1)
         
-        ctk.CTkLabel(trim_frame, text="Trim Start (seconds):", font=("", 11)).grid(row=0, column=0, sticky="w", padx=5)
-        self.trim_start_entry = ctk.CTkEntry(trim_frame, placeholder_text="0")
-        self.trim_start_entry.grid(row=1, column=0, sticky="ew", padx=5)
+        ctk.CTkLabel(
+            trim_frame,
+            text="Trim Start (seconds):",
+            font=("Segoe UI", 12)
+        ).grid(row=0, column=0, sticky="w", padx=10, pady=(10, 5))
+        self.trim_start_entry = ctk.CTkEntry(trim_frame, placeholder_text="0", height=28)
+        self.trim_start_entry.grid(row=1, column=0, sticky="ew", padx=10, pady=(0, 10))
         
-        ctk.CTkLabel(trim_frame, text="Trim End (seconds, optional):", font=("", 11)).grid(row=0, column=1, sticky="w", padx=5)
-        self.trim_end_entry = ctk.CTkEntry(trim_frame, placeholder_text="Leave empty for full video")
-        self.trim_end_entry.grid(row=1, column=1, sticky="ew", padx=5)
+        ctk.CTkLabel(
+            trim_frame,
+            text="Trim End (seconds, optional):",
+            font=("Segoe UI", 12)
+        ).grid(row=0, column=1, sticky="w", padx=10, pady=(10, 5))
+        self.trim_end_entry = ctk.CTkEntry(trim_frame, placeholder_text="Leave empty for full video", height=28)
+        self.trim_end_entry.grid(row=1, column=1, sticky="ew", padx=10, pady=(0, 10))
         
-        # Encoder and format selection with enhanced styling (exactly as original)
-        options_frame = ctk.CTkFrame(content_frame, fg_color="transparent", width=850)
+        # Encoder and format selection panel
+        options_frame = ctk.CTkFrame(
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        options_frame.grid(row=self.content_start_row + 5, column=0, sticky="ew", pady=5)
         options_frame.grid_columnconfigure((0, 1), weight=1)
         
         encoder_frame = ctk.CTkFrame(
-            options_frame, 
-            fg_color=AppColors.BG_CARD, 
-            corner_radius=10,
-            border_width=1,
-            border_color=AppColors.BORDER
+            options_frame,
+            fg_color="transparent"
         )
-        encoder_frame.grid(row=0, column=0, sticky="ew", padx=5)
+        encoder_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=10)
+        encoder_frame.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(
-            encoder_frame, 
-            text="🎮 Video Encoder:", 
-            font=("Segoe UI", 12, "bold"),
+            encoder_frame,
+            text="Video Encoder:",
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_PRIMARY
-        ).pack(pady=(12, 8))
+        ).grid(row=0, column=0, sticky="w", pady=(0, 5))
         self.encoder_var = ctk.StringVar(value="Detecting...")
         self.option_encoder = ctk.CTkOptionMenu(
-            encoder_frame, 
-            values=["Detecting..."], 
-            variable=self.encoder_var, 
-            state="disabled", 
-            height=36,
+            encoder_frame,
+            values=["Detecting..."],
+            variable=self.encoder_var,
+            state="disabled",
+            height=32,
             fg_color=AppColors.BG_LIGHT,
             button_color=AppColors.PRIMARY,
             button_hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=8,
-            font=("Segoe UI", 11)
+            corner_radius=4,
+            font=("Segoe UI", 12)
         )
-        self.option_encoder.pack(padx=12, pady=(0, 12), fill="x")
+        self.option_encoder.grid(row=1, column=0, sticky="ew", padx=5)
         
         format_frame = ctk.CTkFrame(
-            options_frame, 
-            fg_color=AppColors.BG_CARD, 
-            corner_radius=10,
-            border_width=1,
-            border_color=AppColors.BORDER
+            options_frame,
+            fg_color="transparent"
         )
-        format_frame.grid(row=0, column=1, sticky="ew", padx=5)
+        format_frame.grid(row=0, column=1, sticky="ew", padx=5, pady=10)
+        format_frame.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(
-            format_frame, 
-            text="📺 Output Format:", 
-            font=("Segoe UI", 12, "bold"),
+            format_frame,
+            text="Output Format:",
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_PRIMARY
-        ).pack(pady=(12, 8))
+        ).grid(row=0, column=0, sticky="w", pady=(0, 5))
         self.format_var = ctk.StringVar(value="MP4")
         self.option_format = ctk.CTkOptionMenu(
-            format_frame, 
-            values=["MP4", "MKV"], 
-            variable=self.format_var, 
-            height=36,
+            format_frame,
+            values=["MP4", "MKV"],
+            variable=self.format_var,
+            height=32,
             fg_color=AppColors.BG_LIGHT,
             button_color=AppColors.PRIMARY,
             button_hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=8,
-            font=("Segoe UI", 11)
+            corner_radius=4,
+            font=("Segoe UI", 12)
         )
-        self.option_format.pack(padx=12, pady=(0, 12), fill="x")
+        self.option_format.grid(row=1, column=0, sticky="ew", padx=5)
         
-        # Preview button with enhanced styling (exactly as original)
-        self.button_preview = ctk.CTkButton(
-            content_frame, 
-            text="👁  Preview Video", 
-            command=self.preview_video, 
-            height=40, 
-            fg_color=AppColors.BG_LIGHT, 
-            hover_color=AppColors.BG_CARD_HOVER,
-            border_width=2,
-            border_color=AppColors.BORDER,
-            width=850,
-            font=("Segoe UI", 13, "bold"),
-            corner_radius=10
-        )
-        
-        # Detect silence button with enhanced styling (exactly as original)
-        self.button_detect = ctk.CTkButton(
-            content_frame, 
-            text="🔍  Detect Silence", 
-            command=self.detect_silence_preview, 
-            height=40, 
-            fg_color=AppColors.INFO, 
-            hover_color=AppColors.PRIMARY_DARK,
-            width=850,
-            font=("Segoe UI", 13, "bold"),
-            corner_radius=10
-        )
-        
-        # Timeline preview (using v1-style simple timeline) with enhanced styling (exactly as original)
-        self.timeline = ctk.CTkFrame(
-            content_frame, 
-            fg_color=AppColors.BG_CARD, 
-            corner_radius=10,
+        # Action buttons panel
+        actions_panel = ctk.CTkFrame(
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
             border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        actions_panel.grid(row=self.content_start_row + 6, column=0, sticky="ew", pady=5)
+        actions_panel.grid_columnconfigure(0, weight=1)
+        
+        actions_btn_frame = ctk.CTkFrame(actions_panel, fg_color="transparent")
+        actions_btn_frame.grid(row=0, column=0, pady=10)
+        
+        # Preview button (icon)
+        preview_icon = load_icon("preview", 20)
+        self.button_preview = ctk.CTkButton(
+            actions_btn_frame,
+            text="" if preview_icon else "👁",
+            image=preview_icon,
+            width=32,
+            height=32,
+            command=self.preview_video,
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.PRIMARY,
+            corner_radius=4
+        )
+        self.button_preview.grid(row=0, column=0, padx=5)
+        
+        # Detect silence button (icon)
+        scissors_icon = load_icon("scissors", 20)
+        self.button_detect = ctk.CTkButton(
+            actions_btn_frame,
+            text="" if scissors_icon else "🔍",
+            image=scissors_icon,
+            width=32,
+            height=32,
+            command=self.detect_silence_preview,
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.INFO,
+            corner_radius=4
+        )
+        self.button_detect.grid(row=0, column=1, padx=5)
+        
+        # Timeline preview panel
+        self.timeline = ctk.CTkFrame(
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4,
             height=100
         )
+        self.timeline.grid(row=self.content_start_row + 7, column=0, sticky="ew", pady=5)
+        self.timeline.grid_propagate(False)
+        
+        self.timeline.grid_rowconfigure(0, weight=1)
+        self.timeline.grid_columnconfigure(0, weight=1)
         self.timeline_label = ctk.CTkLabel(
-            self.timeline, 
-            text="📊 Click 'Detect Silence' to see timeline preview\n💡 Use Preview tab for interactive timeline with waveforms", 
-            font=("Segoe UI", 11),
+            self.timeline,
+            text="Click 'Detect Silence' to see timeline preview\nUse Preview tab for interactive timeline with waveforms",
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_MUTED
         )
-        self.timeline_label.pack(expand=True)
+        self.timeline_label.grid(row=0, column=0, sticky="nsew")
         
-        # Process button with progress - Enhanced styling (exactly as original)
+        # Process panel with progress
         process_frame = ctk.CTkFrame(
-            content_frame, 
-            fg_color=AppColors.BG_CARD, 
-            corner_radius=10,
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
             border_color=AppColors.BORDER,
-            width=850
+            corner_radius=4
         )
+        process_frame.grid(row=self.content_start_row + 8, column=0, sticky="ew", pady=5)
         process_frame.grid_columnconfigure(0, weight=1)
         
-        self.button_cut = ctk.CTkButton(
-            process_frame, 
-            text="✂️  Cut Silences & Export", 
-            command=self.start_cutting_thread, 
-            height=50, 
-            font=("Segoe UI", 16, "bold"), 
-            fg_color=AppColors.SUCCESS, 
-            hover_color=AppColors.SUCCESS_HOVER,
-            corner_radius=10
-        )
+        process_btn_frame = ctk.CTkFrame(process_frame, fg_color="transparent")
+        process_btn_frame.grid(row=0, column=0, pady=10)
         
-        # Enhanced progress bar with better visibility
+        scissors_icon = load_icon("scissors", 24)
+        self.button_cut = ctk.CTkButton(
+            process_btn_frame,
+            text="" if scissors_icon else "✂️",
+            image=scissors_icon,
+            width=40,
+            height=40,
+            command=self.start_cutting_thread,
+            fg_color=AppColors.SUCCESS,
+            hover_color=AppColors.SUCCESS_HOVER,
+            corner_radius=4
+        )
+        self.button_cut.grid(row=0, column=0, padx=5)
+        
+        # Enhanced progress bar
         progress_container = ctk.CTkFrame(
             process_frame,
             fg_color=AppColors.BG_DARK,
-            corner_radius=8,
-            border_width=2,
+            corner_radius=4,
+            border_width=1,
             border_color=AppColors.BORDER,
             height=60
         )
+        progress_container.grid(row=1, column=0, sticky="ew", padx=10, pady=(0, 10))
         progress_container.grid_columnconfigure(0, weight=1)
+        progress_container.grid_propagate(False)
         
-        # Progress percentage label (large, prominent)
+        # Progress percentage label
         self.progress_percentage = ctk.CTkLabel(
             progress_container,
             text="0%",
-            font=("Segoe UI", 24, "bold"),
+            font=("Segoe UI", 20, "bold"),
             text_color=AppColors.SUCCESS,
             width=100
         )
+        self.progress_percentage.grid(row=0, column=0, padx=10, pady=5)
         
-        # Main progress bar (larger, more prominent)
+        # Main progress bar
         self.progress_bar = ctk.CTkProgressBar(
-            progress_container, 
-            height=32,
-            corner_radius=8,
-            border_width=2,
+            progress_container,
+            height=24,
+            corner_radius=4,
+            border_width=1,
             border_color=AppColors.BORDER,
             progress_color=AppColors.SUCCESS,
             fg_color=AppColors.BG_LIGHT
         )
         self.progress_bar.set(0)
+        self.progress_bar.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
         
         # Detailed progress information
         self.progress_label = ctk.CTkLabel(
-            progress_container, 
-            text="⏹ Ready to process", 
-            font=("Segoe UI", 12, "bold"),
+            progress_container,
+            text="Ready to process",
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_PRIMARY
         )
+        self.progress_label.grid(row=2, column=0, padx=10, pady=5)
         
         # ETA and speed information
         self.progress_details = ctk.CTkLabel(
@@ -385,18 +540,38 @@ class MainTab:
             font=("Segoe UI", 10),
             text_color=AppColors.TEXT_SECONDARY
         )
+        self.progress_details.grid(row=3, column=0, padx=10, pady=(0, 5))
         
-        # Status textbox with enhanced styling (within scrollable frame)
+        # Status textbox panel
+        status_panel = ctk.CTkFrame(
+            content_frame,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        status_panel.grid(row=self.content_start_row + 9, column=0, sticky="ew", pady=5)
+        status_panel.grid_columnconfigure(0, weight=1)
+        status_panel.grid_rowconfigure(1, weight=1)
+        
+        ctk.CTkLabel(
+            status_panel,
+            text="Console Output",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=0, column=0, padx=10, pady=(10, 5), sticky="w")
+        
         self.status_textbox = ctk.CTkTextbox(
-            content_frame, 
-            state="disabled", 
-            fg_color=AppColors.BG_DARK, 
-            font=("Consolas", 10), 
-            corner_radius=10,
+            status_panel,
+            state="disabled",
+            fg_color=AppColors.BG_DARK,
+            font=("Consolas", 10),
+            corner_radius=4,
             border_width=1,
             border_color=AppColors.BORDER,
             height=150
         )
+        self.status_textbox.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="ew")
         
         # Add header with logo if available
         try:
@@ -444,56 +619,22 @@ class MainTab:
                     text_color=AppColors.TEXT_SECONDARY
                 )
                 
-                # Layout header elements
-                logo_label.pack(side="left", padx=15, pady=10)
-                title_label.pack(side="left", padx=(10, 0), pady=(10, 0))
-                subtitle_label.pack(side="left", padx=(10, 0), pady=(0, 10))
+                # Layout header elements using grid
+                header_frame.grid_columnconfigure(1, weight=1)
+                header_frame.grid_rowconfigure(0, weight=1)
+                # Use grid for tk.Label (regular tkinter widget)
+                logo_label.grid(row=0, column=0, rowspan=2, padx=15, pady=10, sticky="w")
+                title_label.grid(row=0, column=1, padx=(10, 0), pady=(10, 0), sticky="w")
+                subtitle_label.grid(row=1, column=1, padx=(10, 0), pady=(0, 10), sticky="w")
+                
+                # Add header_frame to content_frame at the beginning
+                header_frame.grid(row=0, column=0, sticky="ew", padx=15, pady=(10, 5))
+                # Shift all other content down by 1 row
+                self.content_start_row = 1
                 
                 print(f"✅ Added logo to main tab: {logo_path}")
         except Exception as e:
             print(f"⚠️ Could not add logo to main tab: {e}")
-        
-        # Layout exactly as original
-        row = 0
-        if 'header_frame' in locals():
-            header_frame.grid(row=row, column=0, padx=15, pady=(10, 5), sticky="ew")
-            row += 1
-        
-        self.button_video.grid(row=row, column=0, padx=15, pady=(10, 3), sticky="ew")
-        row += 1
-        self.label_video.grid(row=row, column=0, padx=15, pady=(0, 8), sticky="w")
-        row += 1
-        self.button_save.grid(row=row, column=0, padx=15, pady=3, sticky="ew")
-        row += 1
-        self.label_save.grid(row=row, column=0, padx=15, pady=(0, 8), sticky="w")
-        row += 1
-        self.label_audio_track.grid(row=row, column=0, padx=15, pady=(5, 2), sticky="w")
-        row += 1
-        self.option_audio_track.grid(row=row, column=0, padx=15, pady=(0, 3), sticky="ew")
-        row += 1
-        audio_info_frame.grid(row=row, column=0, padx=15, pady=(0, 5), sticky="ew")
-        row += 1
-        trim_frame.grid(row=row, column=0, padx=15, pady=3, sticky="ew")
-        row += 1
-        options_frame.grid(row=row, column=0, padx=15, pady=5, sticky="ew")
-        row += 1
-        self.button_preview.grid(row=row, column=0, padx=15, pady=3, sticky="ew")
-        row += 1
-        self.button_detect.grid(row=row, column=0, padx=15, pady=3, sticky="ew")
-        row += 1
-        self.timeline.grid(row=row, column=0, padx=15, pady=5, sticky="ew")
-        row += 1
-        process_frame.grid(row=row, column=0, padx=15, pady=8, sticky="ew")
-        self.button_cut.grid(row=0, column=0, sticky="ew", padx=12, pady=(12, 8))
-        
-        # Layout the enhanced progress container
-        progress_container.grid(row=1, column=0, sticky="ew", padx=12, pady=8)
-        self.progress_percentage.grid(row=0, column=0, sticky="w", padx=15, pady=(8, 4))
-        self.progress_bar.grid(row=1, column=0, sticky="ew", padx=15, pady=4)
-        self.progress_label.grid(row=2, column=0, sticky="ew", padx=15, pady=(4, 2))
-        self.progress_details.grid(row=3, column=0, sticky="ew", padx=15, pady=(0, 8))
-        row += 1
-        self.status_textbox.grid(row=row, column=0, padx=15, pady=(8, 15), sticky="ew")
         
         # Detect available encoders
         self._detect_encoders()
