@@ -1,0 +1,13 @@
+# Ignore other projects
+GUI_Silence_Cutter_tooboooring/
+premier_pro_extension/
+premier_pro_silence_cutter_XML/
+resolve_silence_cutter/
+updated_silance_cutter/
+video_app_separated/
+video_production_app backup/
+Video_Production_App_Distribution/
+
+# Ignore other files
+create_merged_file.py
+merge_video_app.py
