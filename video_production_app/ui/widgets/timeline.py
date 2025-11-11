@@ -62,6 +62,7 @@ class InteractiveTimeline(ctk.CTkFrame):
         self.zoom_level = 1.0  # Current zoom level (1.0 = full view)
         self.view_start = 0.0  # Start time of visible area in seconds
         self.view_end = 0.0    # End time of visible area in seconds
+        # Initialize view_end to duration when duration is set (anchored to right)
         self.min_zoom = 0.1    # Minimum zoom level (10x zoom out)
         self.max_zoom = 100.0  # Maximum zoom level (100x zoom in for frame-accurate editing)
         
@@ -158,42 +159,42 @@ class InteractiveTimeline(ctk.CTkFrame):
                                        font=("", 10))
         self.info_label.pack(side="right")
         
-        # Create scrollable frame for timeline content
-        timeline_scroll_frame = ctk.CTkScrollableFrame(
+        # Create scrollable frame for timeline content (horizontal scrolling only)
+        self.scrollable_frame = ctk.CTkScrollableFrame(
             self,
             fg_color="transparent",
             scrollbar_button_color=AppColors.PRIMARY,
             scrollbar_button_hover_color=AppColors.PRIMARY_HOVER,
             orientation="horizontal"
         )
-        timeline_scroll_frame.pack(fill="both", expand=True, padx=10, pady=(0, 2))
+        self.scrollable_frame.pack(fill="both", expand=True, padx=10, pady=(0, 2))
+        
+        # Initial canvas width (will be updated based on zoom level)
+        initial_canvas_width = 800
         
         # Time ruler canvas - shows time markers at the top
-        self.ruler_canvas = Canvas(timeline_scroll_frame, bg="gray25", height=25, highlightthickness=0, width=2000)
+        self.ruler_canvas = Canvas(self.scrollable_frame, bg="gray25", height=25, highlightthickness=0, width=initial_canvas_width)
         self.ruler_canvas.pack(fill="x", pady=(0, 2))
         
         # Waveform display container - holds the multi-track waveform visualization
-        waveform_container = ctk.CTkFrame(timeline_scroll_frame, fg_color="gray20", height=200)
+        waveform_container = ctk.CTkFrame(self.scrollable_frame, fg_color="gray20", height=80)
         waveform_container.pack(fill="x", pady=0)
         waveform_container.pack_propagate(False)  # Prevent container from shrinking
-        
+
         # Waveform canvas - where the actual waveforms are drawn
         self.waveform_canvas = Canvas(waveform_container, bg="#1a1a1a", 
-                                      highlightthickness=0, width=2000)
+                                      highlightthickness=0, width=initial_canvas_width)
         self.waveform_canvas.pack(fill="both", expand=True, padx=5, pady=5)
-        
-        # Segments display container - shows which parts will be kept/removed
-        segments_container = ctk.CTkFrame(timeline_scroll_frame, fg_color="gray20", height=60)
+
+        # Segments display container - shows which parts will be kept/removed (same height as waveform)
+        segments_container = ctk.CTkFrame(self.scrollable_frame, fg_color="gray20", height=80)
         segments_container.pack(fill="x", pady=(2, 0))
         segments_container.pack_propagate(False)  # Prevent container from shrinking
         
         # Segments canvas - where the segment visualization is drawn
         self.segments_canvas = Canvas(segments_container, bg="#1a1a1a",
-                                      highlightthickness=0, width=2000)
+                                      highlightthickness=0, width=initial_canvas_width)
         self.segments_canvas.pack(fill="both", expand=True, padx=5, pady=5)
-        
-        # Store scroll frame reference for width calculations
-        self.timeline_scroll_frame = timeline_scroll_frame
         
         # Bind mouse events for interaction on both canvases
         # This allows users to click and drag to navigate the timeline
@@ -319,48 +320,64 @@ class InteractiveTimeline(ctk.CTkFrame):
         self.waveform_canvas.delete("all")
         self.segments_canvas.delete("all")
         
-        # Calculate timeline width based on zoom level (wider when zoomed in)
-        # Base width scales with zoom: more zoom = wider timeline
-        base_width = 1000  # Base width in pixels
-        timeline_width = int(base_width * self.zoom_level)
-        timeline_width = max(800, min(timeline_width, 10000))  # Clamp between 800 and 10000
+        # Calculate canvas width based on widget width and zoom level
+        # This makes the canvases wider when zoomed in, enabling horizontal scrolling
+        widget_width = self.winfo_width() or 800  # Fallback to 800 if not yet rendered
+        canvas_width = int(widget_width * self.zoom_level)
+        canvas_width = max(800, min(canvas_width, 50000))  # Clamp between 800 and 50000
         
         # Update canvas widths for horizontal scrolling
-        self.ruler_canvas.configure(width=timeline_width)
-        self.waveform_canvas.configure(width=timeline_width)
-        self.segments_canvas.configure(width=timeline_width)
+        self.ruler_canvas.configure(width=canvas_width)
+        self.waveform_canvas.configure(width=canvas_width)
+        self.segments_canvas.configure(width=canvas_width)
         
         # Get canvas dimensions
-        ruler_width = timeline_width
-        wave_width = timeline_width
-        wave_height = self.waveform_canvas.winfo_height() or 200
-        seg_width = timeline_width
-        seg_height = 60
+        ruler_width = canvas_width
+        wave_width = canvas_width
+        wave_height = self.waveform_canvas.winfo_height() or 80
+        seg_width = canvas_width
+        seg_height = 80  # Match waveform height
         
         # Calculate visible time range based on zoom
-        visible_duration = self.view_end - self.view_start
+        # When zoomed out (zoom_level <= 1.0), always draw full timeline to anchor to right
+        # When zoomed in (zoom_level > 1.0), draw only visible area
+        if self.zoom_level <= 1.0:
+            # Draw full timeline when zoomed out - this ensures right side stays anchored
+            draw_start = 0.0
+            draw_end = self.duration
+            visible_duration = self.duration
+        else:
+            # Draw visible area when zoomed in
+            draw_start = self.view_start
+            draw_end = self.view_end
+            visible_duration = self.view_end - self.view_start
         
         # Draw each section of the timeline with zoom support
-        self.draw_ruler(ruler_width, visible_duration)  # Time markers at the top
+        self.draw_ruler(ruler_width, visible_duration, draw_start, draw_end)  # Time markers at the top
         
         # Draw waveforms (multiple tracks) if available
         if self.waveforms:
-            self.draw_multi_waveforms(wave_width, wave_height, visible_duration)
+            self.draw_multi_waveforms(wave_width, wave_height, visible_duration, draw_start, draw_end)
         
         # Draw segments (green = keep, dark = remove)
-        self.draw_segments(seg_width, seg_height, visible_duration)
+        self.draw_segments(seg_width, seg_height, visible_duration, draw_start, draw_end)
         
         # Draw playhead (red line showing current position)
-        self.draw_playhead(wave_width, wave_height, seg_width, seg_height, visible_duration)
+        self.draw_playhead(wave_width, wave_height, seg_width, seg_height, visible_duration, draw_start, draw_end)
     
-    def draw_ruler(self, width, visible_duration):
+    def draw_ruler(self, width, visible_duration, draw_start=0.0, draw_end=None):
         """
         Draw time ruler with markers and labels, supporting zoom.
         
         Args:
             width: Width of the ruler canvas
             visible_duration: Duration of the visible area in seconds
+            draw_start: Start time to draw from (default: 0.0)
+            draw_end: End time to draw to (default: duration)
         """
+        if draw_end is None:
+            draw_end = self.duration
+        
         # Fill the ruler background
         self.ruler_canvas.create_rectangle(0, 0, width, 25, fill="gray25", outline="")
         
@@ -383,12 +400,12 @@ class InteractiveTimeline(ctk.CTkFrame):
         
         # Draw each time marker
         for i in range(num_intervals):
-            time_sec = self.view_start + (i * interval)
-            if time_sec > self.view_end:
+            time_sec = draw_start + (i * interval)
+            if time_sec > draw_end:
                 break
             
-            # Calculate x position for this time marker (relative to visible area)
-            x = ((time_sec - self.view_start) / visible_duration) * width
+            # Calculate x position for this time marker (relative to draw area)
+            x = ((time_sec - draw_start) / visible_duration) * width
             
             # Format time as hours:minutes:seconds or minutes:seconds
             hours = int(time_sec // 3600)
@@ -412,7 +429,7 @@ class InteractiveTimeline(ctk.CTkFrame):
                 self.ruler_canvas.create_text(x, 5, text=time_str, fill="white",
                                              font=("", 8), anchor="n")
     
-    def draw_multi_waveforms(self, width, height, visible_duration):
+    def draw_multi_waveforms(self, width, height, visible_duration, draw_start=0.0, draw_end=None):
         """
         Draw multiple audio waveforms stacked vertically, supporting zoom.
         Each track gets its own color and is separated by a line.
@@ -421,7 +438,12 @@ class InteractiveTimeline(ctk.CTkFrame):
             width: Width of the waveform canvas
             height: Height of the waveform canvas
             visible_duration: Duration of the visible area in seconds
+            draw_start: Start time to draw from (default: 0.0)
+            draw_end: End time to draw to (default: duration)
         """
+        if draw_end is None:
+            draw_end = self.duration
+        
         if not self.waveforms or not NUMPY_AVAILABLE:
             return
         
@@ -442,9 +464,9 @@ class InteractiveTimeline(ctk.CTkFrame):
             track_info = waveform_data["track_info"]
             
             # Downsample waveform to fit the display width (only visible portion)
-            # Calculate which portion of the waveform to display based on zoom
-            waveform_start_idx = int((self.view_start / self.duration) * len(waveform))
-            waveform_end_idx = int((self.view_end / self.duration) * len(waveform))
+            # Calculate which portion of the waveform to display based on draw area
+            waveform_start_idx = int((draw_start / self.duration) * len(waveform))
+            waveform_end_idx = int((draw_end / self.duration) * len(waveform))
             
             # Extract the visible portion of the waveform
             visible_waveform = waveform[waveform_start_idx:waveform_end_idx]
@@ -484,7 +506,7 @@ class InteractiveTimeline(ctk.CTkFrame):
                 x = i
                 
                 # Determine color based on whether this time is in an audible segment
-                time_at_x = self.view_start + ((i / width) * visible_duration)
+                time_at_x = draw_start + ((i / width) * visible_duration)
                 in_segment = any(seg['start'] <= time_at_x <= seg['end'] 
                                for seg in self.segments 
                                if seg.get('type') == 'audible')
@@ -494,7 +516,7 @@ class InteractiveTimeline(ctk.CTkFrame):
                 self.waveform_canvas.create_line(x, track_center_y - amp, x, track_center_y + amp,
                                                 fill=color, width=1)
     
-    def draw_segments(self, width, height, visible_duration):
+    def draw_segments(self, width, height, visible_duration, draw_start=0.0, draw_end=None):
         """
         Draw segment visualization showing what will be kept vs removed, supporting zoom.
         
@@ -502,7 +524,12 @@ class InteractiveTimeline(ctk.CTkFrame):
             width: Width of the segments canvas
             height: Height of the segments canvas
             visible_duration: Duration of the visible area in seconds
+            draw_start: Start time to draw from (default: 0.0)
+            draw_end: End time to draw to (default: duration)
         """
+        if draw_end is None:
+            draw_end = self.duration
+        
         # Background (silence) - dark color for parts that will be removed
         self.segments_canvas.create_rectangle(0, 0, width, height, fill=AppColors.SEGMENT_REMOVE, outline="")
         
@@ -513,13 +540,13 @@ class InteractiveTimeline(ctk.CTkFrame):
             seg_type = seg.get('type', 'audible')
             keep = seg.get('keep', True)
             
-            # Only draw segments that are visible in the current zoom view
-            if end < self.view_start or start > self.view_end:
+            # Only draw segments that are visible in the current draw area
+            if end < draw_start or start > draw_end:
                 continue
             
-            # Calculate pixel positions for this segment (relative to visible area)
-            x1 = ((start - self.view_start) / visible_duration) * width
-            x2 = ((end - self.view_start) / visible_duration) * width
+            # Calculate pixel positions for this segment (relative to draw area)
+            x1 = ((start - draw_start) / visible_duration) * width
+            x2 = ((end - draw_start) / visible_duration) * width
             
             # Clamp to canvas bounds
             x1 = max(0, x1)
@@ -556,7 +583,7 @@ class InteractiveTimeline(ctk.CTkFrame):
             self.segments_canvas.create_line(x1, 0, x1, height, fill=border_color, width=2)
             self.segments_canvas.create_line(x2, 0, x2, height, fill=border_color, width=2)
     
-    def draw_playhead(self, wave_width, wave_height, seg_width, seg_height, visible_duration):
+    def draw_playhead(self, wave_width, wave_height, seg_width, seg_height, visible_duration, draw_start=0.0, draw_end=None):
         """
         Draw red playhead at current position across all sections, supporting zoom.
         
@@ -566,17 +593,22 @@ class InteractiveTimeline(ctk.CTkFrame):
             seg_width: Width of the segments canvas
             seg_height: Height of the segments canvas
             visible_duration: Duration of the visible area in seconds
+            draw_start: Start time to draw from (default: 0.0)
+            draw_end: End time to draw to (default: duration)
         """
+        if draw_end is None:
+            draw_end = self.duration
+        
         if self.duration == 0:
             return
         
-        # Only draw playhead if it's within the visible area
-        if self.playhead_time < self.view_start or self.playhead_time > self.view_end:
+        # Only draw playhead if it's within the draw area
+        if self.playhead_time < draw_start or self.playhead_time > draw_end:
             return
         
-        # Calculate x position for the playhead (relative to visible area)
-        wave_x = ((self.playhead_time - self.view_start) / visible_duration) * wave_width
-        seg_x = ((self.playhead_time - self.view_start) / visible_duration) * seg_width
+        # Calculate x position for the playhead (relative to draw area)
+        wave_x = ((self.playhead_time - draw_start) / visible_duration) * wave_width
+        seg_x = ((self.playhead_time - draw_start) / visible_duration) * seg_width
         
         # Draw playhead on waveform canvas
         self.waveform_canvas.create_line(wave_x, 0, wave_x, wave_height,
@@ -616,12 +648,21 @@ class InteractiveTimeline(ctk.CTkFrame):
         # Get canvas width
         width = self.segments_canvas.winfo_width() or 800
         
-        # Calculate visible duration for zoom support
-        visible_duration = self.view_end - self.view_start
+        # Calculate draw area based on zoom level
+        if self.zoom_level <= 1.0:
+            # When zoomed out, use full timeline
+            draw_start = 0.0
+            draw_end = self.duration
+            visible_duration = self.duration
+        else:
+            # When zoomed in, use visible area
+            draw_start = self.view_start
+            draw_end = self.view_end
+            visible_duration = self.view_end - self.view_start
         
-        # Calculate the time that was clicked (relative to visible area)
+        # Calculate the time that was clicked (relative to draw area)
         click_ratio = event.x / width
-        time_clicked = self.view_start + (click_ratio * visible_duration)
+        time_clicked = draw_start + (click_ratio * visible_duration)
         
         # Find which segment was clicked
         for seg in self.segments:
@@ -674,12 +715,21 @@ class InteractiveTimeline(ctk.CTkFrame):
         if self.duration == 0 or width == 0:
             return
         
-        # Calculate visible duration for zoom support
-        visible_duration = self.view_end - self.view_start
+        # Calculate draw area based on zoom level
+        if self.zoom_level <= 1.0:
+            # When zoomed out, use full timeline
+            draw_start = 0.0
+            draw_end = self.duration
+            visible_duration = self.duration
+        else:
+            # When zoomed in, use visible area
+            draw_start = self.view_start
+            draw_end = self.view_end
+            visible_duration = self.view_end - self.view_start
         
-        # Convert click position to time (relative to visible area)
+        # Convert click position to time (relative to draw area)
         click_ratio = x / width
-        clicked_time = self.view_start + (click_ratio * visible_duration)
+        clicked_time = draw_start + (click_ratio * visible_duration)
         
         # Clamp to valid range
         self.playhead_time = max(0, min(clicked_time, self.duration))
@@ -688,14 +738,14 @@ class InteractiveTimeline(ctk.CTkFrame):
         wave_width = self.waveform_canvas.winfo_width() or 800
         wave_height = self.waveform_canvas.winfo_height() or 80
         seg_width = self.segments_canvas.winfo_width() or 800
-        seg_height = self.segments_canvas.winfo_height() or 60
+        seg_height = self.segments_canvas.winfo_height() or 80  # Match waveform height
         
         # Remove old playheads
         self.waveform_canvas.delete("playhead")
         self.segments_canvas.delete("playhead")
         
-        # Draw new playhead with zoom support
-        self.draw_playhead(wave_width, wave_height, seg_width, seg_height, visible_duration)
+        # Draw new playhead with zoom support (use same draw area as click calculation)
+        self.draw_playhead(wave_width, wave_height, seg_width, seg_height, visible_duration, draw_start, draw_end)
         
         # Call the callback function if provided
         if self.on_time_click:
@@ -751,6 +801,7 @@ class InteractiveTimeline(ctk.CTkFrame):
     def zoom_out(self):
         """
         Zoom out on the timeline (show more time, less detail).
+        Anchors to the right side (end of timeline) so it doesn't leave empty space.
         """
         if self.duration == 0:
             return
@@ -759,21 +810,16 @@ class InteractiveTimeline(ctk.CTkFrame):
         new_zoom = max(self.zoom_level / 1.5, self.min_zoom)
         
         if new_zoom != self.zoom_level:
-            # Calculate center of current view
-            center_time = (self.view_start + self.view_end) / 2
-            
             # Calculate new view duration
             new_duration = self.duration / new_zoom
             
-            # Update view bounds centered on current center
-            self.view_start = max(0, center_time - new_duration / 2)
-            self.view_end = min(self.duration, center_time + new_duration / 2)
+            # Anchor to the right side: keep view_end at duration, adjust view_start
+            self.view_end = self.duration
+            self.view_start = max(0, self.duration - new_duration)
             
-            # Adjust if we hit boundaries
+            # If we hit the left boundary, adjust view_end instead
             if self.view_start == 0:
                 self.view_end = min(self.duration, new_duration)
-            elif self.view_end == self.duration:
-                self.view_start = max(0, self.duration - new_duration)
             
             self.zoom_level = new_zoom
             self.update_zoom_display()
@@ -782,6 +828,7 @@ class InteractiveTimeline(ctk.CTkFrame):
     def reset_zoom(self):
         """
         Reset zoom to show the entire timeline.
+        Anchors to the right side.
         """
         if self.duration == 0:
             return

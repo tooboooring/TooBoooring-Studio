@@ -23,6 +23,7 @@ import customtkinter as ctk
 
 # Import our refactored modules
 from ..core.settings_manager import SettingsManager
+from ..core.ffmpeg_wrapper import get_available_encoders
 from ..utils.colors import AppColors
 from ..utils.helpers import format_time, validate_file_path
 
@@ -72,7 +73,20 @@ class VideoProductionApp(ctk.CTk):
         
         # Set window properties
         self.title("🎬 Video Production Suite v3.0 - Professional Edition")
-        self.geometry("1280x800")
+        
+        # Set appearance mode (matching web UI)
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
+        
+        # Override default colors to match web UI exactly
+        ctk.set_widget_scaling(1.0)
+        ctk.set_window_scaling(1.0)
+        
+        # Set window size (don't auto-fullscreen, let user control)
+        self.geometry("1920x1080")
+        self._center_window()
+        
+        # Set minimum size
         self.minsize(1100, 700)
         
         # Set window icon if logo exists
@@ -84,18 +98,17 @@ class VideoProductionApp(ctk.CTk):
         except Exception as e:
             print(f"⚠️ Could not load app icon: {e}")
         
-        # Set appearance mode
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
-        
-        # Center window on screen
-        self._center_window()
-        
         # Initialize application state
         self._initialize_state()
         
         # Set up FFmpeg paths
         self._setup_paths()
+        
+        # Detect available encoders once at startup
+        self.available_encoders = get_available_encoders(self.ffmpeg_path, self.update_status)
+        if not self.available_encoders:
+            # Fallback to CPU encoder if detection fails
+            self.available_encoders = ["CPU (x264)"]
         
         # Initialize settings manager
         self.settings = SettingsManager()
@@ -172,36 +185,26 @@ class VideoProductionApp(ctk.CTk):
         """
         Create the main user interface.
         
-        This method sets up the tabbed interface and creates all the
-        UI components. In the full implementation, this would import
-        and set up each tab module.
+        This method sets up the main editor interface with corner buttons
+        for Advanced and Batch Queue instead of tabs.
         """
-        # Configure main grid
+        # Configure main grid - no padding, full utilization
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        # Create main tab view
-        self.tabview = ctk.CTkTabview(
-            self, 
-            corner_radius=15,
-            border_width=2,
-            border_color=AppColors.BORDER,
-            segmented_button_fg_color=AppColors.BG_LIGHT,
-            segmented_button_selected_color=AppColors.PRIMARY,
-            segmented_button_selected_hover_color=AppColors.PRIMARY_HOVER,
-            text_color=AppColors.TEXT_PRIMARY
+        # Main editor container (no borders, no padding)
+        self.editor_container = ctk.CTkFrame(
+            self,
+            fg_color=AppColors.BG_DARK,
+            border_width=0,
+            corner_radius=0
         )
-        self.tabview.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
+        self.editor_container.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
+        self.editor_container.grid_columnconfigure(0, weight=1)
+        self.editor_container.grid_rowconfigure(0, weight=1)
         
-        # Add tabs - merged preview and main into one unified tab
-        self.tab_editor = self.tabview.add("🎬 Video Editor")
-        self.tab_advanced = self.tabview.add("Advanced Settings")
-        self.tab_batch = self.tabview.add("Batch Queue")
-        
-        # Set up each tab
+        # Set up editor tab
         self._setup_editor_tab()
-        self._setup_advanced_tab()
-        self._setup_batch_tab()
     
     def _setup_editor_tab(self):
         """
@@ -214,42 +217,14 @@ class VideoProductionApp(ctk.CTk):
         from .preview_tab import PreviewTab
         
         self.editor_tab = PreviewTab(
-            self.tab_editor,
+            self.editor_container,
             self.settings,
             self.ffmpeg_path,
             self.ffprobe_path,
             self.ffplay_path,
+            available_encoders=self.available_encoders,
             on_video_loaded=self._on_preview_video_loaded,
             on_silence_detected=self._on_preview_silence_detected
-        )
-    
-    def _setup_advanced_tab(self):
-        """
-        Set up the advanced settings tab.
-        
-        This method creates the advanced settings tab UI using the AdvancedTab class.
-        """
-        # Import and create the advanced tab
-        from .advanced_tab import AdvancedTab
-        
-        self.advanced_tab = AdvancedTab(
-            self.tab_advanced,
-            self.settings,
-            self._on_settings_change
-        )
-    
-    def _setup_batch_tab(self):
-        """
-        Set up the batch processing tab.
-        
-        This method creates the batch processing tab UI using the BatchTab class.
-        """
-        # Import and create the batch tab
-        from .batch_tab import BatchTab
-        
-        self.batch_tab = BatchTab(
-            self.tab_batch,
-            self.settings
         )
     
     def _show_initial_status(self):

@@ -119,26 +119,27 @@ def process_video_logic(video_path: str, output_dir: str, output_format: str, vi
         status_callback("⚠️ No valid audible segments found. Skipping.\n")
         return
     
-    # Extract ALL segments that should be kept (both audible and silent with keep=True)
+    # Filter segments to only keep those where keep == True
     # This includes:
-    # - All audible segments (always kept)
+    # - All audible segments (always kept by default)
     # - Silent segments marked as "good" (keep=True, shown as gray)
     segments_to_keep = [
-        (seg['start'], seg['end']) 
-        for seg in segments 
-        if seg.get('keep', True)  # Keep all segments with keep=True (audible + good silence)
+        seg for seg in segments 
+        if seg.get('keep', True) == True
     ]
     
+    # Check if we have any segments to keep
     if not segments_to_keep:
-        status_callback("⚠️ No segments to keep. Skipping.\n")
+        status_callback("❌ No segments selected to keep. Aborting.\n")
         return
     
     # Sort segments by start time to ensure chronological order
-    segments_to_keep = sorted(segments_to_keep, key=lambda x: x[0])
+    segments_to_keep = sorted(segments_to_keep, key=lambda x: x['start'])
     
     # Build FFmpeg filter for selecting segments to keep
     # This creates a filter like "between(t,0,10)+between(t,15,20)+between(t,25,30)"
-    select_filter = "+".join([f"between(t,{s},{e})" for s, e in segments_to_keep])
+    # Extract start and end times from the filtered segments
+    select_filter = "+".join([f"between(t,{seg['start']},{seg['end']})" for seg in segments_to_keep])
     
     # Parse video and audio parameters
     video_args = shlex.split(video_params)
@@ -228,7 +229,7 @@ def process_video_logic(video_path: str, output_dir: str, output_format: str, vi
             )
             
             # Calculate total duration of all segments to keep
-            total_duration = sum(end - start for start, end in segments_to_keep)
+            total_duration = sum(seg['end'] - seg['start'] for seg in segments_to_keep)
             
             # Monitor progress
             while True:

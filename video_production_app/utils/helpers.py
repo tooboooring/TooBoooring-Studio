@@ -11,11 +11,163 @@ Key functions:
 - validate_file_path: Check if file exists and is accessible
 - get_file_size: Get human-readable file size
 - sanitize_filename: Clean filename for safe saving
+- load_icon: Load and cache icons from assets folder
 """
 
 import os
 from pathlib import Path
 from typing import Optional, Union
+from PIL import Image, ImageTk
+import customtkinter as ctk
+import tkinter as tk
+
+# Icon cache to avoid reloading the same icons multiple times
+ICON_CACHE = {}
+
+def load_icon(name: str, size: int = 20):
+    """
+    Loads an icon from the assets folder and caches it.
+    
+    Args:
+        name: Icon name without extension (e.g., "folder", "play", "pause")
+        size: Icon size in pixels (default: 20)
+        
+    Returns:
+        CTkImage object or None if icon not found
+        
+    Example:
+        icon = load_icon("folder", 32)
+        button.configure(image=icon, text="")
+    """
+    # Check cache first
+    if (name, size) in ICON_CACHE:
+        return ICON_CACHE[(name, size)]
+    
+    # Try to find icon in assets folder
+    # Check multiple possible locations
+    possible_paths = [
+        os.path.join("assets", f"{name}.png"),
+        os.path.join("video_production_app", "assets", f"{name}.png"),
+        os.path.join(Path(__file__).parent.parent.parent, "assets", f"{name}.png"),
+    ]
+    
+    icon_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            icon_path = path
+            break
+    
+    if not icon_path:
+        # Icon not found - return None (will use text fallback)
+        print(f"Warning: Icon not found: {name}.png (searched: {possible_paths})")
+        return None
+    
+    try:
+        img = Image.open(icon_path)
+        ctk_image = ctk.CTkImage(light_image=img, dark_image=img, size=(size, size))
+        ICON_CACHE[(name, size)] = ctk_image
+        return ctk_image
+    except Exception as e:
+        print(f"Error loading icon {name}: {e}")
+        return None
+
+
+class ToolTip:
+    """
+    Simple tooltip class for showing hover text on widgets.
+    
+    Usage:
+        tooltip = ToolTip(button, "Load Video")
+    """
+    def __init__(self, widget, text: str):
+        self.widget = widget
+        self.text = text
+        self.tooltip_window = None
+        self.widget.bind("<Enter>", self.on_enter)
+        self.widget.bind("<Leave>", self.on_leave)
+        self.widget.bind("<Motion>", self.on_motion)
+    
+    def on_enter(self, event=None):
+        """Show tooltip when mouse enters widget."""
+        self.schedule_tooltip()
+    
+    def on_leave(self, event=None):
+        """Hide tooltip when mouse leaves widget."""
+        self.hide_tooltip()
+        if hasattr(self, 'tooltip_id'):
+            self.widget.after_cancel(self.tooltip_id)
+    
+    def on_motion(self, event=None):
+        """Update tooltip position when mouse moves."""
+        if self.tooltip_window:
+            self.update_position()
+    
+    def schedule_tooltip(self):
+        """Schedule tooltip to appear after a short delay."""
+        if hasattr(self, 'tooltip_id'):
+            self.widget.after_cancel(self.tooltip_id)
+        self.tooltip_id = self.widget.after(500, self.show_tooltip)  # 500ms delay
+    
+    def show_tooltip(self):
+        """Show the tooltip window."""
+        if self.tooltip_window:
+            return
+        
+        # Get widget position
+        x = self.widget.winfo_rootx() + self.widget.winfo_width() // 2
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
+        
+        self.tooltip_window = tk.Toplevel(self.widget)
+        self.tooltip_window.wm_overrideredirect(True)
+        self.tooltip_window.attributes("-topmost", True)
+        
+        label = tk.Label(
+            self.tooltip_window,
+            text=self.text,
+            background="#2b2b2b",
+            foreground="white",
+            relief="solid",
+            borderwidth=1,
+            font=("Segoe UI", 9),
+            padx=8,
+            pady=4
+        )
+        label.pack()
+        
+        # Update position after window is created
+        self.tooltip_window.update_idletasks()
+        width = self.tooltip_window.winfo_width()
+        x = self.widget.winfo_rootx() + (self.widget.winfo_width() // 2) - (width // 2)
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
+        self.tooltip_window.wm_geometry(f"+{x}+{y}")
+    
+    def update_position(self):
+        """Update tooltip position."""
+        if self.tooltip_window:
+            width = self.tooltip_window.winfo_width()
+            x = self.widget.winfo_rootx() + (self.widget.winfo_width() // 2) - (width // 2)
+            y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
+            self.tooltip_window.wm_geometry(f"+{x}+{y}")
+    
+    def hide_tooltip(self):
+        """Hide the tooltip window."""
+        if self.tooltip_window:
+            self.tooltip_window.destroy()
+            self.tooltip_window = None
+
+
+def add_tooltip(widget, text: str):
+    """
+    Add a tooltip to a widget.
+    
+    Args:
+        widget: The widget to add tooltip to
+        text: The tooltip text to display
+        
+    Example:
+        add_tooltip(button, "Load Video File")
+    """
+    ToolTip(widget, text)
 
 
 def format_time(seconds: float, include_milliseconds: bool = False) -> str:

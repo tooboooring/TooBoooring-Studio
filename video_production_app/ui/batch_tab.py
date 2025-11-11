@@ -13,6 +13,7 @@ from typing import List, Optional, Callable
 
 from ..core.settings_manager import SettingsManager
 from ..utils.colors import AppColors
+from ..utils.helpers import load_icon, add_tooltip
 
 
 class BatchTab:
@@ -87,83 +88,95 @@ class BatchTab:
         """
         Create the header section with batch controls.
         """
-        # Header frame
+        # Header frame (toolbar)
         header_frame = ctk.CTkFrame(
             self.parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
             border_color=AppColors.BORDER,
-            height=100
+            corner_radius=4,
+            height=50
         )
-        header_frame.grid(row=0, column=0, sticky="ew", padx=15, pady=(15, 10))
-        header_frame.grid_columnconfigure(1, weight=1)
+        header_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
         header_frame.grid_propagate(False)
+        header_frame.grid_columnconfigure(1, weight=1)
         
         # Title
         title_label = ctk.CTkLabel(
             header_frame,
-            text="📦 Batch Processing Queue",
-            font=("Segoe UI", 20, "bold"),
-            text_color=AppColors.PRIMARY
+            text="Batch Processing Queue",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
         )
-        title_label.grid(row=0, column=0, padx=20, pady=(15, 5), sticky="w")
+        title_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
         
         # Control buttons frame
         btn_frame = ctk.CTkFrame(header_frame, fg_color="transparent")
-        btn_frame.grid(row=0, column=1, padx=20, pady=15, sticky="e")
+        btn_frame.grid(row=0, column=1, padx=10, pady=5, sticky="e")
         
-        # Add files button
+        # Add files button (icon)
+        folder_icon = load_icon("folder", 20)
         self.add_files_btn = ctk.CTkButton(
             btn_frame,
-            text="📁 Add Files",
+            text="" if folder_icon else "📁",
+            image=folder_icon,
+            width=32,
+            height=32,
             command=self.add_files_to_queue,
-            width=120,
-            height=35,
-            fg_color=AppColors.PRIMARY,
-            hover_color=AppColors.PRIMARY_HOVER
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.PRIMARY,
+            corner_radius=4
         )
-        self.add_files_btn.pack(side="left", padx=5)
+        self.add_files_btn.grid(row=0, column=0, padx=3)
+        add_tooltip(self.add_files_btn, "Add Files to Queue")
         
-        # Start batch button
+        # Start batch button (icon)
+        play_icon = load_icon("play", 20)
         self.start_batch_btn = ctk.CTkButton(
             btn_frame,
-            text="▶ Start Batch",
+            text="" if play_icon else "▶",
+            image=play_icon,
+            width=32,
+            height=32,
             command=self.start_batch_processing,
-            width=120,
-            height=35,
-            fg_color=AppColors.SUCCESS,
-            hover_color=AppColors.SUCCESS_HOVER,
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.SUCCESS,
+            corner_radius=4,
             state="disabled"
         )
-        self.start_batch_btn.pack(side="left", padx=5)
+        self.start_batch_btn.grid(row=0, column=1, padx=3)
+        add_tooltip(self.start_batch_btn, "Start Batch Processing")
         
-        # Clear queue button
+        # Clear queue button (icon)
+        delete_icon = load_icon("delete", 20)
         self.clear_queue_btn = ctk.CTkButton(
             btn_frame,
-            text="🗑 Clear Queue",
+            text="" if delete_icon else "🗑",
+            image=delete_icon,
+            width=32,
+            height=32,
             command=self.clear_queue,
-            width=120,
-            height=35,
-            fg_color=AppColors.DANGER,
-            hover_color="#c0392b",
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.DANGER,
+            corner_radius=4,
             state="disabled"
         )
-        self.clear_queue_btn.pack(side="left", padx=5)
+        self.clear_queue_btn.grid(row=0, column=2, padx=3)
+        add_tooltip(self.clear_queue_btn, "Clear Queue")
     
     def _create_queue_area(self):
         """
         Create the queue display area.
         """
-        # Queue frame
+        # Queue frame panel
         queue_container = ctk.CTkFrame(
             self.parent,
             fg_color=AppColors.BG_MEDIUM,
-            corner_radius=10,
             border_width=1,
-            border_color=AppColors.BORDER
+            border_color=AppColors.BORDER,
+            corner_radius=4
         )
-        queue_container.grid(row=1, column=0, sticky="nsew", padx=15, pady=(0, 10))
+        queue_container.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
         queue_container.grid_columnconfigure(0, weight=1)
         queue_container.grid_rowconfigure(0, weight=1)
         
@@ -172,14 +185,14 @@ class BatchTab:
             queue_container,
             fg_color="transparent"
         )
-        self.queue_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        self.queue_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         self.queue_frame.grid_columnconfigure(0, weight=1)
         
         # Initial placeholder
         placeholder = ctk.CTkLabel(
             self.queue_frame,
             text="No files in queue\n\nClick 'Add Files' to add videos for batch processing",
-            font=("Segoe UI", 14),
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_MUTED,
             justify="center"
         )
@@ -189,33 +202,34 @@ class BatchTab:
         """
         Create the progress and status area.
         """
-        # Progress frame
+        # Progress frame panel
         progress_frame = ctk.CTkFrame(
             self.parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
-            border_color=AppColors.BORDER
+            border_color=AppColors.BORDER,
+            corner_radius=4
         )
-        progress_frame.grid(row=2, column=0, sticky="ew", padx=15, pady=(0, 15))
+        progress_frame.grid(row=2, column=0, sticky="ew", padx=5, pady=(0, 5))
         progress_frame.grid_columnconfigure(0, weight=1)
         
         # Section title
         title_label = ctk.CTkLabel(
             progress_frame,
-            text="📊 Batch Progress",
-            font=("Segoe UI", 16, "bold"),
-            text_color=AppColors.PRIMARY
+            text="Batch Progress",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
         )
-        title_label.grid(row=0, column=0, padx=20, pady=(15, 10), sticky="w")
+        title_label.grid(row=0, column=0, padx=10, pady=(10, 5), sticky="w")
         
         # Progress bar
         self.progress_bar = ctk.CTkProgressBar(
             progress_frame,
-            width=400,
-            height=20
+            height=20,
+            progress_color=AppColors.SUCCESS,
+            fg_color=AppColors.BG_LIGHT
         )
-        self.progress_bar.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="ew")
+        self.progress_bar.grid(row=1, column=0, padx=10, pady=(0, 5), sticky="ew")
         self.progress_bar.set(0)
         
         # Status label
@@ -225,7 +239,7 @@ class BatchTab:
             font=("Segoe UI", 12),
             text_color=AppColors.TEXT_SECONDARY
         )
-        self.status_label.grid(row=2, column=0, padx=20, pady=(0, 15), sticky="w")
+        self.status_label.grid(row=2, column=0, padx=10, pady=(0, 10), sticky="w")
     
     def add_files_to_queue(self):
         """

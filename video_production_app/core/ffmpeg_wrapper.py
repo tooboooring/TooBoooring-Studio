@@ -26,39 +26,18 @@ from ..config import ENCODER_OPTIONS
 
 
 def get_available_encoders(ffmpeg_path: str, status_callback: Callable[[str], None]) -> List[str]:
-    """
-    Detect all available hardware and software encoders from our predefined list.
-    
-    This function runs FFmpeg with the -encoders flag to see what encoders are
-    available on the system, then compares them against our list of supported
-    encoders (NVIDIA, AMD, Intel, CPU).
-    
-    Args:
-        ffmpeg_path: Path to FFmpeg executable (empty string uses system PATH)
-        status_callback: Function to call with status messages for the user
-        
-    Returns:
-        List of available encoder names, with "Automatic (Best GPU)" as first option
-        
-    Example:
-        encoders = get_available_encoders("", print)
-        # Returns: ["Automatic (Best GPU)", "NVIDIA (H.264)", "CPU (x264)"]
-    """
-    # Use provided path or default to system PATH
+    """Detects all available hardware and software encoders from our list."""
     ffmpeg_executable = ffmpeg_path or "ffmpeg"
-    
-    # Tell user what we're doing
     status_callback("🔍 Detecting available GPU encoders...\n")
     found_encoders = []
 
     try:
-        # Set up Windows-specific startup info to hide console window
         startupinfo = None
-        if os.name == 'nt':  # Windows
+        if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         
-        # Run FFmpeg to get list of all available encoders
+        # Run ffmpeg -encoders to get a list of all encoders
         result = subprocess.run(
             [str(ffmpeg_executable), "-encoders"], 
             capture_output=True, 
@@ -68,34 +47,66 @@ def get_available_encoders(ffmpeg_path: str, status_callback: Callable[[str], No
             errors='ignore', 
             startupinfo=startupinfo
         )
-        
-        # Get the output text
         available_encoders_output = result.stdout
-
-        # Check each encoder in our predefined list
-        for display_name, (encoder_name, _) in ENCODER_OPTIONS.items():
-            # Look for encoder in FFmpeg output (V..... means video encoder)
-            if re.search(r"^\s*V..... " + re.escape(encoder_name), available_encoders_output, re.MULTILINE):
-                found_encoders.append(display_name)
         
-        # Always include CPU encoder as fallback
+        # Debug: Log a sample of the output to see format
+        status_callback(f"📋 FFmpeg encoder list length: {len(available_encoders_output)} chars\n")
+        
+        # Check our ENCODER_OPTIONS list against the ffmpeg output
+        for display_name, (encoder_name, _) in ENCODER_OPTIONS.items():
+            if display_name == "Automatic (Best GPU)":
+                continue # Skip this, it's a special option
+            
+            # Use regex to find the encoder in the output
+            # FFmpeg format: " V....D h264_nvenc           NVIDIA NVENC H.264 encoder"
+            # Pattern: V followed by 5 flag characters, then whitespace, then encoder name
+            # The flags can be dots (.) or letters (A-Z)
+            pattern = r"^\s*V[.A-Z]{5}\s+" + re.escape(encoder_name) + r"(\s|$)"
+            if re.search(pattern, available_encoders_output, re.MULTILINE):
+                found_encoders.append(display_name)
+                status_callback(f"  ✓ Found: {display_name} ({encoder_name})\n")
+            else:
+                # Try simpler pattern - just V followed by flags and encoder name (no start anchor)
+                alt_pattern = r"V[.A-Z]{5}\s+" + re.escape(encoder_name) + r"(\s|$)"
+                if re.search(alt_pattern, available_encoders_output, re.MULTILINE):
+                    found_encoders.append(display_name)
+                    status_callback(f"  ✓ Found: {display_name} ({encoder_name}) [alt pattern]\n")
+                else:
+                    # Even simpler: just check if encoder name appears after "V" flag pattern
+                    # This is the most permissive check
+                    simple_pattern = r"V[.A-Z]+\s+" + re.escape(encoder_name)
+                    if re.search(simple_pattern, available_encoders_output, re.MULTILINE):
+                        found_encoders.append(display_name)
+                        status_callback(f"  ✓ Found: {display_name} ({encoder_name}) [simple pattern]\n")
+                    else:
+                        # Debug: Check if encoder name appears at all
+                        if encoder_name in available_encoders_output:
+                            status_callback(f"  ⚠ {encoder_name} found in output but pattern didn't match\n")
+                            # Try to find the line with this encoder
+                            lines = available_encoders_output.split('\n')
+                            for line in lines:
+                                if encoder_name in line:
+                                    status_callback(f"     Sample line: {line[:80]}\n")
+                        else:
+                            status_callback(f"  ✗ Not found: {encoder_name}\n")
+        
         if "CPU (x264)" not in found_encoders:
+            # Always add CPU as a fallback
             found_encoders.append("CPU (x264)")
 
-        # Report results to user
         if len(found_encoders) > 1:
              status_callback(f"✅ Found {len(found_encoders) - 1} compatible hardware encoder(s).\n")
         else:
              status_callback("⚠️ No compatible hardware encoder found. Will use CPU.\n")
 
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        # FFmpeg not found or failed to run
         status_callback(f"❌ Could not run FFmpeg to detect encoders: {e}\n")
         if "CPU (x264)" not in found_encoders:
             found_encoders.append("CPU (x264)")
     
-    # Add automatic selection as first option
+    # Always add "Automatic" as the first option
     found_encoders.insert(0, "Automatic (Best GPU)")
+    
     return found_encoders
 
 

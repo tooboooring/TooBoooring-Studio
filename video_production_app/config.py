@@ -75,6 +75,12 @@ ENCODER_OPTIONS = {
     "CPU (x264)": (
         "libx264",  # Software encoder, most compatible
         "-c:v libx264 -crf 20 -preset medium"  # CRF 20 = high quality
+    ),
+    
+    # Automatic selection (will choose best available GPU encoder)
+    "Automatic (Best GPU)": (
+        "auto",  # Special marker for auto-selection
+        ""  # Parameters will be determined at runtime
     )
 }
 

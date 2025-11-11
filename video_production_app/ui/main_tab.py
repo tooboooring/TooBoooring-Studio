@@ -18,7 +18,7 @@ from ..core.video_processor import process_video_logic
 from ..core.settings_manager import SettingsManager
 from ..config import ENCODER_OPTIONS
 from ..utils.colors import AppColors
-from ..utils.helpers import format_time, validate_file_path, load_icon
+from ..utils.helpers import format_time, validate_file_path, load_icon, add_tooltip
 
 
 class MainTab:
@@ -175,6 +175,7 @@ class MainTab:
             corner_radius=4
         )
         self.button_video.grid(row=0, column=0, padx=10, pady=10)
+        add_tooltip(self.button_video, "Select Video File")
         
         self.label_video = ctk.CTkLabel(
             video_panel,
@@ -209,6 +210,7 @@ class MainTab:
             corner_radius=4
         )
         self.button_save.grid(row=0, column=0, padx=10, pady=10)
+        add_tooltip(self.button_save, "Select Save Destination")
         
         self.label_save = ctk.CTkLabel(
             save_panel,
@@ -290,6 +292,7 @@ class MainTab:
             state="disabled"
         )
         self.button_analyze_tracks.grid(row=0, column=1, sticky="e")
+        add_tooltip(self.button_analyze_tracks, "Analyze All Audio Tracks")
         
         self.audio_info_textbox = ctk.CTkTextbox(
             audio_info_frame,
@@ -422,6 +425,7 @@ class MainTab:
             corner_radius=4
         )
         self.button_preview.grid(row=0, column=0, padx=5)
+        add_tooltip(self.button_preview, "Preview Video")
         
         # Detect silence button (icon)
         scissors_icon = load_icon("scissors", 20)
@@ -437,6 +441,7 @@ class MainTab:
             corner_radius=4
         )
         self.button_detect.grid(row=0, column=1, padx=5)
+        add_tooltip(self.button_detect, "Detect Silence")
         
         # Timeline preview panel
         self.timeline = ctk.CTkFrame(
@@ -487,6 +492,7 @@ class MainTab:
             corner_radius=4
         )
         self.button_cut.grid(row=0, column=0, padx=5)
+        add_tooltip(self.button_cut, "Cut Silences & Export")
         
         # Enhanced progress bar
         progress_container = ctk.CTkFrame(

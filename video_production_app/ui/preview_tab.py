@@ -1,26 +1,24 @@
 """
 Preview and Analysis tab for Video Production App.
 
-This module contains the preview tab functionality that matches exactly
-the original Video_production_app_v3.py structure. It provides the same UI layout
-and functionality as the original monolithic file.
+This module contains the preview tab functionality with professional panel-based layout.
 """
 
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 import threading
 
-from ..core.ffmpeg_wrapper import get_audio_tracks, get_video_duration, get_available_encoders, analyze_audio_track_content
+from ..core.ffmpeg_wrapper import get_audio_tracks, get_video_duration, analyze_audio_track_content
 from ..core.silence_detector import detect_silence, parse_segments
 from ..core.video_processor import process_video_logic
 from ..core.settings_manager import SettingsManager
-from .widgets.frame_preview import FramePreview
+from .widgets.vlc_player import VLCPlayer
 from .widgets.timeline import InteractiveTimeline
 from .widgets.waveform import WaveformGenerator
 from ..utils.colors import AppColors
-from ..utils.helpers import format_time
+from ..utils.helpers import format_time, load_icon, add_tooltip
 from ..config import ENCODER_OPTIONS
 
 
@@ -28,13 +26,12 @@ class PreviewTab:
     """
     Preview and Analysis tab for the Video Production App.
     
-    This class replicates the exact UI structure and functionality from the
-    original Video_production_app_v3.py file. It maintains the same layout,
-    styling, and behavior as the original implementation.
+    Professional panel-based layout similar to DaVinci Resolve/Premiere Pro.
     """
     
     def __init__(self, parent, settings: SettingsManager, 
                  ffmpeg_path: str = "", ffprobe_path: str = "", ffplay_path: str = "",
+                 available_encoders: Optional[List[str]] = None,
                  on_video_loaded: Optional[Callable] = None, 
                  on_silence_detected: Optional[Callable] = None):
         """
@@ -46,6 +43,7 @@ class PreviewTab:
             ffmpeg_path: Path to FFmpeg executable
             ffprobe_path: Path to FFprobe executable
             ffplay_path: Path to FFplay executable
+            available_encoders: List of available encoder names (detected at app startup)
             on_video_loaded: Callback function called when video is loaded
             on_silence_detected: Callback function called when silence detection completes
         """
@@ -57,349 +55,628 @@ class PreviewTab:
         self.on_video_loaded = on_video_loaded
         self.on_silence_detected = on_silence_detected
         
-        # State variables (matching original)
+        # State variables
         self.video_path = ""
         self.audio_tracks = []
-        self.available_tracks = []  # For audio analysis
+        self.available_tracks = []
         self.detected_segments = []
         self.duration = 0
-        self.save_path = ""  # Save destination for export
-        self.available_encoders = []  # List of available encoders
+        self.save_path = ""
+        self.available_encoders = available_encoders if available_encoders else ["CPU (x264)"]
         
-        # Set up the UI exactly as in original
+        # Set up the UI
         self.setup_ui()
     
     def setup_ui(self):
         """
-        Set up the preview tab user interface.
+        Set up the preview tab with professional panel-based layout.
         
-        This method replicates the exact UI structure from the original
-        Video_production_app_v3.py file.
+        Layout:
+        - Top: Toolbar with icon buttons
+        - Main: 2-column layout (Left: VLC Player, Right: Audio Details + Trim)
+        - Bottom: Interactive Timeline
         """
-        # Configure grid layout exactly as original
-        self.parent.grid_columnconfigure(0, weight=3)
-        self.parent.grid_columnconfigure(1, weight=2)
-        self.parent.grid_rowconfigure(1, weight=1)
+        # Configure grid
+        self.parent.grid_columnconfigure(0, weight=1)
+        self.parent.grid_rowconfigure(1, weight=2)  # Main area (player + right panel) - takes 2x space
+        self.parent.grid_rowconfigure(2, weight=1)  # Timeline (vertically scalable) - takes 1x space
         
-        # Header with controls - Enhanced styling (exactly as original)
-        header_frame = ctk.CTkFrame(
-            self.parent, 
-            fg_color=AppColors.BG_CARD, 
-            corner_radius=12,
-            border_width=1,
+        # === TOP TOOLBAR ===
+        toolbar = ctk.CTkFrame(
+            self.parent,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=0,
             border_color=AppColors.BORDER,
-            height=110
+            height=40
         )
-        header_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=12, pady=12)
-        header_frame.grid_columnconfigure(1, weight=1)
-        header_frame.grid_propagate(False)
+        toolbar.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
+        toolbar.grid_propagate(False)
+        toolbar.grid_columnconfigure(1, weight=1)
         
-        # Title with gradient effect (using bold font and primary color) (exactly as original)
-        title_label = ctk.CTkLabel(
-            header_frame, 
-            text="🎬 Smart Preview & Analysis", 
-            font=("Segoe UI", 20, "bold"),
-            text_color=AppColors.PRIMARY
-        )
-        title_label.grid(row=0, column=0, padx=20, pady=(12, 5), sticky="w")
+        # Left: Buttons with text labels (matching web UI style)
+        btn_container = ctk.CTkFrame(toolbar, fg_color="transparent")
+        btn_container.grid(row=0, column=0, sticky="w", padx=10, pady=0)
         
-        # Control buttons with enhanced styling (exactly as original)
-        btn_frame = ctk.CTkFrame(header_frame, fg_color="transparent")
-        btn_frame.grid(row=0, column=1, padx=20, pady=10, sticky="e")
-        
+        # Load Video button
         load_btn = ctk.CTkButton(
-            btn_frame, 
-            text="📁 Load Video", 
+            btn_container,
+            text="Load Video",
+            width=100,
+            height=28,
             command=self.preview_load_video,
-            height=38, 
-            width=130, 
-            font=("Segoe UI", 13, "bold"),
             fg_color=AppColors.PRIMARY,
             hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=8
+            corner_radius=4,
+            font=("Segoe UI", 11, "bold")
         )
-        load_btn.pack(side="left", padx=5)
+        load_btn.grid(row=0, column=0, padx=3)
+        add_tooltip(load_btn, "Load Video File")
         
-        # Track selector for silence detection with improved styling (exactly as original)
+        # Detect Silence button
+        detect_btn = ctk.CTkButton(
+            btn_container,
+            text="Detect Silence",
+            width=120,
+            height=28,
+            command=self.preview_detect_silence,
+            fg_color=AppColors.PRIMARY,
+            hover_color=AppColors.PRIMARY_HOVER,
+            corner_radius=4,
+            font=("Segoe UI", 11, "bold")
+        )
+        detect_btn.grid(row=0, column=1, padx=3)
+        add_tooltip(detect_btn, "Detect Silence")
+        
+        # Export button (matching web UI style)
+        self.export_btn = ctk.CTkButton(
+            btn_container,
+            text="Export Video",
+            width=120,
+            height=28,
+            command=self.preview_export_video,
+            fg_color=AppColors.PRIMARY,
+            hover_color=AppColors.PRIMARY_HOVER,
+            corner_radius=4,
+            font=("Segoe UI", 11, "bold"),
+            state="disabled"
+        )
+        self.export_btn.grid(row=0, column=2, padx=3)
+        add_tooltip(self.export_btn, "Export Video")
+        
+        # Center: Track selector
+        track_frame = ctk.CTkFrame(toolbar, fg_color="transparent")
+        track_frame.grid(row=0, column=1, sticky="", padx=10)
+        
         ctk.CTkLabel(
-            btn_frame, 
-            text="Detect silence in:", 
-            font=("Segoe UI", 11),
+            track_frame,
+            text="Track:",
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_SECONDARY
-        ).pack(side="left", padx=(15, 5))
+        ).grid(row=0, column=0, padx=5)
         
         self.preview_track_selector_var = ctk.StringVar(value="Track 1")
         self.preview_track_selector = ctk.CTkOptionMenu(
-            btn_frame, 
+            track_frame,
             variable=self.preview_track_selector_var,
-            values=["Track 1"], 
-            width=110, 
-            height=38,
+            values=["Track 1"],
+            width=150,
+            height=28,
             state="disabled",
             fg_color=AppColors.BG_LIGHT,
             button_color=AppColors.PRIMARY,
             button_hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=8,
-            font=("Segoe UI", 11)
+            corner_radius=4,
+            font=("Segoe UI", 12)
         )
-        self.preview_track_selector.pack(side="left", padx=5)
+        self.preview_track_selector.grid(row=0, column=1, padx=5)
         
-        detect_btn = ctk.CTkButton(
-            btn_frame, 
-            text="🔍 Detect Silence", 
-            command=self.preview_detect_silence,
-            height=38, 
-            width=150, 
-            font=("Segoe UI", 13, "bold"),
-            fg_color=AppColors.INFO,
-            hover_color=AppColors.PRIMARY_DARK,
-            corner_radius=8
+        # Right: Status label
+        self.preview_status = ctk.CTkLabel(
+            toolbar,
+            text="Load a video to begin",
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_SECONDARY
         )
-        detect_btn.pack(side="left", padx=5)
+        self.preview_status.grid(row=0, column=2, sticky="e", padx=10, pady=5)
         
-        # Export button - process video with current silence selections
-        self.export_btn = ctk.CTkButton(
-            btn_frame, 
-            text="💾 Export Video", 
-            command=self.preview_export_video,
-            height=38, 
-            width=150, 
-            font=("Segoe UI", 13, "bold"),
-            fg_color=AppColors.SUCCESS,
-            hover_color=AppColors.SUCCESS_HOVER,
-            corner_radius=8,
-            state="disabled"  # Disabled until silence is detected
-        )
-        self.export_btn.pack(side="left", padx=5)
+        # === MAIN AREA (Fully Resizable Panels using PanedWindow) ===
+        import tkinter as tk
         
-        # Processing options frame (encoder, format, trim) - below header
-        self.options_frame = ctk.CTkFrame(
+        # Main horizontal PanedWindow: Left (Player) | Right (Audio/Console/Trim)
+        main_paned = tk.PanedWindow(
             self.parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
+            orient=tk.HORIZONTAL,
+            sashwidth=4,
+            sashrelief=tk.FLAT,
+            bg=AppColors.BG_DARK,
+            bd=0,
+            sashpad=1
+        )
+        main_paned.grid(row=1, column=0, sticky="nsew", padx=2, pady=2)
+        
+        # === LEFT: VLC Player Panel ===
+        player_panel = ctk.CTkFrame(
+            main_paned,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        main_paned.add(player_panel, minsize=300, width=600)
+        player_panel.grid_rowconfigure(0, weight=1)
+        player_panel.grid_columnconfigure(0, weight=1)
+        
+        # Panel header
+        player_header = ctk.CTkFrame(
+            player_panel,
+            fg_color=AppColors.BG_LIGHT,
+            border_width=0,
+            height=30
+        )
+        player_header.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
+        player_header.grid_propagate(False)
+        player_header.grid_columnconfigure(0, weight=1)
+        
+        ctk.CTkLabel(
+            player_header,
+            text="Preview",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=0, column=0, sticky="w", padx=12, pady=6)
+        
+        self.vlc_player = VLCPlayer(
+            player_panel,
+            fg_color="transparent",
+            corner_radius=0,
+            border_width=0
+        )
+        self.vlc_player.grid(row=1, column=0, sticky="nsew", padx=0, pady=0)
+        player_panel.grid_rowconfigure(1, weight=1)
+        
+        # Store references for toggling
+        self.main_paned = main_paned
+        self.player_panel = player_panel
+        
+        # === RIGHT: Vertical PanedWindow (Audio | Console | Trim) ===
+        # Create a container frame for the right panel with toggle button
+        self.right_container = ctk.CTkFrame(
+            main_paned,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        main_paned.add(self.right_container, minsize=300, width=400)
+        self.right_container.grid_columnconfigure(0, weight=1)
+        self.right_container.grid_rowconfigure(1, weight=1)
+        
+        # Panel header with toggle button
+        right_header = ctk.CTkFrame(
+            self.right_container,
+            fg_color=AppColors.BG_LIGHT,
+            border_width=0,
+            height=30
+        )
+        right_header.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
+        right_header.grid_propagate(False)
+        right_header.grid_columnconfigure(0, weight=1)
+        
+        ctk.CTkLabel(
+            right_header,
+            text="Controls",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=0, column=0, sticky="w", padx=12, pady=6)
+        
+        # Toggle button for collapsing right panel (in header)
+        self.right_panel_toggle_btn = ctk.CTkButton(
+            right_header,
+            text="◀",
+            width=24,
+            height=24,
+            command=self.toggle_right_panel,
+            fg_color="transparent",
+            hover_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=3,
+            font=("Segoe UI", 10)
+        )
+        self.right_panel_toggle_btn.grid(row=0, column=1, sticky="e", padx=8, pady=3)
+        add_tooltip(self.right_panel_toggle_btn, "Collapse/Expand Right Panel")
+        
+        # Store reference to right panel and its visibility state
+        self.right_panel_visible = True
+        
+        right_paned = tk.PanedWindow(
+            self.right_container,
+            orient=tk.VERTICAL,
+            sashwidth=4,
+            sashrelief=tk.FLAT,
+            bg=AppColors.BG_MEDIUM,
+            bd=0,
+            sashpad=1
+        )
+        right_paned.grid(row=1, column=0, sticky="nsew")
+        self.right_panel = right_paned  # Store reference for toggling
+        
+        # === Export & Trim Settings Row (Top - side by side, equal size) ===
+        export_trim_row = tk.PanedWindow(
+            right_paned,
+            orient=tk.HORIZONTAL,
+            sashwidth=4,
+            sashrelief=tk.FLAT,
+            bg=AppColors.BG_MEDIUM,
+            bd=0,
+            sashpad=1
+        )
+        right_paned.add(export_trim_row, minsize=140, height=140)
+        
+        # Export Settings Panel (Left, 50% width)
+        export_panel = ctk.CTkFrame(
+            export_trim_row,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=0,
             border_color=AppColors.BORDER
         )
-        self.options_frame.grid(row=1, column=0, columnspan=2, sticky="ew", padx=12, pady=(0, 12))
-        self.options_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        export_trim_row.add(export_panel, minsize=200)
+        
+        export_section = ctk.CTkFrame(
+            export_panel,
+            fg_color="transparent"
+        )
+        export_section.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        ctk.CTkLabel(
+            export_section,
+            text="Export Settings",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
+        ).pack(anchor="w", pady=(0, 10))
         
         # Encoder selection
-        encoder_frame = ctk.CTkFrame(self.options_frame, fg_color="transparent")
-        encoder_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=10)
-        ctk.CTkLabel(
-            encoder_frame,
-            text="🎮 Video Encoder:",
-            font=("Segoe UI", 11, "bold"),
-            text_color=AppColors.TEXT_PRIMARY
-        ).pack(pady=(0, 5))
-        self.encoder_var = ctk.StringVar(value="Detecting...")
+        encoder_inner = ctk.CTkFrame(export_section, fg_color="transparent")
+        encoder_inner.pack(fill="x", pady=(0, 5))
+        
+        ctk.CTkLabel(encoder_inner, text="Encoder:", font=("Segoe UI", 11), width=70).pack(side="left", padx=5)
+        # Use available encoders from app startup, or default to CPU encoder
+        encoder_values = self.available_encoders if self.available_encoders else ["CPU (x264)"]
+        self.encoder_var = ctk.StringVar(value=encoder_values[0] if encoder_values else "CPU (x264)")
         self.option_encoder = ctk.CTkOptionMenu(
-            encoder_frame,
-            values=["Detecting..."],
+            encoder_inner,
+            values=encoder_values,
             variable=self.encoder_var,
-            state="disabled",
-            height=32,
+            state="normal",
+            width=180,
+            height=28,
             fg_color=AppColors.BG_LIGHT,
             button_color=AppColors.PRIMARY,
             button_hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=6,
-            font=("Segoe UI", 10)
+            corner_radius=4,
+            font=("Segoe UI", 11)
         )
-        self.option_encoder.pack(fill="x", padx=5)
+        self.option_encoder.pack(side="left", padx=5, fill="x", expand=True)
         
-        # Output format selection
-        format_frame = ctk.CTkFrame(self.options_frame, fg_color="transparent")
-        format_frame.grid(row=0, column=1, sticky="ew", padx=5, pady=10)
-        ctk.CTkLabel(
-            format_frame,
-            text="📺 Output Format:",
-            font=("Segoe UI", 11, "bold"),
-            text_color=AppColors.TEXT_PRIMARY
-        ).pack(pady=(0, 5))
+        # Format selection
+        format_inner = ctk.CTkFrame(export_section, fg_color="transparent")
+        format_inner.pack(fill="x")
+        
+        ctk.CTkLabel(format_inner, text="Format:", font=("Segoe UI", 11), width=70).pack(side="left", padx=5)
         self.format_var = ctk.StringVar(value="MP4")
         self.option_format = ctk.CTkOptionMenu(
-            format_frame,
-            values=["MP4", "MKV", "AVI", "MOV"],
+            format_inner,
+            values=["MP4", "MKV"],
             variable=self.format_var,
-            height=32,
+            width=180,
+            height=28,
             fg_color=AppColors.BG_LIGHT,
             button_color=AppColors.PRIMARY,
             button_hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=6,
-            font=("Segoe UI", 10)
+            corner_radius=4,
+            font=("Segoe UI", 11)
         )
-        self.option_format.pack(fill="x", padx=5)
+        self.option_format.pack(side="left", padx=5, fill="x", expand=True)
         
-        # Save destination
-        save_frame = ctk.CTkFrame(self.options_frame, fg_color="transparent")
-        save_frame.grid(row=0, column=2, sticky="ew", padx=5, pady=10)
-        ctk.CTkLabel(
-            save_frame,
-            text="💾 Save Location:",
-            font=("Segoe UI", 11, "bold"),
-            text_color=AppColors.TEXT_PRIMARY
-        ).pack(pady=(0, 5))
-        self.save_path_var = ctk.StringVar(value="Not selected")
-        self.save_path_label = ctk.CTkLabel(
-            save_frame,
-            textvariable=self.save_path_var,
-            font=("Segoe UI", 9),
-            text_color=AppColors.TEXT_MUTED,
-            anchor="w",
-            wraplength=200
-        )
-        self.save_path_label.pack(fill="x", padx=5, pady=(0, 5))
-        self.button_save = ctk.CTkButton(
-            save_frame,
-            text="📁 Select Folder",
+        # Save Destination selection
+        save_dest_inner = ctk.CTkFrame(export_section, fg_color="transparent")
+        save_dest_inner.pack(fill="x", pady=(5, 0))
+        
+        ctk.CTkLabel(save_dest_inner, text="Save:", font=("Segoe UI", 11), width=70).pack(side="left", padx=5)
+        self.save_dest_btn = ctk.CTkButton(
+            save_dest_inner,
+            text="Select Folder",
+            width=120,
+            height=28,
             command=self.select_save_destination,
-            height=32,
             fg_color=AppColors.PRIMARY,
             hover_color=AppColors.PRIMARY_HOVER,
-            corner_radius=6,
-            font=("Segoe UI", 10)
+            corner_radius=4,
+            font=("Segoe UI", 11, "bold")
         )
-        self.button_save.pack(fill="x", padx=5)
+        self.save_dest_btn.pack(side="left", padx=5)
         
-        # Trim settings
-        trim_frame = ctk.CTkFrame(self.options_frame, fg_color="transparent")
-        trim_frame.grid(row=0, column=3, sticky="ew", padx=5, pady=10)
-        ctk.CTkLabel(
-            trim_frame,
-            text="✂️ Trim Settings:",
-            font=("Segoe UI", 11, "bold"),
-            text_color=AppColors.TEXT_PRIMARY
-        ).pack(pady=(0, 5))
-        trim_inner = ctk.CTkFrame(trim_frame, fg_color="transparent")
-        trim_inner.pack(fill="x", padx=5)
-        ctk.CTkLabel(trim_inner, text="Start (s):", font=("", 9)).pack(side="left", padx=2)
-        self.trim_start_entry = ctk.CTkEntry(trim_inner, placeholder_text="0", width=80, height=28)
-        self.trim_start_entry.pack(side="left", padx=2)
-        ctk.CTkLabel(trim_inner, text="End (s):", font=("", 9)).pack(side="left", padx=2)
-        self.trim_end_entry = ctk.CTkEntry(trim_inner, placeholder_text="Full", width=80, height=28)
-        self.trim_end_entry.pack(side="left", padx=2)
+        self.save_dest_label = ctk.CTkLabel(
+            save_dest_inner,
+            text="Not selected",
+            font=("Segoe UI", 10),
+            text_color=AppColors.TEXT_SECONDARY,
+            anchor="w"
+        )
+        self.save_dest_label.pack(side="left", padx=5, fill="x", expand=True)
         
-        # Audio track analysis section (placed in a separate row after options)
-        audio_analysis_frame = ctk.CTkFrame(
-            self.parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
-            border_width=1,
+        # Trim Settings Panel (Right, in same row as Export, 50% width)
+        trim_panel = ctk.CTkFrame(
+            export_trim_row,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=0,
             border_color=AppColors.BORDER
         )
-        audio_analysis_frame.grid(row=2, column=0, columnspan=2, sticky="ew", padx=12, pady=(0, 12))
-        audio_analysis_frame.grid_columnconfigure(0, weight=1)
+        export_trim_row.add(trim_panel, minsize=150)
         
-        audio_header = ctk.CTkFrame(audio_analysis_frame, fg_color="transparent")
-        audio_header.grid(row=0, column=0, sticky="ew", padx=12, pady=(12, 8))
+        trim_section = ctk.CTkFrame(
+            trim_panel,
+            fg_color="transparent"
+        )
+        trim_section.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        ctk.CTkLabel(
+            trim_section,
+            text="Trim Settings",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
+        ).pack(anchor="w", pady=(0, 10))
+        
+        trim_inner = ctk.CTkFrame(trim_section, fg_color="transparent")
+        trim_inner.pack(fill="x")
+        
+        ctk.CTkLabel(trim_inner, text="Start (s):", font=("Segoe UI", 11), width=70).pack(side="left", padx=5)
+        self.trim_start_entry = ctk.CTkEntry(
+            trim_inner, 
+            placeholder_text="0", 
+            width=100, 
+            height=28,
+            fg_color=AppColors.BG_LIGHT,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=3,
+            font=("Segoe UI", 11),
+            text_color=AppColors.TEXT_PRIMARY
+        )
+        self.trim_start_entry.pack(side="left", padx=5, fill="x", expand=True)
+        
+        trim_inner2 = ctk.CTkFrame(trim_section, fg_color="transparent")
+        trim_inner2.pack(fill="x", pady=(5, 0))
+        
+        ctk.CTkLabel(trim_inner2, text="End (s):", font=("Segoe UI", 11), width=70).pack(side="left", padx=5)
+        self.trim_end_entry = ctk.CTkEntry(
+            trim_inner2, 
+            placeholder_text="Full", 
+            width=100, 
+            height=28,
+            fg_color=AppColors.BG_LIGHT,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=3,
+            font=("Segoe UI", 11),
+            text_color=AppColors.TEXT_PRIMARY
+        )
+        self.trim_end_entry.pack(side="left", padx=5, fill="x", expand=True)
+        
+        # === Audio Track & Console Row (side by side, equal size) ===
+        audio_console_row = tk.PanedWindow(
+            right_paned,
+            orient=tk.HORIZONTAL,
+            sashwidth=4,
+            sashrelief=tk.FLAT,
+            bg=AppColors.BG_MEDIUM,
+            bd=0,
+            sashpad=1
+        )
+        right_paned.add(audio_console_row, minsize=200, height=200)
+        
+        # Audio Track Details Panel (Left, 50% width)
+        audio_panel = ctk.CTkFrame(
+            audio_console_row,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=0,
+            border_color=AppColors.BORDER
+        )
+        audio_console_row.add(audio_panel, minsize=200)
+        audio_panel.grid_columnconfigure(0, weight=1)
+        audio_panel.grid_rowconfigure(1, weight=1)
+        
+        # Audio Track Details header
+        audio_header = ctk.CTkFrame(audio_panel, fg_color="transparent")
+        audio_header.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
         audio_header.grid_columnconfigure(0, weight=1)
         
         ctk.CTkLabel(
             audio_header,
-            text="🎵 Audio Track Details",
-            font=("Segoe UI", 13, "bold"),
+            text="Audio Track Details",
+            font=("Segoe UI", 12, "bold"),
             text_color=AppColors.TEXT_PRIMARY
         ).grid(row=0, column=0, sticky="w")
         
         self.button_analyze_tracks = ctk.CTkButton(
             audio_header,
-            text="🔍 Analyze All Tracks",
+            text="Analyze All Tracks",
+            width=140,
+            height=28,
             command=self.analyze_all_tracks,
-            height=32,
-            width=160,
-            fg_color=AppColors.INFO,
-            hover_color=AppColors.PRIMARY_DARK,
-            corner_radius=8,
+            fg_color=AppColors.PRIMARY,
+            hover_color=AppColors.PRIMARY_HOVER,
+            corner_radius=4,
             font=("Segoe UI", 11, "bold"),
             state="disabled"
         )
-        self.button_analyze_tracks.grid(row=0, column=1, sticky="e")
+        self.button_analyze_tracks.grid(row=0, column=1, sticky="e", padx=5)
+        add_tooltip(self.button_analyze_tracks, "Analyze All Audio Tracks")
         
         self.audio_info_textbox = ctk.CTkTextbox(
-            audio_analysis_frame,
-            height=100,
+            audio_panel,
             font=("Consolas", 10),
             fg_color=AppColors.BG_DARK,
             border_width=1,
             border_color=AppColors.BORDER,
-            corner_radius=6,
+            corner_radius=4,
             state="disabled"
         )
-        self.audio_info_textbox.grid(row=1, column=0, padx=12, pady=(0, 12), sticky="ew")
+        self.audio_info_textbox.grid(row=1, column=0, sticky="nsew", padx=5, pady=(0, 5))
         
-        # Update grid row configuration to accommodate options frame
-        self.parent.grid_rowconfigure(1, weight=0)  # Options + audio analysis frames (fixed height)
-        self.parent.grid_rowconfigure(2, weight=1)  # Main content (timeline + preview)
-        self.parent.grid_rowconfigure(3, weight=0)  # Console section (fixed height)
-        
-        # Status label with improved styling (exactly as original)
-        self.preview_status = ctk.CTkLabel(
-            header_frame, 
-            text="📂 Load a video to begin analysis...",
-            font=("Segoe UI", 11),
-            anchor="w", 
-            text_color=AppColors.TEXT_MUTED
-        )
-        self.preview_status.grid(row=1, column=0, columnspan=2, padx=20, pady=(0, 12), sticky="ew")
-        
-        # Interactive Timeline (left side) - Enhanced styling (exactly as original)
-        self.preview_timeline = InteractiveTimeline(
-            self.parent, 
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
-            border_width=1,
-            border_color=AppColors.BORDER,
-            on_time_click=self.on_preview_timeline_click
-        )
-        self.preview_timeline.grid(row=2, column=0, sticky="nsew", padx=(12, 6), pady=(0, 12))
-        
-        # Frame Preview (right side) - Enhanced styling (exactly as original)
-        self.preview_frame = FramePreview(
-            self.parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
-            border_width=1,
+        # Console Output Panel (Right, in same row as Audio, 50% width)
+        console_panel = ctk.CTkFrame(
+            audio_console_row,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=0,
             border_color=AppColors.BORDER
         )
-        self.preview_frame.grid(row=2, column=1, sticky="nsew", padx=(6, 12), pady=(0, 12))
-        
-        # Console/Status textbox section (matching main tab)
-        console_frame = ctk.CTkFrame(
-            self.parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
-            border_width=1,
-            border_color=AppColors.BORDER,
-            height=150
-        )
-        console_frame.grid(row=4, column=0, columnspan=2, sticky="ew", padx=12, pady=(0, 12))
-        console_frame.grid_propagate(False)
-        console_frame.grid_columnconfigure(0, weight=1)
+        audio_console_row.add(console_panel, minsize=200)
+        console_panel.grid_columnconfigure(0, weight=1)
+        console_panel.grid_rowconfigure(1, weight=1)
         
         ctk.CTkLabel(
-            console_frame,
-            text="📋 Console Output",
-            font=("Segoe UI", 13, "bold"),
+            console_panel,
+            text="Console Output",
+            font=("Segoe UI", 12, "bold"),
             text_color=AppColors.TEXT_PRIMARY
-        ).grid(row=0, column=0, padx=12, pady=(12, 8), sticky="w")
+        ).grid(row=0, column=0, padx=10, pady=(10, 8), sticky="w")
         
         self.status_textbox = ctk.CTkTextbox(
-            console_frame,
+            console_panel,
             state="disabled",
             fg_color=AppColors.BG_DARK,
             font=("Consolas", 10),
-            corner_radius=6,
+            corner_radius=4,
+            border_width=1,
+            border_color=AppColors.BORDER
+        )
+        self.status_textbox.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
+        
+        # === Progress Panel (Below Audio/Console row) ===
+        progress_panel = ctk.CTkFrame(
+            right_paned,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=0,
+            border_color=AppColors.BORDER
+        )
+        right_paned.add(progress_panel, minsize=80, height=100)
+        progress_panel.grid_columnconfigure(0, weight=1)
+        
+        ctk.CTkLabel(
+            progress_panel,
+            text="Progress",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=0, column=0, padx=10, pady=(10, 8), sticky="w")
+        
+        # Progress percentage
+        self.progress_percentage = ctk.CTkLabel(
+            progress_panel,
+            text="0%",
+            font=("Segoe UI", 24, "bold"),
+            text_color=AppColors.PRIMARY
+        )
+        self.progress_percentage.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+        
+        # Progress bar (matching web UI style)
+        self.progress_bar = ctk.CTkProgressBar(
+            progress_panel,
+            height=20,
+            corner_radius=3,
             border_width=1,
             border_color=AppColors.BORDER,
-            height=100
+            progress_color=AppColors.PRIMARY,
+            fg_color=AppColors.BG_DARK
         )
-        self.status_textbox.grid(row=1, column=0, padx=12, pady=(0, 12), sticky="ew")
+        self.progress_bar.set(0)
+        self.progress_bar.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
+        
+        # Progress details (ETA, speed)
+        self.progress_details = ctk.CTkLabel(
+            progress_panel,
+            text="Ready",
+            font=("Segoe UI", 10),
+            text_color=AppColors.TEXT_SECONDARY
+        )
+        self.progress_details.grid(row=3, column=0, padx=10, pady=(0, 10), sticky="w")
+        
+        # === BOTTOM: Timeline Panel (Vertically Scalable & Collapsible) ===
+        # Create a container frame for the timeline with toggle button
+        self.timeline_container = ctk.CTkFrame(
+            self.parent,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=4
+        )
+        self.timeline_container.grid(row=2, column=0, sticky="nsew", padx=2, pady=2)
+        self.timeline_container.grid_columnconfigure(0, weight=1)
+        self.timeline_container.grid_rowconfigure(1, weight=1)  # Timeline content row
+        
+        # Timeline header (matching web UI style)
+        timeline_header = ctk.CTkFrame(
+            self.timeline_container,
+            fg_color=AppColors.BG_LIGHT,
+            border_width=0,
+            height=30
+        )
+        timeline_header.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
+        timeline_header.grid_propagate(False)
+        timeline_header.grid_columnconfigure(0, weight=1)
+        
+        ctk.CTkLabel(
+            timeline_header,
+            text="Interactive Timeline",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=0, column=0, sticky="w", padx=12, pady=6)
+        
+        # Toggle button in header (matching web UI style)
+        self.timeline_toggle_btn = ctk.CTkButton(
+            timeline_header,
+            text="▼",
+            width=24,
+            height=24,
+            command=self.toggle_timeline,
+            fg_color="transparent",
+            hover_color=AppColors.BG_MEDIUM,
+            border_width=1,
+            border_color=AppColors.BORDER,
+            corner_radius=3,
+            font=("Segoe UI", 10)
+        )
+        self.timeline_toggle_btn.grid(row=0, column=1, sticky="e", padx=8, pady=3)
+        add_tooltip(self.timeline_toggle_btn, "Collapse/Expand Timeline")
+        
+        # Create a container for the timeline content below the header
+        timeline_content = ctk.CTkFrame(
+            self.timeline_container,
+            fg_color=AppColors.BG_MEDIUM,
+            border_width=0,
+            border_color=AppColors.BORDER
+        )
+        timeline_content.grid(row=1, column=0, sticky="nsew", padx=0, pady=0)
+        timeline_content.grid_rowconfigure(0, weight=1)
+        timeline_content.grid_columnconfigure(0, weight=1)
+        
+        # Update grid configuration
+        self.timeline_container.grid_rowconfigure(1, weight=1)
+        
+        # Store reference to timeline panel and its visibility state
+        self.timeline_visible = True
+        self.timeline_panel = timeline_content  # Store reference for toggling
+        
+        self.preview_timeline = InteractiveTimeline(
+            timeline_content,
+            fg_color="transparent",
+            corner_radius=0,
+            border_width=0,
+            on_time_click=self.on_preview_timeline_click
+        )
+        self.preview_timeline.grid(row=0, column=0, sticky="nsew", padx=1, pady=1)
     
     def preview_load_video(self):
-        """
-        Load a video file for preview and analysis.
-        """
-        # Open file dialog
+        """Load a video file for preview and analysis."""
         file_path = filedialog.askopenfilename(
             title="Select Video File",
             filetypes=[
@@ -411,18 +688,22 @@ class PreviewTab:
         if not file_path:
             return
         
-        # Load video into frame preview
-        success = self.preview_frame.load_video(file_path, self.ffprobe_path)
-        
-        if not success:
-            self.preview_status.configure(text="❌ Failed to load video file")
-            return
-        
         # Store video path
         self.video_path = file_path
         
+        # Clear console
+        if hasattr(self, 'status_textbox') and self.status_textbox:
+            self.status_textbox.configure(state="normal")
+            self.status_textbox.delete("1.0", "end")
+            self.status_textbox.insert("end", f"📹 Loaded: {Path(file_path).name}\n")
+            self.status_textbox.configure(state="disabled")
+        
         # Get video duration
         self.duration = get_video_duration(Path(file_path), self.ffprobe_path, self.update_status)
+        
+        # Load video into VLC player
+        if hasattr(self, 'vlc_player') and self.vlc_player:
+            self.vlc_player.load_video(file_path, self.duration, [])
         
         # Detect audio tracks
         self.audio_tracks = get_audio_tracks(Path(file_path), self.ffprobe_path, self.update_status)
@@ -432,11 +713,9 @@ class PreviewTab:
         
         # Update track selector
         if self.audio_tracks:
-            # Use the actual track names from FFmpeg (which include stream index)
             track_names = [track["name"] for track in self.audio_tracks]
             self.preview_track_selector.configure(values=track_names, state="normal")
             self.preview_track_selector_var.set(track_names[0])
-            # Enable analyze button
             if hasattr(self, 'button_analyze_tracks'):
                 self.button_analyze_tracks.configure(state="normal")
         else:
@@ -444,41 +723,33 @@ class PreviewTab:
             if hasattr(self, 'button_analyze_tracks'):
                 self.button_analyze_tracks.configure(state="disabled")
         
-        # Detect available encoders
-        self.available_encoders = get_available_encoders(self.ffmpeg_path, self.update_status)
-        if self.available_encoders:
-            self.option_encoder.configure(values=self.available_encoders, state="normal")
-            self.encoder_var.set(self.available_encoders[0])
+        # Encoders are already detected at app startup, no need to detect again
         
         # Update timeline with video info
         self.preview_timeline.update_timeline([], self.duration)
         
         # Update status
-        self.preview_status.configure(text=f"✅ Loaded: {Path(file_path).name} ({format_time(self.duration)})")
+        self.preview_status.configure(text=f"Loaded: {Path(file_path).name} ({format_time(self.duration)})")
         
         # Notify main tab about video loaded
         if self.on_video_loaded:
             self.on_video_loaded(self.video_path, self.duration, self.audio_tracks)
     
     def preview_detect_silence(self):
-        """
-        Detect silence in the selected audio track.
-        """
+        """Detect silence in the selected audio track."""
         if not self.video_path or not self.audio_tracks:
             return
         
         # Get selected track index
         selected_track_name = self.preview_track_selector_var.get()
-        
-        # Find the track that matches the selected name
         track_index = None
         for track in self.audio_tracks:
             if track["name"] == selected_track_name:
-                track_index = track["index"]  # Use the actual FFmpeg stream index
+                track_index = track["index"]
                 break
         
         if track_index is None:
-            self.preview_status.configure(text="❌ Error: Could not find selected track")
+            self.preview_status.configure(text="Error: Could not find selected track")
             return
         
         # Get settings
@@ -491,7 +762,7 @@ class PreviewTab:
         }
         
         # Detect silence
-        self.preview_status.configure(text="🔍 Detecting silence...")
+        self.preview_status.configure(text="Detecting silence...")
         ffmpeg_log = detect_silence(
             Path(self.video_path), 
             track_index, 
@@ -508,16 +779,17 @@ class PreviewTab:
             self.update_status
         )
         
-        # Extract waveforms for ALL audio tracks (exactly as original)
-        self.preview_status.configure(text="📊 Extracting waveforms...")
+        # Update VLC player with segments
+        if hasattr(self, 'vlc_player') and self.vlc_player:
+            self.vlc_player.segments = self.detected_segments
         
-        # Convert audio_tracks format for WaveformGenerator
-        # WaveformGenerator expects "audio_index" and "stream_index" fields
+        # Extract waveforms
+        self.preview_status.configure(text="Extracting waveforms...")
         waveform_tracks = []
         for i, track in enumerate(self.audio_tracks):
             waveform_tracks.append({
-                "audio_index": i,  # 0-based index for WaveformGenerator
-                "stream_index": track["index"],  # FFmpeg stream index
+                "audio_index": i,
+                "stream_index": track["index"],
                 "name": track["name"],
                 "codec": track["codec"],
                 "language": track["language"]
@@ -531,59 +803,157 @@ class PreviewTab:
         )
         
         # Update timeline with segments AND waveforms
-        self.preview_timeline.update_timeline(self.detected_segments, self.duration, waveforms)
+        if self.detected_segments:
+            self.preview_timeline.update_timeline(self.detected_segments, self.duration, waveforms)
+            self.update_status(f"✅ Timeline updated with {len(self.detected_segments)} segments")
+        else:
+            self.update_status("⚠️ No segments detected")
         
-        # Update status
-        segment_count = len(self.detected_segments)
-        track_count = len(waveforms)
-        self.preview_status.configure(text=f"✅ Detected {segment_count} segments | {track_count} waveforms | Click timeline to preview")
+        segment_count = len(self.detected_segments) if self.detected_segments else 0
+        track_count = len(waveforms) if waveforms else 0
+        self.preview_status.configure(text=f"Detected {segment_count} segments | {track_count} waveforms")
         
-        # Enable export button now that we have segments
+        # Enable export button
         self.export_btn.configure(state="normal")
         
-        # Notify main tab about silence detection completed
+        # Notify main tab
         if self.on_silence_detected:
             self.on_silence_detected(self.detected_segments, track_index)
     
+    def analyze_all_tracks(self):
+        """Analyze all audio tracks for content and display detailed information."""
+        if not self.video_path or not self.available_tracks:
+            messagebox.showwarning("Warning", "Please select a video file first")
+            return
+        
+        # Ensure video is paused before analyzing (prevent auto-play)
+        if hasattr(self, 'vlc_player') and self.vlc_player:
+            if self.vlc_player.is_playing:
+                self.vlc_player.media_player.pause()
+                self.vlc_player.is_playing = False
+                if self.vlc_player.play_icon:
+                    self.vlc_player.play_pause_btn.configure(image=self.vlc_player.play_icon, text="")
+                else:
+                    self.vlc_player.play_pause_btn.configure(text="▶")
+        
+        # Disable button during analysis
+        self.button_analyze_tracks.configure(state="disabled")
+        
+        # Clear previous analysis results
+        self.audio_info_textbox.configure(state="normal")
+        self.audio_info_textbox.delete("1.0", "end")
+        
+        # Show header
+        header = ("Track    Codec      Channels    Status         Mean Volume   Max Volume\n"
+                   "─────────────────────────────────────────────────────────────────────\n")
+        self.audio_info_textbox.insert("end", header)
+        self.audio_info_textbox.insert("end", "Analyzing tracks...\n\n")
+        self.audio_info_textbox.configure(state="disabled")
+        
+        # Run analysis in background thread to keep UI responsive
+        def analyze_thread():
+            try:
+                results = []
+                for i, track in enumerate(self.available_tracks):
+                    self.update_status(f"Analyzing Track {track['index']} ({i+1}/{len(self.available_tracks)})...")
+                    
+                    try:
+                        analysis = analyze_audio_track_content(
+                            Path(self.video_path), 
+                            track['index'], 
+                            self.ffmpeg_path
+                        )
+                        
+                        track['analysis'] = analysis
+                        
+                        mean_str = f"{analysis['mean_volume']:.1f} dB" if analysis['mean_volume'] is not None else "N/A"
+                        max_str = f"{analysis['max_volume']:.1f} dB" if analysis['max_volume'] is not None else "N/A"
+                        
+                        status_icon = ""
+                        if analysis['is_silent']:
+                            status_icon = "🔇 "
+                        elif analysis['status'] == "Normal Audio":
+                            status_icon = "🔊 "
+                        elif analysis['status'] == "Quiet Audio":
+                            status_icon = "🔉 "
+                        elif analysis['status'] == "Loud Audio":
+                            status_icon = "📢 "
+                        
+                        line = (f"{track['index']:<8} "
+                               f"{track['codec']:<10} "
+                               f"{track['channel_str']:<10} "
+                               f"{status_icon}{analysis['status']:<13} "
+                               f"{mean_str:<12} "
+                               f"{max_str:<10}\n")
+                        
+                        results.append(line)
+                        
+                    except Exception as e:
+                        error_line = f"{track['index']:<8} {track['codec']:<10} {track['channel_str']:<10} ❌ Error: {str(e)[:30]}...\n"
+                        results.append(error_line)
+                        self.update_status(f"Error analyzing Track {track['index']}: {e}")
+                
+                # Update UI in main thread
+                self.parent.after(0, lambda: self._update_analysis_results(results))
+                
+            except Exception as e:
+                self.parent.after(0, lambda: self.update_status(f"Analysis error: {e}"))
+                self.parent.after(0, lambda: self.button_analyze_tracks.configure(state="normal"))
+        
+        thread = threading.Thread(target=analyze_thread, daemon=True)
+        thread.start()
+    
+    def _update_analysis_results(self, results):
+        """Update the audio info textbox with analysis results (called from main thread)."""
+        self.audio_info_textbox.configure(state="normal")
+        self.audio_info_textbox.delete("1.0", "end")
+        
+        # Show header
+        header = ("Track    Codec      Channels    Status         Mean Volume   Max Volume\n"
+                   "─────────────────────────────────────────────────────────────────────\n")
+        self.audio_info_textbox.insert("end", header)
+        
+        # Insert all results
+        for line in results:
+            self.audio_info_textbox.insert("end", line)
+        
+        # Add completion message
+        self.audio_info_textbox.insert("end", "\n✅ Analysis complete!\n")
+        self.audio_info_textbox.insert("end", "🔇 = Silent/Empty track | 🔉 = Quiet | 🔊 = Normal | 📢 = Loud\n")
+        self.audio_info_textbox.configure(state="disabled")
+        
+        self.update_status("Track analysis completed successfully")
+        self.button_analyze_tracks.configure(state="normal")
+    
     def select_save_destination(self):
-        """Select save destination for exported video."""
+        """Select save destination for exported video (matching web UI behavior)."""
         output_dir = filedialog.askdirectory(title="Select Output Directory")
         if output_dir:
             self.save_path = output_dir
-            # Show shortened path if too long
-            display_path = output_dir if len(output_dir) <= 40 else "..." + output_dir[-37:]
-            self.save_path_var.set(display_path)
-            self.preview_status.configure(text=f"✅ Save location: {Path(output_dir).name}")
+            display_path = output_dir if len(output_dir) <= 50 else "..." + output_dir[-47:]
+            self.preview_status.configure(text=f"Save location: {Path(output_dir).name}")
+            # Update the label in export settings
+            if hasattr(self, 'save_dest_label'):
+                self.save_dest_label.configure(text=display_path, text_color=AppColors.SUCCESS)
     
     def preview_export_video(self):
-        """
-        Export video with current silence segment selections.
-        
-        This processes the video with all segments marked as keep=True:
-        - Green segments (audible) - always kept
-        - Gray segments (good silence) - kept if keep=True
-        - Red segments (bad silence) - removed if keep=False
-        
-        The export respects your timeline selections!
-        """
+        """Export video with current silence segment selections."""
         if not self.video_path or not self.detected_segments:
             messagebox.showwarning("No Video", "Please load a video and detect silence first.")
             return
         
-        # Check if save path is selected
         if not self.save_path:
-            messagebox.showwarning("No Save Location", "Please select a save destination first.")
-            return
+            self.select_save_destination()
+            if not self.save_path:
+                return
         
         # Get selected encoder
         selected_encoder = self.encoder_var.get()
         if not selected_encoder or selected_encoder == "Detecting...":
-            messagebox.showwarning("No Encoder", "Please wait for encoder detection or select one manually.")
-            return
+            selected_encoder = self.available_encoders[0] if self.available_encoders else "CPU (x264)"
         
         # Get encoder parameters
         if selected_encoder == "Automatic (Best GPU)":
-            # Use the first hardware encoder available
             for enc_name, (enc_id, params) in ENCODER_OPTIONS.items():
                 if enc_name in self.available_encoders and enc_name != "CPU (x264)":
                     video_params = params
@@ -608,37 +978,26 @@ class PreviewTab:
             "filter_length_threshold": self.settings.get("filter_length_threshold", 4096)
         }
         
-        # Count segments to keep for user feedback
-        segments_to_keep = [seg for seg in self.detected_segments if seg.get('keep', True)]
-        audible_count = sum(1 for seg in segments_to_keep if seg.get('type') == 'audible')
-        silence_count = sum(1 for seg in segments_to_keep if seg.get('type') == 'silent')
-        
         # Confirm export
-        confirm_msg = (
-            f"Export video with current selections?\n\n"
-            f"Will keep:\n"
-            f"  • {audible_count} audible segments (green)\n"
-            f"  • {silence_count} silence segments (gray - good silence)\n\n"
-            f"Will remove:\n"
-            f"  • Red silence segments (bad silence)\n\n"
-            f"Encoder: {selected_encoder}\n"
-            f"Format: {output_format.upper()}\n"
-            f"Save to: {Path(self.save_path).name}"
-        )
-        
-        if not messagebox.askyesno("Confirm Export", confirm_msg):
+        if not messagebox.askyesno("Confirm Export", "Export video with current selections?"):
             return
         
-        # Disable export button during processing
-        self.export_btn.configure(state="disabled", text="⏳ Processing...")
+        # Disable export button
+        self.export_btn.configure(state="disabled")
         
-        # Create progress callback
+        # Progress callback (must update UI on main thread)
         def progress_callback(percentage, eta, speed):
-            self.preview_status.configure(
-                text=f"⏳ Processing: {percentage:.1f}% | ETA: {eta} | Speed: {speed:.1f}x"
-            )
+            # Schedule UI updates on main thread
+            self.parent.after(0, lambda: self.progress_bar.set(percentage / 100.0))
+            self.parent.after(0, lambda: self.progress_percentage.configure(text=f"{percentage:.1f}%"))
+            self.parent.after(0, lambda: self.progress_details.configure(
+                text=f"ETA: {eta} | Speed: {speed:.1f}x"
+            ))
+            self.parent.after(0, lambda: self.preview_status.configure(
+                text=f"Processing: {percentage:.1f}% | ETA: {eta} | Speed: {speed:.1f}x"
+            ))
         
-        # Start processing in background thread
+        # Process in background thread
         def process_thread():
             try:
                 process_video_logic(
@@ -653,51 +1012,101 @@ class PreviewTab:
                     settings=settings_dict,
                     status_callback=self.update_status,
                     progress_callback=progress_callback,
-                    segments=self.detected_segments  # Use current segments with user modifications
+                    segments=self.detected_segments
                 )
                 
-                # Success
-                self.preview_status.configure(text="✅ Export complete! Check output directory.")
+                # Reset progress
+                self.progress_bar.set(100.0)
+                self.progress_percentage.configure(text="100%")
+                self.progress_details.configure(text="Complete!")
+                self.preview_status.configure(text="Export complete! Check output directory.")
                 messagebox.showinfo("Export Complete", 
-                    f"Video exported successfully!\n\n"
-                    f"Saved to: {self.save_path}\n"
-                    f"File: {Path(self.video_path).stem}_final.{output_format}")
+                    f"Video exported successfully!\n\nSaved to: {self.save_path}")
                 
             except Exception as e:
-                self.preview_status.configure(text=f"❌ Export failed: {str(e)}")
+                # Reset progress on error
+                self.progress_bar.set(0)
+                self.progress_percentage.configure(text="0%")
+                self.progress_details.configure(text="Failed")
+                self.preview_status.configure(text=f"Export failed: {str(e)}")
                 messagebox.showerror("Export Failed", f"Error during export:\n{str(e)}")
             
             finally:
-                # Re-enable export button
-                self.export_btn.configure(state="normal", text="💾 Export Video")
+                self.export_btn.configure(state="normal")
         
-        # Start processing thread
         thread = threading.Thread(target=process_thread, daemon=True)
         thread.start()
     
+    def toggle_right_panel(self):
+        """Toggle the visibility of the right panel (matching web UI behavior)."""
+        if self.right_panel_visible:
+            # Hide the right panel content (keep header visible)
+            self.right_panel.grid_forget()
+            self.right_panel_visible = False
+            self.right_panel_toggle_btn.configure(text="▶")
+            add_tooltip(self.right_panel_toggle_btn, "Expand Right Panel")
+            
+            # Minimize the right container in the PanedWindow
+            try:
+                self.main_paned.paneconfig(self.right_container, minsize=40, width=40)
+            except:
+                pass
+            
+            # Make VLC player expand to fill the space
+            self.main_paned.update_idletasks()
+        else:
+            # Show the right panel
+            self.right_panel.grid(row=1, column=0, sticky="nsew")
+            self.right_panel_visible = True
+            self.right_panel_toggle_btn.configure(text="◀")
+            add_tooltip(self.right_panel_toggle_btn, "Collapse Right Panel")
+            
+            # Restore original size in PanedWindow
+            try:
+                self.main_paned.paneconfig(self.right_container, minsize=300, width=400)
+            except:
+                pass
+            
+            # Restore original layout
+            self.main_paned.update_idletasks()
+    
+    def toggle_timeline(self):
+        """Toggle the visibility of the timeline panel (matching web UI behavior)."""
+        if self.timeline_visible:
+            # Hide the timeline panel content (keep header visible)
+            self.timeline_panel.grid_forget()
+            self.timeline_visible = False
+            self.timeline_toggle_btn.configure(text="▲")
+            add_tooltip(self.timeline_toggle_btn, "Expand Timeline")
+            
+            # Adjust grid row weights to give more space to main area
+            self.parent.grid_rowconfigure(1, weight=1)  # Main area takes all space
+            self.parent.grid_rowconfigure(2, weight=0)  # Timeline takes no space
+        else:
+            # Show the timeline panel
+            self.timeline_panel.grid(row=1, column=0, sticky="nsew")
+            self.timeline_visible = True
+            self.timeline_toggle_btn.configure(text="▼")
+            add_tooltip(self.timeline_toggle_btn, "Collapse Timeline")
+            
+            # Restore original grid row weights
+            self.parent.grid_rowconfigure(1, weight=2)  # Main area takes 2x space
+            self.parent.grid_rowconfigure(2, weight=1)  # Timeline takes 1x space
+    
     def on_preview_timeline_click(self, time_seconds: float):
-        """
-        Handle timeline click events.
-        
-        Args:
-            time_seconds: Time in seconds where the user clicked
-        """
-        if self.preview_frame:
-            self.preview_frame.show_frame_at_time(time_seconds)
+        """Handle timeline click events."""
+        if hasattr(self, 'vlc_player') and self.vlc_player:
+            self.vlc_player.seek_to_time(time_seconds)
     
     def update_status(self, message: str):
-        """
-        Update the status label and console textbox with a message.
-        
-        Args:
-            message: Status message to display
-        """
-        # Update status label
+        """Update the status label and console with a message."""
         if self.preview_status:
-            self.preview_status.configure(text=message)
+            # Only update if message is short, otherwise keep current status
+            if len(message) < 50:
+                self.preview_status.configure(text=message)
         
-        # Update console textbox
-        if self.status_textbox:
+        # Also write to console
+        if hasattr(self, 'status_textbox') and self.status_textbox:
             self.status_textbox.configure(state="normal")
             self.status_textbox.insert("end", message + "\n")
             self.status_textbox.see("end")

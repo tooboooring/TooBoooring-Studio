@@ -11,6 +11,7 @@ from typing import Optional, Callable
 
 from ..core.settings_manager import SettingsManager
 from ..utils.colors import AppColors
+from ..utils.helpers import load_icon, add_tooltip
 
 
 class AdvancedTab:
@@ -95,32 +96,33 @@ class AdvancedTab:
         Args:
             parent: Parent widget for the section
         """
-        # Silence detection frame
+        # Silence detection frame panel
         silence_frame = ctk.CTkFrame(
             parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
-            border_color=AppColors.BORDER
+            border_color=AppColors.BORDER,
+            corner_radius=4
         )
-        silence_frame.grid(row=0, column=0, sticky="ew", pady=(0, 15))
+        silence_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
         silence_frame.grid_columnconfigure(1, weight=1)
         
         # Section title
         title_label = ctk.CTkLabel(
             silence_frame,
-            text="🔇 Silence Detection Parameters",
-            font=("Segoe UI", 18, "bold"),
-            text_color=AppColors.PRIMARY
+            text="Silence Detection Parameters",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
         )
-        title_label.grid(row=0, column=0, columnspan=2, padx=20, pady=(20, 15), sticky="w")
+        title_label.grid(row=0, column=0, columnspan=3, padx=10, pady=(10, 10), sticky="w")
         
         # Silence threshold (dB)
         ctk.CTkLabel(
             silence_frame,
             text="Silence Threshold (dB):",
-            font=("Segoe UI", 12, "bold")
-        ).grid(row=1, column=0, padx=20, pady=(0, 10), sticky="w")
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=1, column=0, padx=10, pady=(0, 10), sticky="w")
         
         self.silence_db_var = ctk.DoubleVar(value=-40)
         silence_db_slider = ctk.CTkSlider(
@@ -131,22 +133,23 @@ class AdvancedTab:
             variable=self.silence_db_var,
             command=self._on_silence_db_change
         )
-        silence_db_slider.grid(row=1, column=1, padx=20, pady=(0, 10), sticky="ew")
+        silence_db_slider.grid(row=1, column=1, padx=10, pady=(0, 10), sticky="ew")
         
         self.silence_db_label = ctk.CTkLabel(
             silence_frame,
             text="-40 dB",
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_SECONDARY
         )
-        self.silence_db_label.grid(row=1, column=2, padx=(0, 20), pady=(0, 10), sticky="w")
+        self.silence_db_label.grid(row=1, column=2, padx=(0, 10), pady=(0, 10), sticky="w")
         
         # Silence duration (seconds)
         ctk.CTkLabel(
             silence_frame,
             text="Minimum Silence Duration (s):",
-            font=("Segoe UI", 12, "bold")
-        ).grid(row=2, column=0, padx=20, pady=(0, 10), sticky="w")
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=2, column=0, padx=10, pady=(0, 10), sticky="w")
         
         self.silence_duration_var = ctk.DoubleVar(value=0.7)
         silence_duration_slider = ctk.CTkSlider(
@@ -157,22 +160,23 @@ class AdvancedTab:
             variable=self.silence_duration_var,
             command=self._on_silence_duration_change
         )
-        silence_duration_slider.grid(row=2, column=1, padx=20, pady=(0, 10), sticky="ew")
+        silence_duration_slider.grid(row=2, column=1, padx=10, pady=(0, 10), sticky="ew")
         
         self.silence_duration_label = ctk.CTkLabel(
             silence_frame,
             text="0.7 s",
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_SECONDARY
         )
-        self.silence_duration_label.grid(row=2, column=2, padx=(0, 20), pady=(0, 10), sticky="w")
+        self.silence_duration_label.grid(row=2, column=2, padx=(0, 10), pady=(0, 10), sticky="w")
         
         # Padding before silence (seconds)
         ctk.CTkLabel(
             silence_frame,
             text="Padding Before Silence (s):",
-            font=("Segoe UI", 12, "bold")
-        ).grid(row=3, column=0, padx=20, pady=(0, 10), sticky="w")
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=3, column=0, padx=10, pady=(0, 10), sticky="w")
         
         self.pad_before_var = ctk.DoubleVar(value=0.1)
         pad_before_slider = ctk.CTkSlider(
@@ -183,22 +187,23 @@ class AdvancedTab:
             variable=self.pad_before_var,
             command=self._on_pad_before_change
         )
-        pad_before_slider.grid(row=3, column=1, padx=20, pady=(0, 10), sticky="ew")
+        pad_before_slider.grid(row=3, column=1, padx=10, pady=(0, 10), sticky="ew")
         
         self.pad_before_label = ctk.CTkLabel(
             silence_frame,
             text="0.1 s",
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_SECONDARY
         )
-        self.pad_before_label.grid(row=3, column=2, padx=(0, 20), pady=(0, 10), sticky="w")
+        self.pad_before_label.grid(row=3, column=2, padx=(0, 10), pady=(0, 10), sticky="w")
         
         # Padding after silence (seconds)
         ctk.CTkLabel(
             silence_frame,
             text="Padding After Silence (s):",
-            font=("Segoe UI", 12, "bold")
-        ).grid(row=4, column=0, padx=20, pady=(0, 10), sticky="w")
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=4, column=0, padx=10, pady=(0, 10), sticky="w")
         
         self.pad_after_var = ctk.DoubleVar(value=0.0)
         pad_after_slider = ctk.CTkSlider(
@@ -209,15 +214,15 @@ class AdvancedTab:
             variable=self.pad_after_var,
             command=self._on_pad_after_change
         )
-        pad_after_slider.grid(row=4, column=1, padx=20, pady=(0, 10), sticky="ew")
+        pad_after_slider.grid(row=4, column=1, padx=10, pady=(0, 10), sticky="ew")
         
         self.pad_after_label = ctk.CTkLabel(
             silence_frame,
             text="0.0 s",
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 12),
             text_color=AppColors.TEXT_SECONDARY
         )
-        self.pad_after_label.grid(row=4, column=2, padx=(0, 20), pady=(0, 20), sticky="w")
+        self.pad_after_label.grid(row=4, column=2, padx=(0, 10), pady=(0, 10), sticky="w")
     
     def _create_trim_section(self, parent):
         """
@@ -226,66 +231,70 @@ class AdvancedTab:
         Args:
             parent: Parent widget for the section
         """
-        # Trim controls frame
+        # Trim controls frame panel
         trim_frame = ctk.CTkFrame(
             parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
-            border_color=AppColors.BORDER
+            border_color=AppColors.BORDER,
+            corner_radius=4
         )
-        trim_frame.grid(row=1, column=0, sticky="ew", pady=(0, 15))
+        trim_frame.grid(row=1, column=0, sticky="ew", pady=(0, 10))
         trim_frame.grid_columnconfigure(1, weight=1)
         
         # Section title
         title_label = ctk.CTkLabel(
             trim_frame,
-            text="✂️ Trim Controls",
-            font=("Segoe UI", 18, "bold"),
-            text_color=AppColors.PRIMARY
+            text="Trim Controls",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
         )
-        title_label.grid(row=0, column=0, columnspan=2, padx=20, pady=(20, 15), sticky="w")
+        title_label.grid(row=0, column=0, columnspan=2, padx=10, pady=(10, 10), sticky="w")
         
         # Trim start time
         ctk.CTkLabel(
             trim_frame,
             text="Start Time (seconds):",
-            font=("Segoe UI", 12, "bold")
-        ).grid(row=1, column=0, padx=20, pady=(0, 10), sticky="w")
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=1, column=0, padx=10, pady=(0, 10), sticky="w")
         
         self.trim_start_var = ctk.StringVar(value="0")
         trim_start_entry = ctk.CTkEntry(
             trim_frame,
             textvariable=self.trim_start_var,
             width=150,
+            height=28,
             placeholder_text="0.0"
         )
-        trim_start_entry.grid(row=1, column=1, padx=20, pady=(0, 10), sticky="w")
+        trim_start_entry.grid(row=1, column=1, padx=10, pady=(0, 10), sticky="w")
         
         # Trim end time
         ctk.CTkLabel(
             trim_frame,
             text="End Time (seconds):",
-            font=("Segoe UI", 12, "bold")
-        ).grid(row=2, column=0, padx=20, pady=(0, 10), sticky="w")
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=2, column=0, padx=10, pady=(0, 10), sticky="w")
         
         self.trim_end_var = ctk.StringVar(value="")
         trim_end_entry = ctk.CTkEntry(
             trim_frame,
             textvariable=self.trim_end_var,
             width=150,
+            height=28,
             placeholder_text="Leave empty for full duration"
         )
-        trim_end_entry.grid(row=2, column=1, padx=20, pady=(0, 20), sticky="w")
+        trim_end_entry.grid(row=2, column=1, padx=10, pady=(0, 10), sticky="w")
         
         # Help text
         help_text = ctk.CTkLabel(
             trim_frame,
-            text="💡 Tip: Leave end time empty to process the entire video",
+            text="Tip: Leave end time empty to process the entire video",
             font=("Segoe UI", 10),
             text_color=AppColors.TEXT_MUTED
         )
-        help_text.grid(row=3, column=0, columnspan=2, padx=20, pady=(0, 20), sticky="w")
+        help_text.grid(row=3, column=0, columnspan=2, padx=10, pady=(0, 10), sticky="w")
     
     def _create_advanced_section(self, parent):
         """
@@ -294,48 +303,50 @@ class AdvancedTab:
         Args:
             parent: Parent widget for the section
         """
-        # Advanced options frame
+        # Advanced options frame panel
         advanced_frame = ctk.CTkFrame(
             parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
-            border_color=AppColors.BORDER
+            border_color=AppColors.BORDER,
+            corner_radius=4
         )
-        advanced_frame.grid(row=2, column=0, sticky="ew", pady=(0, 15))
+        advanced_frame.grid(row=2, column=0, sticky="ew", pady=(0, 10))
         
         # Section title
         title_label = ctk.CTkLabel(
             advanced_frame,
-            text="🔧 Advanced Options",
-            font=("Segoe UI", 18, "bold"),
-            text_color=AppColors.PRIMARY
+            text="Advanced Options",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
         )
-        title_label.grid(row=0, column=0, padx=20, pady=(20, 15), sticky="w")
+        title_label.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="w")
         
         # Filter length threshold
         ctk.CTkLabel(
             advanced_frame,
             text="Filter Length Threshold:",
-            font=("Segoe UI", 12, "bold")
-        ).grid(row=1, column=0, padx=20, pady=(0, 10), sticky="w")
+            font=("Segoe UI", 12),
+            text_color=AppColors.TEXT_PRIMARY
+        ).grid(row=1, column=0, padx=10, pady=(0, 10), sticky="w")
         
         self.filter_threshold_var = ctk.IntVar(value=4096)
         filter_threshold_entry = ctk.CTkEntry(
             advanced_frame,
             textvariable=self.filter_threshold_var,
-            width=150
+            width=150,
+            height=28
         )
-        filter_threshold_entry.grid(row=1, column=1, padx=20, pady=(0, 10), sticky="w")
+        filter_threshold_entry.grid(row=1, column=1, padx=10, pady=(0, 10), sticky="w")
         
         # Help text for filter threshold
         help_text = ctk.CTkLabel(
             advanced_frame,
-            text="💡 Higher values handle longer videos better but use more memory",
+            text="Higher values handle longer videos better but use more memory",
             font=("Segoe UI", 10),
             text_color=AppColors.TEXT_MUTED
         )
-        help_text.grid(row=2, column=0, columnspan=2, padx=20, pady=(0, 20), sticky="w")
+        help_text.grid(row=2, column=0, columnspan=2, padx=10, pady=(0, 10), sticky="w")
     
     def _create_actions_section(self, parent):
         """
@@ -344,61 +355,76 @@ class AdvancedTab:
         Args:
             parent: Parent widget for the section
         """
-        # Actions frame
+        # Actions frame panel
         actions_frame = ctk.CTkFrame(
             parent,
-            fg_color=AppColors.BG_CARD,
-            corner_radius=12,
+            fg_color=AppColors.BG_MEDIUM,
             border_width=1,
-            border_color=AppColors.BORDER
+            border_color=AppColors.BORDER,
+            corner_radius=4
         )
-        actions_frame.grid(row=3, column=0, sticky="ew", pady=(0, 15))
+        actions_frame.grid(row=3, column=0, sticky="ew", pady=(0, 10))
         
         # Section title
         title_label = ctk.CTkLabel(
             actions_frame,
-            text="⚡ Actions",
-            font=("Segoe UI", 18, "bold"),
-            text_color=AppColors.PRIMARY
+            text="Actions",
+            font=("Segoe UI", 12, "bold"),
+            text_color=AppColors.TEXT_PRIMARY
         )
-        title_label.grid(row=0, column=0, padx=20, pady=(20, 15), sticky="w")
+        title_label.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="w")
         
         # Buttons frame
         buttons_frame = ctk.CTkFrame(actions_frame, fg_color="transparent")
-        buttons_frame.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="ew")
+        buttons_frame.grid(row=1, column=0, pady=(0, 10))
         
-        # Save settings button
+        # Save settings button (icon)
+        save_icon = load_icon("save", 20)
         save_btn = ctk.CTkButton(
             buttons_frame,
-            text="💾 Save Settings",
+            text="" if save_icon else "💾",
+            image=save_icon,
+            width=32,
+            height=32,
             command=self.save_settings,
-            width=150,
-            fg_color=AppColors.SUCCESS,
-            hover_color=AppColors.SUCCESS_HOVER
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.SUCCESS,
+            corner_radius=4
         )
-        save_btn.pack(side="left", padx=(0, 10))
+        save_btn.grid(row=0, column=0, padx=5)
+        add_tooltip(save_btn, "Save Settings")
         
-        # Reset to defaults button
+        # Reset to defaults button (icon)
+        reset_icon = load_icon("reset", 20)
         reset_btn = ctk.CTkButton(
             buttons_frame,
-            text="🔄 Reset to Defaults",
+            text="" if reset_icon else "🔄",
+            image=reset_icon,
+            width=32,
+            height=32,
             command=self.reset_to_defaults,
-            width=150,
-            fg_color=AppColors.WARNING,
-            hover_color="#e67e22"
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.WARNING,
+            corner_radius=4
         )
-        reset_btn.pack(side="left", padx=(0, 10))
+        reset_btn.grid(row=0, column=1, padx=5)
+        add_tooltip(reset_btn, "Reset to Defaults")
         
-        # Load settings button
+        # Load settings button (icon)
+        folder_icon = load_icon("folder", 20)
         load_btn = ctk.CTkButton(
             buttons_frame,
-            text="📂 Load Settings",
+            text="" if folder_icon else "📂",
+            image=folder_icon,
+            width=32,
+            height=32,
             command=self.load_settings,
-            width=150,
-            fg_color=AppColors.INFO,
-            hover_color="#2980b9"
+            fg_color=AppColors.BG_LIGHT,
+            hover_color=AppColors.INFO,
+            corner_radius=4
         )
-        load_btn.pack(side="left")
+        load_btn.grid(row=0, column=2, padx=5)
+        add_tooltip(load_btn, "Load Settings")
     
     def _on_silence_db_change(self, value):
         """

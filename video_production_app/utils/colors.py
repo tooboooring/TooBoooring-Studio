@@ -58,22 +58,22 @@ class AppColors:
     # === BACKGROUND COLORS ===
     # Different levels of background for visual hierarchy
     # Darker backgrounds are used for main areas, lighter for cards/panels
-    BG_DARK = "#1a1a1a"  # Main application background
-    BG_MEDIUM = "#2b2b2b"  # Secondary background (panels, cards)
-    BG_LIGHT = "#383838"  # Light background (hover states, active elements)
-    BG_CARD = "gray25"  # Card background (CustomTkinter color name)
-    BG_CARD_HOVER = "gray30"  # Card hover background
+    BG_DARK = "#1E1E1E"  # Main application background
+    BG_MEDIUM = "#2B2B2B"  # Secondary background (panels, cards)
+    BG_LIGHT = "#383838"  # Light background (hover states, active elements, panel headers)
+    BG_CARD = "#2B2B2B"  # Card background
+    BG_CARD_HOVER = "#383838"  # Card hover background
     
     # === TEXT COLORS ===
     # Different text colors for different importance levels
-    TEXT_PRIMARY = "white"  # Main text color - highest contrast
-    TEXT_SECONDARY = "gray70"  # Secondary text - medium importance
-    TEXT_MUTED = "gray50"  # Muted text - low importance (hints, labels)
+    TEXT_PRIMARY = "#CCCCCC"  # Main text color - highest contrast (matching web UI)
+    TEXT_SECONDARY = "#888888"  # Secondary text - medium importance (matching web UI)
+    TEXT_MUTED = "#666666"  # Muted text - low importance (hints, labels)
     
     # === BORDER COLORS ===
     # Subtle borders for visual separation between elements
-    BORDER = "gray35"  # Standard border color
-    BORDER_LIGHT = "gray40"  # Lighter border for subtle separation
+    BORDER = "#444444"  # Standard border color (matching web UI)
+    BORDER_LIGHT = "#555555"  # Lighter border for subtle separation
     
     # === TIMELINE SEGMENT COLORS ===
     # Colors for the interactive timeline visualization

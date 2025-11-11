@@ -1,46 +1,28 @@
 """
-Main entry point for Video Production App v3.
+Main entry point for Video Production Suite.
 
-This module serves as the entry point for the refactored Video Production App.
-It initializes the application and starts the main event loop.
-
-To run the application:
-    python -m video_production_app.main
-
-Or from the command line:
-    python video_production_app/main.py
+This file now redirects to the launcher.
+For direct access, use:
+- python launcher.py (interactive menu)
+- python launcher.py web (web UI)
+- python launcher.py tkinter (Tkinter UI)
 """
 
 import sys
 from pathlib import Path
 
-# Add the parent directory to the path so we can import our modules
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from video_production_app.ui.app import VideoProductionApp
-
-
-def main():
-    """
-    Main entry point for the Video Production App.
-    
-    This function creates and runs the main application window.
-    It handles any initialization that needs to happen before
-    the UI is created and started.
-    
-    Example:
-        if __name__ == "__main__":
-            main()
-    """
-    try:
-        # Create and run the application
-        app = VideoProductionApp()
-        app.mainloop()
-        
-    except Exception as e:
-        print(f"Error starting application: {e}")
+# Redirect to launcher
+if __name__ == '__main__':
+    launcher_path = Path(__file__).parent.parent / 'launcher.py'
+    if launcher_path.exists():
+        print("📋 Redirecting to launcher...")
+        print("   For future launches, use: python launcher.py")
+        print()
+        # Import and run launcher
+        sys.path.insert(0, str(launcher_path.parent))
+        from launcher import show_launcher_menu
+        show_launcher_menu()
+    else:
+        print("❌ Error: launcher.py not found!")
+        print("   Please run: python launcher.py")
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()

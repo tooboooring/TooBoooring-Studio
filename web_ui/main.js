@@ -1,0 +1,677 @@
+import { Timeline } from './timeline.js';
+import { Player } from './player.js';
+
+// Get Split.js from window (loaded via script tag)
+const Split = window.Split;
+
+// Create a global app object for Python to call
+window.app = {};
+
+// --- 1. Global Variables ---
+let currentVideoInfo = null;
+let saveDestination = null;
+let player = null;
+let timeline = null;
+
+// Global functions for Python to call via window.evaluate_js
+window.updateProgress = function(percentage, eta, speed) {
+    const progressPercentage = document.getElementById('progress-percentage');
+    const progressBar = document.getElementById('progress-bar');
+    const progressDetails = document.getElementById('progress-details');
+    
+    if (progressPercentage) {
+        progressPercentage.textContent = `${percentage.toFixed(1)}%`;
+    }
+    if (progressBar) {
+        progressBar.style.width = `${percentage}%`;
+    }
+    if (progressDetails) {
+        const speedStr = speed > 0 ? `${speed.toFixed(2)}x` : 'Calculating...';
+        progressDetails.textContent = `ETA: ${eta} | Speed: ${speedStr}`;
+    }
+};
+
+window.updateConsole = function(message) {
+    const consoleOutput = document.getElementById('console-output');
+    if (consoleOutput) {
+        consoleOutput.value += message;
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+};
+
+window.clearConsole = function() {
+    const consoleOutput = document.getElementById('console-output');
+    if (consoleOutput) {
+        consoleOutput.value = '';
+    }
+};
+
+// --- 2. DOMContentLoaded (HTML is ready) ---
+// This listener just finds elements. It does NOT call Python.
+window.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM Loaded. Finding elements...");
+
+    // --- Initialize UI components (Player and Timeline) ---
+    player = new Player(document.getElementById('video-player'));
+    timeline = new Timeline(
+        document.getElementById('ruler-canvas'),
+        document.getElementById('waveform-canvas'),
+        document.getElementById('segments-canvas')
+    );
+
+    // Ensure timeline content is visible
+    const timelinePanel = document.getElementById('timeline-panel');
+    const timelineContent = timelinePanel?.querySelector('.panel-content');
+    if (timelineContent) {
+        timelineContent.style.display = 'flex';
+    }
+
+    // --- Initialize Splitters ---
+    console.log("Initializing splitters...");
+    
+    // Wait a bit for DOM to be fully ready
+    setTimeout(() => {
+        if (!Split) {
+            console.error("Split.js not loaded!");
+            return;
+        }
+        
+        // Check if elements exist
+        const mainContent = document.getElementById('main-content');
+        const timelinePanel = document.getElementById('timeline-panel');
+        const playerPanel = document.getElementById('player-panel');
+        const controlsPanel = document.getElementById('controls-panel');
+        
+        if (!mainContent || !timelinePanel || !playerPanel || !controlsPanel) {
+            console.error("Required elements not found for splitter initialization");
+            return;
+        }
+        
+        console.log("Initializing splitters...");
+        console.log("Main content height:", mainContent.offsetHeight);
+        console.log("Timeline panel height:", timelinePanel.offsetHeight);
+        
+        // Horizontal Split (Player / Controls) - Initialize first
+        const hSplit = Split(['#player-panel', '#controls-panel'], {
+            direction: 'horizontal',
+            sizes: [65, 35], // 65% left, 35% right
+            minSize: [300, 250],
+            gutterSize: 5,
+            snapOffset: 0
+        });
+        
+        // Vertical Split (Top / Bottom) - Initialize after horizontal
+        const vSplit = Split(['#main-content', '#timeline-panel'], {
+            direction: 'vertical',
+            sizes: [65, 35], // 65% top, 35% bottom
+            minSize: [200, 150],
+            gutterSize: 5,
+            snapOffset: 0,
+            onDrag: () => {
+                // Redraw timeline canvases when vertical split is dragged
+                if (timeline && timeline.duration > 0) {
+                    timeline.resizeAndRedraw();
+                }
+            },
+            onDragEnd: () => {
+                // Also redraw on drag end to ensure proper sizing
+                if (timeline && timeline.duration > 0) {
+                    setTimeout(() => timeline.resizeAndRedraw(), 10);
+                }
+            }
+        });
+        
+        console.log("Splitters initialized successfully");
+        console.log("Vertical split instance:", vSplit);
+        console.log("Horizontal split instance:", hSplit);
+    }, 200);
+
+    // --- Bind all UI event listeners ---
+    // Get elements
+    const loadVideoButton = document.getElementById('btn-load-video');
+    const detectSilenceButton = document.getElementById('btn-detect-silence');
+    const exportButton = document.getElementById('btn-export-video');
+    const skipSilenceCheckbox = document.getElementById('skip-silence-check');
+    const btnScrollStart = document.getElementById('btn-scroll-start');
+    const btnZoomReset = document.getElementById('btn-zoom-reset');
+    const btnScrollEnd = document.getElementById('btn-scroll-end');
+    const zoomInBtn = document.getElementById('btn-zoom-in');
+    const zoomOutBtn = document.getElementById('btn-zoom-out');
+    const zoomResetBtn = document.getElementById('btn-zoom-reset');
+    const zoomLevelSpan = document.getElementById('zoom-level');
+    const scrollLeftBtn = document.getElementById('btn-scroll-left');
+    const scrollRightBtn = document.getElementById('btn-scroll-right');
+    const scrollStartBtn = document.getElementById('btn-scroll-start');
+    const scrollEndBtn = document.getElementById('btn-scroll-end');
+    const timelineStatsSpan = document.getElementById('timeline-stats');
+    const toggleControlsBtn = document.getElementById('btn-toggle-controls');
+    const toggleTimelineBtn = document.getElementById('btn-toggle-timeline');
+    const controlsPanel = document.getElementById('controls-panel');
+    const mainContent = document.querySelector('.main-content');
+    const selectDestinationBtn = document.getElementById('btn-select-destination');
+    const saveDestinationLabel = document.getElementById('save-destination-label');
+    const analyzeTracksBtn = document.getElementById('btn-analyze-tracks');
+    const audioDetailsTextbox = document.getElementById('audio-details-textbox');
+    const previousFrameBtn = document.getElementById('btn-previous-frame');
+    const nextFrameBtn = document.getElementById('btn-next-frame');
+    const stopBtn = document.getElementById('btn-stop');
+
+    // --- Bind Listeners for Python calls ---
+    loadVideoButton.addEventListener('click', loadVideo);
+    detectSilenceButton.addEventListener('click', detectSilence);
+    exportButton.addEventListener('click', exportVideo);
+
+    // --- Bind Listeners for local JS ---
+    skipSilenceCheckbox.addEventListener('change', () => {
+        player.setSkipSilence(skipSilenceCheckbox.checked);
+    });
+
+    // Connect player and timeline
+    player.onTimeUpdate = (time) => {
+        timeline.updatePlayhead(time);
+        // Update time display
+        const timeDisplay = document.getElementById('time-display');
+        if (timeDisplay) {
+            const current = player.formatTime(player.getCurrentTime());
+            const total = player.formatTime(player.getDuration());
+            timeDisplay.textContent = `${current} / ${total}`;
+        }
+    };
+
+    timeline.onSeek = (time) => {
+        player.seek(time);
+    };
+
+    // Bind timeline controls
+    timeline.bindClick();
+    timeline.bindRulerClick();
+    timeline.bindWheelEvents();
+    timeline.bindKeyEvents();
+
+    // Timeline zoom controls
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => {
+            timeline.zoomIn();
+            if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            updateTimelineStats();
+        });
+    }
+
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => {
+            timeline.zoomOut();
+            if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            updateTimelineStats();
+        });
+    }
+
+    if (zoomResetBtn) {
+        zoomResetBtn.addEventListener('click', () => {
+            timeline.setZoom(1.0);
+            if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            updateTimelineStats();
+        });
+    }
+
+    // Timeline scroll controls
+    if (scrollLeftBtn) {
+        scrollLeftBtn.addEventListener('click', () => {
+            timeline.scrollLeft();
+            updateTimelineStats();
+        });
+    }
+
+    if (scrollRightBtn) {
+        scrollRightBtn.addEventListener('click', () => {
+            timeline.scrollRight();
+            updateTimelineStats();
+        });
+    }
+
+    if (scrollStartBtn) {
+        scrollStartBtn.addEventListener('click', () => {
+            timeline.scrollToStart();
+            updateTimelineStats();
+        });
+    }
+
+    if (scrollEndBtn) {
+        scrollEndBtn.addEventListener('click', () => {
+            timeline.scrollToEnd();
+            updateTimelineStats();
+        });
+    }
+
+    if (btnScrollStart) {
+        btnScrollStart.addEventListener('click', () => timeline.scrollToStart());
+    }
+    if (btnZoomReset) {
+        btnZoomReset.addEventListener('click', () => timeline.setZoom(1.0));
+    }
+    if (btnScrollEnd) {
+        btnScrollEnd.addEventListener('click', () => timeline.scrollToEnd());
+    }
+
+    // Set up zoom change callback to update display
+    timeline.onZoomChanged = (zoomLevel) => {
+        if (zoomLevelSpan) zoomLevelSpan.textContent = `${zoomLevel.toFixed(1)}x`;
+        updateTimelineStats();
+    };
+
+    // Player control buttons
+    if (previousFrameBtn) {
+        previousFrameBtn.addEventListener('click', () => {
+            player.previousFrame();
+        });
+    }
+
+    if (nextFrameBtn) {
+        nextFrameBtn.addEventListener('click', () => {
+            player.nextFrame();
+        });
+    }
+
+    if (stopBtn) {
+        stopBtn.addEventListener('click', () => {
+            player.stop();
+        });
+    }
+
+    // Collapsible panels
+    let controlsPanelCollapsed = false;
+    let timelinePanelCollapsed = false;
+
+    if (toggleControlsBtn && controlsPanel) {
+        toggleControlsBtn.addEventListener('click', () => {
+            const panelContent = controlsPanel.querySelector('.panel-content');
+            if (controlsPanelCollapsed) {
+                panelContent.style.display = 'block';
+                toggleControlsBtn.textContent = '◀';
+                controlsPanelCollapsed = false;
+            } else {
+                panelContent.style.display = 'none';
+                toggleControlsBtn.textContent = '▶';
+                controlsPanelCollapsed = true;
+            }
+        });
+    }
+
+    if (toggleTimelineBtn && timelinePanel) {
+        toggleTimelineBtn.addEventListener('click', () => {
+            const panelContent = timelinePanel.querySelector('.panel-content');
+            if (timelinePanelCollapsed) {
+                panelContent.style.display = 'flex';
+                toggleTimelineBtn.textContent = '▼';
+                timelinePanelCollapsed = false;
+                // Redraw timeline if it has data
+                if (timeline && timeline.duration > 0) {
+                    timeline.resizeAndRedraw();
+                }
+            } else {
+                panelContent.style.display = 'none';
+                toggleTimelineBtn.textContent = '▲';
+                timelinePanelCollapsed = true;
+            }
+        });
+    }
+
+    // Select save destination button
+    if (selectDestinationBtn && saveDestinationLabel) {
+        selectDestinationBtn.addEventListener('click', async () => {
+            const path = await window.pywebview.api.select_save_destination();
+            if (path) {
+                saveDestination = path;
+                saveDestinationLabel.textContent = path.length > 50 ? '...' + path.slice(-47) : path;
+                saveDestinationLabel.style.color = '#4CAF50';
+            }
+        });
+    }
+
+    // Analyze All Tracks button
+    if (analyzeTracksBtn && audioDetailsTextbox) {
+        analyzeTracksBtn.addEventListener('click', async () => {
+            if (!currentVideoInfo) {
+                alert("Please load a video first!");
+                return;
+            }
+
+            const statusLabel = document.getElementById('status-label');
+            analyzeTracksBtn.disabled = true;
+            analyzeTracksBtn.textContent = "Analyzing...";
+            audioDetailsTextbox.value = "Analyzing audio tracks...\n";
+            if (statusLabel) statusLabel.textContent = "Analyzing audio tracks...";
+
+            try {
+                const results = await window.pywebview.api.analyze_all_tracks(currentVideoInfo.filePath);
+                
+                if (results.error) {
+                    audioDetailsTextbox.value = `Error: ${results.error}`;
+                    if (statusLabel) statusLabel.textContent = "Analysis failed.";
+                } else {
+                    // Format results as a table
+                    let output = "Track    Codec      Channels    Status         Mean Volume   Max Volume\n";
+                    output += "─────────────────────────────────────────────────────────────────────\n";
+                    
+                    results.forEach(track => {
+                        const meanStr = track.mean_volume !== null ? `${track.mean_volume.toFixed(1)} dB` : "N/A";
+                        const maxStr = track.max_volume !== null ? `${track.max_volume.toFixed(1)} dB` : "N/A";
+                        
+                        let statusIcon = "";
+                        if (track.is_silent) {
+                            statusIcon = "🔇 ";
+                        } else if (track.status === "Normal Audio") {
+                            statusIcon = "🔊 ";
+                        } else if (track.status === "Quiet Audio") {
+                            statusIcon = "🔉 ";
+                        } else if (track.status === "Loud Audio") {
+                            statusIcon = "📢 ";
+                        }
+                        
+                        const line = `${String(track.index).padEnd(8)} ${track.codec.padEnd(10)} ${track.channels.padEnd(10)} ${statusIcon}${track.status.padEnd(13)} ${meanStr.padEnd(12)} ${maxStr}\n`;
+                        output += line;
+                    });
+                    
+                    output += "\n✅ Analysis complete!\n";
+                    output += "🔇 = Silent/Empty track | 🔉 = Quiet | 🔊 = Normal | 📢 = Loud\n";
+                    
+                    audioDetailsTextbox.value = output;
+                    if (statusLabel) statusLabel.textContent = `Analyzed ${results.length} track(s).`;
+                }
+            } catch (error) {
+                audioDetailsTextbox.value = `Error: ${error.message}`;
+                if (statusLabel) statusLabel.textContent = "Analysis failed.";
+                console.error("Error analyzing tracks:", error);
+            } finally {
+                analyzeTracksBtn.disabled = false;
+                analyzeTracksBtn.textContent = "Analyze All Tracks";
+            }
+        });
+    }
+
+    // --- 3. Add console logger for Python to call ---
+    const consoleOutput = document.getElementById('console-output');
+    window.app.addLog = (message) => {
+        if (consoleOutput) {
+            consoleOutput.value += message.trim() + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+    };
+
+    // Update timeline statistics helper
+    function updateTimelineStats() {
+        if (!timeline || !timelineStatsSpan) return;
+        const stats = timeline.getStatistics();
+        if (stats.segmentCount > 0) {
+            timelineStatsSpan.textContent = `Duration: ${formatTime(stats.totalDuration)} | Audible: ${formatTime(stats.audibleTime)} | Silence: ${stats.silencePercentage.toFixed(1)}% | Segments: ${stats.segmentCount}`;
+        } else {
+            timelineStatsSpan.textContent = "No segments detected";
+        }
+        if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+    }
+
+    function formatTime(seconds) {
+        if (seconds < 60) {
+            return `${seconds.toFixed(1)}s`;
+        }
+        const mins = Math.floor(seconds / 60);
+        const secs = (seconds % 60).toFixed(1);
+        return `${mins}m ${secs}s`;
+    }
+});
+
+// --- 4. pywebviewready (Python API is ready) ---
+// We wait for this event to safely call Python functions.
+window.addEventListener('pywebviewready', async () => {
+    console.log("Pywebview is ready. Getting app config...");
+
+    const encoderSelect = document.getElementById('encoder-select');
+
+    // --- Get Config from Python ---
+    try {
+        const config = await window.pywebview.api.get_app_config();
+        console.log("Got config from Python:", config);
+        
+        if (config && config.encoders && Array.isArray(config.encoders) && config.encoders.length > 0) {
+            if (encoderSelect) {
+                encoderSelect.innerHTML = ""; // Clear
+                config.encoders.forEach(encoder => {
+                    const option = document.createElement('option');
+                    option.value = encoder;
+                    option.textContent = encoder;
+                    encoderSelect.appendChild(option);
+                });
+                console.log(`✅ Successfully populated ${config.encoders.length} encoder(s) in dropdown`);
+                
+                // Show success message
+                const encoderCount = config.encoders.length - 1; // Exclude "Automatic (Best GPU)"
+                if (encoderCount > 0) {
+                    window.app.addLog(`✅ Found ${encoderCount} compatible hardware encoder(s).\n`);
+                } else {
+                    window.app.addLog("⚠️ No compatible hardware encoder found. Will use CPU.\n");
+                }
+            }
+        } else {
+            console.error("Could not load encoders from Python.", config);
+            if (encoderSelect) {
+                encoderSelect.innerHTML = '<option value="CPU (x264)">CPU (x264)</option>';
+            }
+            window.app.addLog("⚠️ No encoders detected, using CPU fallback\n");
+        }
+    } catch (error) {
+        console.error("❌ Error loading encoder config:", error);
+        if (encoderSelect) {
+            encoderSelect.innerHTML = '<option value="CPU (x264)">CPU (x264)</option>';
+        }
+        window.app.addLog(`❌ Error loading encoder configuration: ${error.message}\n`);
+    }
+
+    window.app.addLog("Welcome! Please select a video file to begin.\n");
+});
+
+// --- 5. Async Functions (called by listeners) ---
+// We move the main logic into separate functions.
+
+async function loadVideo() {
+    const statusLabel = document.getElementById('status-label');
+    const trackSelector = document.getElementById('audio-track-selector');
+
+    statusLabel.textContent = "Loading video...";
+    window.clearConsole();
+    window.updateConsole("Loading video file...\n");
+    
+    const videoInfo = await window.pywebview.api.load_video();
+
+    if (videoInfo && !videoInfo.error) {
+        currentVideoInfo = videoInfo;
+        statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
+        window.updateConsole(`✅ Video loaded: ${videoInfo.fileName}\n`);
+        window.updateConsole(`Duration: ${videoInfo.duration.toFixed(2)}s\n`);
+        window.updateConsole(`Audio tracks: ${videoInfo.audioTracks.length}\n`);
+
+        trackSelector.innerHTML = ""; // Clear options
+        videoInfo.audioTracks.forEach(track => {
+            const option = document.createElement('option');
+            option.value = track.index;
+            option.textContent = track.name;
+            trackSelector.appendChild(option);
+        });
+
+        player.loadVideo(videoInfo.filePath);
+        timeline.draw([], 0, null); // Clear timeline
+    } else if (videoInfo && videoInfo.error) {
+        statusLabel.textContent = "Error loading video.";
+        window.updateConsole(`❌ Error: ${videoInfo.error}\n`);
+        console.error("Python Error:", videoInfo.error);
+    } else {
+        statusLabel.textContent = "No video loaded.";
+        window.updateConsole("No video selected.\n");
+    }
+}
+
+async function detectSilence() {
+    const statusLabel = document.getElementById('status-label');
+    const trackSelector = document.getElementById('audio-track-selector');
+    const detectSilenceButton = document.getElementById('btn-detect-silence');
+
+    if (!currentVideoInfo) {
+        alert("Please load a video first!");
+        return;
+    }
+
+    const selectedTrackIndex = trackSelector.value;
+    if (!selectedTrackIndex) {
+        alert("No audio track selected!");
+        return;
+    }
+
+    detectSilenceButton.disabled = true;
+    statusLabel.textContent = "Detecting silence...";
+    window.updateConsole(`Detecting silence on track ${selectedTrackIndex}...\n`);
+    console.log(`JavaScript: Asking Python to detect silence on track ${selectedTrackIndex}...`);
+
+    const segments = await window.pywebview.api.detect_silence(
+        currentVideoInfo.filePath,
+        parseInt(selectedTrackIndex)
+    );
+
+    detectSilenceButton.disabled = false;
+
+    if (segments && !segments.error) {
+        console.log("Got segments from Python:", segments);
+        window.updateConsole(`✅ Found ${segments.length} segments\n`);
+        
+        // Extract waveform data for all tracks
+        statusLabel.textContent = "Extracting waveforms...";
+        window.updateConsole("Extracting waveform data for all tracks...\n");
+        
+        // Get canvas width to tell Python how much to downsample
+        const canvasWidth = document.getElementById('waveform-canvas').offsetWidth;
+        
+        const waveformsData = await window.pywebview.api.get_waveforms_all_tracks(
+            currentVideoInfo.filePath,
+            currentVideoInfo.audioTracks,
+            canvasWidth
+        );
+        
+        if (waveformsData && !waveformsData.error) {
+            const trackCount = Object.keys(waveformsData).length;
+            console.log(`Got waveforms for ${trackCount} tracks.`);
+            window.updateConsole(`✅ Waveforms extracted for ${trackCount} track(s)\n`);
+            // Now draw everything
+            timeline.draw(segments, currentVideoInfo.duration, waveformsData);
+            statusLabel.textContent = `Found ${segments.length} segments!`;
+        } else {
+            // Still draw, but without waveform
+            timeline.draw(segments, currentVideoInfo.duration, null);
+            statusLabel.textContent = "Segments found, but waveform extraction failed.";
+            window.updateConsole("⚠️ Waveform extraction failed\n");
+        }
+        
+        // Update statistics
+        const timelineStatsSpan = document.getElementById('timeline-stats');
+        const zoomLevelSpan = document.getElementById('zoom-level');
+        if (timelineStatsSpan && zoomLevelSpan) {
+            const stats = timeline.getStatistics();
+            if (stats.segmentCount > 0) {
+                function formatTime(seconds) {
+                    if (seconds < 60) {
+                        return `${seconds.toFixed(1)}s`;
+                    }
+                    const mins = Math.floor(seconds / 60);
+                    const secs = (seconds % 60).toFixed(1);
+                    return `${mins}m ${secs}s`;
+                }
+                timelineStatsSpan.textContent = `Duration: ${formatTime(stats.totalDuration)} | Audible: ${formatTime(stats.audibleTime)} | Silence: ${stats.silencePercentage.toFixed(1)}% | Segments: ${stats.segmentCount}`;
+            } else {
+                timelineStatsSpan.textContent = "No segments detected";
+            }
+            zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+        }
+        
+        // Send segments to the player for skip silence functionality
+        player.setSegments(segments);
+    } else {
+        statusLabel.textContent = "Error detecting silence.";
+        window.updateConsole(`❌ Error: ${segments?.error || 'Unknown error'}\n`);
+        console.error("Python Error:", segments?.error);
+    }
+}
+
+async function exportVideo() {
+    const statusLabel = document.getElementById('status-label');
+    const exportButton = document.getElementById('btn-export-video');
+    const encoderSelect = document.getElementById('encoder-select');
+    const formatSelect = document.getElementById('format-select');
+    const trimStartInput = document.getElementById('trim-start');
+    const trimEndInput = document.getElementById('trim-end');
+
+    if (!currentVideoInfo || !timeline.segments || timeline.segments.length === 0) {
+        alert("Please load a video and detect segments first.");
+        return;
+    }
+
+    if (!saveDestination) {
+        alert("Please select a save destination first.");
+        return;
+    }
+
+    // Get trim values
+    const trimStart = parseFloat(trimStartInput.value) || 0;
+    const trimEnd = trimEndInput.value ? parseFloat(trimEndInput.value) : null;
+
+    // Validate trim values
+    if (trimStart < 0) {
+        alert("Trim start must be >= 0");
+        return;
+    }
+    if (trimEnd !== null && trimEnd <= trimStart) {
+        alert("Trim end must be greater than trim start");
+        return;
+    }
+    if (trimEnd !== null && trimEnd > currentVideoInfo.duration) {
+        alert(`Trim end must be <= video duration (${currentVideoInfo.duration.toFixed(2)}s)`);
+        return;
+    }
+
+    exportButton.disabled = true;
+    exportButton.textContent = "Exporting...";
+    statusLabel.textContent = "Exporting... (this may take a while)";
+    
+    // Reset progress
+    window.updateProgress(0, "Calculating...", 0);
+    window.clearConsole();
+    window.updateConsole("Starting export...\n");
+
+    console.log("JavaScript: Sending export request to Python...");
+
+    const export_settings = {
+        encoder: encoderSelect.value,
+        format: formatSelect.value,
+        save_path: saveDestination,
+        trim_start: trimStartInput.value || null,
+        trim_end: trimEndInput.value || null
+    };
+
+    const result = await window.pywebview.api.export_video(
+        currentVideoInfo,
+        timeline.segments,
+        export_settings
+    );
+
+    exportButton.disabled = false;
+    exportButton.textContent = "Export Video";
+
+    if (result.status === 'success') {
+        window.updateProgress(100, "Complete", 0);
+        statusLabel.textContent = "Export complete!";
+        window.updateConsole("\n✅ Export completed successfully!\n");
+        alert(result.message);
+    } else if (result.status === 'cancelled') {
+        statusLabel.textContent = "Export cancelled.";
+        window.updateConsole("\n❌ Export cancelled by user.\n");
+    } else {
+        statusLabel.textContent = "Export failed.";
+        window.updateConsole(`\n❌ Export failed: ${result.message}\n`);
+        alert(`Export Failed: ${result.message}`);
+    }
+}
