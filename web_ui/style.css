@@ -7,15 +7,19 @@ body, html {
     font-family: 'Segoe UI', sans-serif;
     background-color: #1E1E1E;
     color: #CCC;
-    overflow: hidden;
-    display: flex; /* Use flex to stack toolbar and main container */
-    flex-direction: column;
+    overflow: hidden; /* No scrolling */
 }
 
-/* --- 2. Main Layout --- */
+/* --- 2. Main App Layout (CSS Grid) --- */
+body {
+    display: grid;
+    /* Rows: 40px toolbar, main content, 250px timeline */
+    grid-template-rows: 40px 1fr 250px; 
+    grid-template-columns: 1fr;
+}
+
 .toolbar {
-    height: 40px;
-    flex-shrink: 0; /* Toolbar doesn't shrink */
+    grid-row: 1 / 2;
     background-color: #2B2B2B;
     border-bottom: 1px solid #444444;
     display: flex;
@@ -23,25 +27,21 @@ body, html {
     padding: 0 10px;
 }
 
-#app-container {
-    width: 100%;
-    flex-grow: 1; /* Main container fills remaining space */
-    display: flex;
-    flex-direction: column;
-    /* This is critical for Split.js */
-    box-sizing: border-box; 
-}
-
 #main-content {
-    display: flex;
-    flex-direction: row;
-    /* This height is controlled by the splitter */
+    grid-row: 2 / 3;
+    display: grid;
+    /* Columns: 2/3 player, 1/3 controls */
+    grid-template-columns: 2fr 1fr; 
+    padding: 5px;
+    gap: 5px;
+    overflow: hidden;
 }
 
 #timeline-panel {
-    display: flex;
+    grid-row: 3 / 4;
+    padding: 5px;
+    display: flex; /* Make it a flex column */
     flex-direction: column;
-    /* This height is controlled by the splitter */
 }
 
 /* --- 3. Panel Styling --- */
@@ -52,7 +52,6 @@ body, html {
     display: flex;
     flex-direction: column;
     overflow: hidden; /* Prevent content from spilling */
-    box-sizing: border-box; /* Include border in size */
 }
 
 .panel-header {
@@ -69,69 +68,55 @@ body, html {
     flex-grow: 1; /* Makes content fill the panel */
     overflow-y: auto;
     overflow-x: hidden;
-    /* Add this to make sure flexbox works inside */
     display: flex;
     flex-direction: column; 
 }
 
-/* Special fix for timeline canvases */
+/* --- 4. Specific Panels --- */
+
+/* Player Panel (Left) */
+#player-panel {
+    background-color: black;
+}
+#player-panel .panel-content {
+    padding: 0;
+}
+#video-player {
+    width: 100%;
+    height: 100%;
+}
+
+/* Controls Panel (Right) */
+#controls-panel {
+    /* This panel will now have its own grid */
+}
+#controls-panel .panel-content {
+    gap: 10px; /* Space out control groups */
+}
+
+/* Timeline Panel (Bottom) */
 #timeline-panel .panel-content {
     padding: 5px;
     overflow: hidden; /* Let the scrollable frame handle scrolling */
 }
-
-/* Special fix for console */
-#console-wrapper {
-    flex-grow: 0; /* Don't grow */
-    height: 120px; /* Fixed height */
-    flex-shrink: 0;
-    background-color: #111;
-    border-top: 1px solid #444;
-    padding: 5px;
+#timeline-scroll-wrapper {
+    overflow-x: auto; /* This is our horizontal scroll */
+    overflow-y: hidden;
+    width: 100%;
 }
-
-#console-output {
-    width: 100%; 
-    height: 100%; 
-    background-color: #111; 
-    color: #CCC; 
-    border: none; 
-    font-family: monospace; 
-    font-size: 12px;
-    resize: none;
-    box-sizing: border-box;
+canvas {
+    width: 100%;
+    display: block;
 }
+#ruler-canvas { height: 30px; }
+#waveform-canvas { height: 100px; }
+#segments-canvas { height: 50px; }
 
-/* --- 4. Splitter Gutter Styling --- */
-.gutter {
-    background-color: #1E1E1E;
-    background-repeat: no-repeat;
-    background-position: 50%;
-}
-
-.gutter.gutter-vertical {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bM/5+BggDjmTcOQ4jRnwTjA0gVAwBfqQi2/rL1TAAAAABJRU5ErkJggg==');
-    cursor: ns-resize;
-    height: 5px; /* Gutter size */
-}
-
-.gutter.gutter-horizontal {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIE0wQ2MQAKAADrFwDE/UNlAAAAAElFTkSuQmCC');
-    cursor: ew-resize;
-    width: 5px; /* Gutter size */
-}
-
-.split {
-    overflow: hidden; /* IMPORTANT */
-    box-sizing: border-box;
-}
 
 /* --- 5. Controls Styling --- */
 .control-group {
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
-    flex-shrink: 0;
 }
 .control-group label {
     width: 80px;
@@ -156,7 +141,11 @@ button {
     cursor: pointer;
 }
 button:hover { background-color: #1a5a8f; }
-hr { border-color: #444; margin: 10px 0; border-style: solid; border-width: 1px 0 0 0; }
+hr { border-color: #444; margin: 5px 0; border-style: solid; border-width: 1px 0 0 0; }
+
+.timeline-controls {
+    margin-left: auto; /* Push to the right */
+}
 .timeline-controls button {
     background-color: #383838;
     padding: 4px 8px;
@@ -164,10 +153,14 @@ hr { border-color: #444; margin: 10px 0; border-style: solid; border-width: 1px 
     margin-left: 5px;
 }
 
-/* --- 6. Scrollable Frame for Timeline --- */
-#timeline-scroll-wrapper {
-    overflow-x: auto; /* This is our horizontal scroll */
-    overflow-y: hidden;
-    width: 100%;
-    /* Let the panel content flex set the height */
+#console-output {
+    width: 100%; 
+    height: 100%; /* Fill its parent */
+    background-color: #111; 
+    color: #CCC; 
+    border: none; 
+    font-family: monospace; 
+    font-size: 12px;
+    resize: none;
+    box-sizing: border-box;
 }

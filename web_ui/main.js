@@ -85,36 +85,15 @@ window.addEventListener('pywebviewready', async () => {
     
     window.app.addLog("Welcome! Please select a video file to begin.");
     
-    // --- 5. Initialize Splitters ---
-    console.log("Initializing splitters...");
-
-    // Vertical Split (Top / Bottom)
-    const vSplit = Split(['#main-content', '#timeline-panel'], {
-        direction: 'vertical',
-        sizes: [65, 35], // 65% top, 35% bottom
-        minSize: [200, 250], // Min height for top, min height for bottom
-        gutterSize: 5,
-        onDrag: () => {
-            // Redraw timeline canvases when vertical split is dragged
-            timeline.resizeAndRedraw();
-        }
-    });
-
-    // Horizontal Split (Player / Controls)
-    const hSplit = Split(['#player-panel', '#controls-panel'], {
-        direction: 'horizontal',
-        sizes: [65, 35], // 65% left, 35% right
-        minSize: [300, 250],
-        gutterSize: 5,
-        onDrag: () => {
-            // This also changes timeline wrapper, so redraw
-            timeline.resizeAndRedraw();
-        }
-    });
+    // --- NO MORE SPLITTER CODE ---
+    // The static CSS grid will handle the layout.
+    
+    // We need to call resizeAndRedraw ONCE on load to fix canvas sizes
+    timeline.resizeAndRedraw();
 });
 
 // --- 5. Async Functions (called by listeners) ---
-// (These are unchanged from your working version)
+// (These are unchanged and will work)
 
 async function loadVideo() {
     const statusLabel = document.getElementById('status-label');
@@ -137,6 +116,7 @@ async function loadVideo() {
         
         player.loadVideo(videoInfo.filePath);
         timeline.draw([], 0, null); // Clear timeline
+        timeline.resizeAndRedraw(); // Redraw with new info
         
     } else if (videoInfo && videoInfo.error) {
         statusLabel.textContent = "Error loading video.";
@@ -187,6 +167,7 @@ async function detectSilence() {
     }
     
     detectSilenceButton.disabled = false;
+    timeline.resizeAndRedraw(); // Redraw with new data
 }
 
 async function exportVideo() {
