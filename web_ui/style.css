@@ -16,6 +16,7 @@ body {
     /* Rows: 40px toolbar, main content, 250px timeline */
     grid-template-rows: 40px 1fr 250px; 
     grid-template-columns: 1fr;
+    height: 100vh; /* Full height */
 }
 
 .toolbar {

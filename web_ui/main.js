@@ -151,7 +151,8 @@ async function detectSilence() {
     );
     
     statusLabel.textContent = "Extracting waveform...";
-    const canvasWidth = document.getElementById('waveform-canvas').offsetWidth;
+    // Get width from the *scroll wrapper* now
+    const canvasWidth = document.getElementById('timeline-scroll-wrapper').offsetWidth;
     const waveformData = await window.pywebview.api.get_waveform_data(
         currentVideoInfo.filePath,
         canvasWidth

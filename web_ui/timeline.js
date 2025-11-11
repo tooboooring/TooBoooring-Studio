@@ -16,7 +16,8 @@ export class Timeline {
             line: '#444444',
             keep: '#2fb344',   // Green
             remove: '#ef4444',  // Red
-            keep_silent: '#666666' // Gray
+            keep_silent: '#666666', // Gray
+            remove_audible: '#f59e0b' // Orange
         };
         
         this.segments = [];
@@ -33,8 +34,9 @@ export class Timeline {
 
     // This is the new, combined resize and draw function
     resizeAndRedraw() {
-        // 1. Calculate the base width from the *parent* panel
-        const baseWidth = this.scrollWrapper.offsetWidth;
+        // 1. Calculate the base width from the *parent*
+        // We use the scrollWrapper's parent because the wrapper itself will be 100%
+        const baseWidth = this.scrollWrapper.parentElement.offsetWidth - 20; // 20 for padding
         // 2. Calculate the zoomed width
         const canvasWidth = baseWidth * this.zoom;
         
@@ -42,8 +44,13 @@ export class Timeline {
         this.rulerCanvas.width = canvasWidth;
         this.waveformCanvas.width = canvasWidth;
         this.segmentsCanvas.width = canvasWidth;
+
+        // 4. Set the *style* width (this is what the user sees)
+        this.rulerCanvas.style.width = canvasWidth + 'px';
+        this.waveformCanvas.style.width = canvasWidth + 'px';
+        this.segmentsCanvas.style.width = canvasWidth + 'px';
         
-        // 4. Redraw everything with the new sizes
+        // 5. Redraw all components
         this.draw(this.segments, this.duration, this.waveformData);
     }
     
@@ -110,7 +117,7 @@ export class Timeline {
         for (let i = 0; i < w; i++) {
             // Map pixel 'i' to a data point
             const dataIndex = Math.floor((i / w) * data.length);
-            const amplitude = data[dataIndex] * mid_h;
+            const amplitude = (data[dataIndex] || 0) * mid_h;
             
             // Draw a single vertical line per pixel
             ctx.moveTo(i, mid_h - amplitude);
@@ -136,11 +143,14 @@ export class Timeline {
             const x_end = (segment.end / this.duration) * w;
             const width = Math.max(1, x_end - x_start); // Ensure min 1px width
 
+            // --- THIS IS THE "GREEN-TO-ORANGE" LOGIC ---
             if (segment.type === 'audible') {
-                ctx.fillStyle = segment.keep ? this.colors.keep : '#f59e0b'; // Green or Orange
+                ctx.fillStyle = segment.keep ? this.colors.keep : this.colors.remove_audible; // Green or Orange
             } else { // 'silent'
                 ctx.fillStyle = segment.keep ? this.colors.keep_silent : this.colors.remove; // Gray or Red
             }
+            // --- END LOGIC ---
+            
             ctx.fillRect(x_start, 5, width, h - 10);
         }
     }
@@ -150,6 +160,9 @@ export class Timeline {
         const w = this.rulerCanvas.width;
         const h = this.rulerCanvas.height;
 
+        // Prevent drawing if duration is 0
+        if (this.duration === 0) return;
+        
         const x = (this.playhead / this.duration) * w;
 
         ctx.strokeStyle = '#ef4444'; // Red
@@ -173,6 +186,7 @@ export class Timeline {
         if (!this.segments || this.segments.length === 0 || this.duration === 0) return;
 
         const rect = this.segmentsCanvas.getBoundingClientRect();
+        // Recalculate 'x' to account for horizontal scrolling
         const x = event.clientX - rect.left + this.scrollWrapper.scrollLeft;
         const w = this.segmentsCanvas.width;
         const timeClicked = (x / w) * this.duration;
@@ -185,13 +199,16 @@ export class Timeline {
             }
         }
 
+        // --- "GREEN-TO-ORANGE" LOGIC ---
+        // Allow toggling *any* segment
         if (clickedSegment) {
-            // Allow toggling *any* segment
             clickedSegment.keep = !clickedSegment.keep;
-            this.drawSegments();
+            this.drawSegments(); // Redraw to show the new color
             console.log(`Toggled segment: ${clickedSegment.start.toFixed(2)}s, New status: ${clickedSegment.keep}`);
         }
+        // --- END LOGIC ---
         
+        // We still seek the player on any click
         if (this.onSeek) {
             this.onSeek(timeClicked);
         }
@@ -201,6 +218,7 @@ export class Timeline {
         if (this.duration === 0) return;
         
         const rect = this.rulerCanvas.getBoundingClientRect();
+        // Recalculate 'x' to account for horizontal scrolling
         const x = event.clientX - rect.left + this.scrollWrapper.scrollLeft;
         const w = this.rulerCanvas.width;
         const timeClicked = (x / w) * this.duration;
@@ -214,7 +232,7 @@ export class Timeline {
         this.segmentsCanvas.addEventListener('click', this.handleClick.bind(this));
     }
 
-    bindRulerClick() {
+     bindRulerClick() {
         this.rulerCanvas.addEventListener('click', this.handleRulerClick.bind(this));
     }
 
@@ -258,7 +276,7 @@ export class Timeline {
         this.zoom = Math.max(1.0, newZoom);
         
         // Get the new width for the *internal* canvases
-        const baseWidth = this.scrollWrapper.offsetWidth;
+        const baseWidth = this.scrollWrapper.parentElement.offsetWidth - 20; // 20 for padding
         const canvasWidth = baseWidth * this.zoom;
         
         // Apply the new width
