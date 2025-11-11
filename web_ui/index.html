@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Video Production Suite</title>
+    <title>Video Production app4v</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
 </head>
@@ -10,7 +10,7 @@
     <div class="toolbar">
         <button id="btn-load-video">Load Video</button>
         <button id="btn-detect-silence">Detect Silence</button>
-        <select id="audio-track-selector" class="audio-track-selector"></select>
+        <select id="audio-track-selector" style="margin-left: 20px;"></select>
         <span id="status-label" style="margin-left: auto; color: #888;">No video loaded.</span>
     </div>
 
@@ -18,126 +18,70 @@
         
         <div id="main-content" class="split">
             <div id="player-panel" class="panel split">
-                    <div class="panel-header">Preview</div>
-                    <div class="panel-content" style="background-color: black; padding: 0; display: flex; flex-direction: column;">
-                        <video id="video-player" style="width: 100%; flex-grow: 1;" controls>
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="player-controls-bar" style="background-color: #2B2B2B; padding: 8px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #444;">
-                            <button id="btn-previous-frame" title="Previous Frame">⏮</button>
-                            <button id="btn-next-frame" title="Next Frame">⏭</button>
-                            <button id="btn-stop" title="Stop">⏹</button>
-                            <span id="time-display" style="margin-left: auto; color: #CCC; font-family: monospace; font-size: 14px;">00:00:00 / 00:00:00</span>
-                        </div>
-                    </div>
+                <div class="panel-header">Preview</div>
+                <div class="panel-content" style="background-color: black; padding: 0;">
+                    <video id="video-player" style="width: 100%; height: 100%;" controls></video>
                 </div>
-                
-                <div id="controls-panel" class="panel split">
-                    <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>Controls</span>
-                        <button id="btn-toggle-controls" title="Collapse/Expand Controls Panel">◀</button>
+            </div>
+            
+            <div id="controls-panel" class="panel split">
+                <div class="panel-header">Controls</div>
+                <div class="panel-content">
+                    <div class="control-group">
+                        <input type="checkbox" id="skip-silence-check" style="margin-right: 5px;">
+                        <label for="skip-silence-check">Skip Silence</label>
                     </div>
-                    <div class="panel-content">
-                        <div class="control-group">
-                            <input type="checkbox" id="skip-silence-check" style="margin-right: 5px;">
-                            <label for="skip-silence-check">Skip Silence</label>
-                        </div>
-                        <hr style="border-color: #444; margin: 10px 0;">
-                        
-                        <!-- Export Settings -->
-                        <div class="control-section">
-                            <label style="font-weight: 600; margin-bottom: 5px; display: block;">Export Settings</label>
-                            <div style="margin-bottom: 10px;">
-                                <label style="display: block; margin-bottom: 3px; font-size: 12px;">Encoder:</label>
-                                <select id="encoder-select" style="width: 100%; padding: 5px; background-color: #383838; color: #CCC; border: 1px solid #444; border-radius: 3px;"></select>
-                            </div>
-                            <div style="margin-bottom: 10px;">
-                                <label style="display: block; margin-bottom: 3px; font-size: 12px;">Format:</label>
-                                <select id="format-select" style="width: 100%; padding: 5px; background-color: #383838; color: #CCC; border: 1px solid #444; border-radius: 3px;">
-                                    <option value="mp4">MP4</option>
-                                    <option value="mkv">MKV</option>
-                                </select>
-                            </div>
-                            <div style="margin-bottom: 10px;">
-                                <label style="display: block; margin-bottom: 3px; font-size: 12px;">Save Destination:</label>
-                                <button id="btn-select-destination" style="width: 100%; padding: 6px; font-size: 12px;">Select Folder</button>
-                                <span id="save-destination-label" style="display: block; margin-top: 5px; font-size: 11px; color: #888; word-break: break-all;">Not selected</span>
-                            </div>
-                        </div>
-                        <hr style="border-color: #444; margin: 10px 0;">
-                        
-                        <!-- Trim Settings -->
-                        <div class="control-section">
-                            <label style="font-weight: 600; margin-bottom: 5px; display: block;">Trim Settings</label>
-                            <div style="margin-bottom: 10px;">
-                                <label style="display: block; margin-bottom: 3px; font-size: 12px;">Start (seconds):</label>
-                                <input type="number" id="trim-start" value="0" min="0" step="0.1" style="width: 100%; padding: 5px; background-color: #383838; color: #CCC; border: 1px solid #444; border-radius: 3px;">
-                            </div>
-                            <div style="margin-bottom: 10px;">
-                                <label style="display: block; margin-bottom: 3px; font-size: 12px;">End (seconds, empty for full):</label>
-                                <input type="number" id="trim-end" value="" min="0" step="0.1" style="width: 100%; padding: 5px; background-color: #383838; color: #CCC; border: 1px solid #444; border-radius: 3px;">
-                            </div>
-                        </div>
-                        <hr style="border-color: #444; margin: 10px 0;">
-                        
-                        <!-- Audio Analysis -->
-                        <div class="control-section">
-                            <label style="font-weight: 600; margin-bottom: 5px; display: block;">Audio Analysis</label>
-                            <button id="btn-analyze-tracks" style="width: 100%; padding: 6px; font-size: 12px; margin-bottom: 10px;">Analyze All Tracks</button>
-                            <label style="display: block; margin-bottom: 3px; font-size: 12px;">Track Details:</label>
-                            <textarea id="audio-details-textbox" readonly style="width: 100%; height: 150px; padding: 5px; background-color: #1E1E1E; color: #CCC; border: 1px solid #444; border-radius: 3px; font-family: monospace; font-size: 11px; resize: vertical; overflow-y: auto;">No analysis performed yet.</textarea>
-                        </div>
-                        <hr style="border-color: #444; margin: 10px 0;">
-                        
-                        <!-- Progress Panel -->
-                        <div class="control-section">
-                            <label style="font-weight: 600; margin-bottom: 5px; display: block;">Progress</label>
-                            <div id="progress-percentage" style="font-size: 24px; font-weight: bold; color: #1f6aa5; margin-bottom: 5px;">0%</div>
-                            <div id="progress-bar-container" style="width: 100%; height: 20px; background-color: #1E1E1E; border: 1px solid #444; border-radius: 3px; overflow: hidden; margin-bottom: 5px;">
-                                <div id="progress-bar" style="width: 0%; height: 100%; background-color: #1f6aa5; transition: width 0.3s;"></div>
-                            </div>
-                            <div id="progress-details" style="font-size: 11px; color: #888;">Ready</div>
-                        </div>
-                        <hr style="border-color: #444; margin: 10px 0;">
-                        
-                        <!-- Console Output -->
-                        <div class="control-section">
-                            <label style="font-weight: 600; margin-bottom: 5px; display: block;">Console Output</label>
-                            <textarea id="console-output" readonly style="width: 100%; height: 150px; padding: 5px; background-color: #1E1E1E; color: #CCC; border: 1px solid #444; border-radius: 3px; font-family: monospace; font-size: 11px; resize: vertical; overflow-y: auto;"></textarea>
-                        </div>
-                        <hr style="border-color: #444; margin: 10px 0;">
-                        
-                        <button id="btn-export-video" style="width: 100%; padding: 10px;">Export Video</button>
+                    <hr>
+                    <strong>Encoder Settings</strong>
+                    <div class="control-group">
+                        <label>Encoder:</label>
+                        <select id="encoder-select"></select>
                     </div>
+                    <div class="control-group">
+                        <label>Format:</label>
+                        <select id="format-select">
+                            <option value="mp4">MP4</option>
+                            <option value="mkv">MKV</option>
+                        </select>
+                    </div>
+                    <hr>
+                    <strong>Trim Settings</strong>
+                    <div class="control-group">
+                        <label>Start:</label>
+                        <input type="text" id="trim-start" placeholder="0.0">
+                    </div>
+                    <div class="control-group">
+                        <label>End:</label>
+                        <input type="text" id="trim-end" placeholder="Full Duration">
+                    </div>
+                    <hr>
+                    <button id="btn-export-video" style="width: 100%; padding: 10px;">Export Video</button>
                 </div>
+            </div>
         </div>
         
         <div id="timeline-panel" class="panel split">
             <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <span>Interactive Timeline</span>
-                <div style="display: flex; gap: 5px; align-items: center;">
-                    <button id="btn-toggle-timeline" title="Collapse/Expand Timeline Panel" class="timeline-header-btn" style="margin-right: 10px;">▼</button>
-                    <!-- Statistics -->
-                    <span id="timeline-stats" style="font-size: 11px; color: #888; margin-right: 10px;">No data</span>
-                    <!-- Zoom Controls -->
-                    <button id="btn-zoom-out" title="Zoom Out" class="timeline-header-btn">🔍-</button>
-                    <span id="zoom-level" style="font-size: 11px; color: #CCC; min-width: 50px; text-align: center;">1.0x</span>
-                    <button id="btn-zoom-in" title="Zoom In" class="timeline-header-btn">🔍+</button>
-                    <button id="btn-zoom-reset" title="Reset Zoom" class="timeline-header-btn">100%</button>
-                    <!-- Scroll Controls -->
-                    <button id="btn-scroll-start" title="Scroll to Start" class="timeline-header-btn">⏮</button>
-                    <button id="btn-scroll-left" title="Scroll Left" class="timeline-header-btn">◀</button>
-                    <button id="btn-scroll-right" title="Scroll Right" class="timeline-header-btn">▶</button>
-                    <button id="btn-scroll-end" title="Scroll to End" class="timeline-header-btn">⏭</button>
+                <div class="timeline-controls">
+                    <button id="btn-scroll-start" title="Scroll to Start">|◀</button>
+                    <button id="btn-zoom-reset" title="Reset Zoom">100%</button>
+                    <button id="btn-scroll-end" title="Scroll to End">▶|</button>
                 </div>
             </div>
-            <div class="panel-content" style="padding: 5px; flex-grow: 1; overflow-y: auto; overflow-x: auto;">
-                <canvas id="ruler-canvas" style="width: 100%; height: 30px; display: block;"></canvas>
-                <canvas id="waveform-canvas" style="width: 100%; height: 210px; display: block;"></canvas>
-                <canvas id="segments-canvas" style="width: 100%; height: 50px; display: block;"></canvas>
+            <div class="panel-content" style="padding: 5px; flex-grow: 1;">
+                <div id="timeline-scroll-wrapper">
+                    <canvas id="ruler-canvas" style="width: 100%; height: 30px;"></canvas>
+                    <canvas id="waveform-canvas" style="width: 100%; height: 100px;"></canvas>
+                    <canvas id="segments-canvas" style="width: 100%; height: 50px;"></canvas>
+                </div>
+            </div>
+            <div id="console-wrapper">
+                <textarea id="console-output" readonly></textarea>
             </div>
         </div>
     </div>
+    
     <script src="main.js" type="module"></script>
 </body>
 </html>
