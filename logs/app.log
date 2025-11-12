@@ -427,3 +427,100 @@
 2025-11-12 15:18:58 - video_production_app.Api - INFO - 📍 Saved to: C:\Users\ASUS\Downloads\2024-10-19 18-17-15_final.mp4
 
 2025-11-12 15:18:58 - video_production_app.Api - INFO - Export complete! Saved to C:/Users/ASUS/Downloads
+2025-11-12 15:36:44 - video_production_app.Api - INFO - API initialized
+2025-11-12 15:36:47 - video_production_app.Api - INFO - Getting app configuration
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-12 15:36:47 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-12 15:36:47 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-12 15:36:47 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-12 15:36:47 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-12 15:36:47 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-12 15:36:47 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-12 15:36:47 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-12 15:37:31 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 17-46-45.mp4
+2025-11-12 15:37:31 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 17-46-45.mp4...
+
+2025-11-12 15:37:32 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 15:37:32 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 17-46-45.mp4 (26.67s, 2 tracks)
+2025-11-12 15:37:37 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/2024-10-19 17-46-45.mp4 on track 2
+2025-11-12 15:37:37 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 17-46-45.mp4...
+
+2025-11-12 15:37:37 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 15:37:37 - video_production_app.Api - INFO - 🤫 Detecting silence in track 2...
+
+2025-11-12 15:37:37 - video_production_app.Api - INFO - 🔍 Found 2 audible segments and 2 silent segments.
+
+2025-11-12 15:37:37 - video_production_app.Api - INFO - Found 4 segments
+2025-11-12 15:37:37 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/2024-10-19 17-46-45.mp4...
+2025-11-12 15:37:37 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 1...
+
+2025-11-12 15:37:40 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 2...
+
+2025-11-12 15:37:40 - video_production_app.Api - DEBUG - CORE: ✅ Extracted 2 waveforms!
+
+2025-11-12 15:37:40 - video_production_app.Api - INFO - Extracted 2 waveforms
+2025-11-12 15:37:40 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 17-46-45.mp4
+2025-11-12 15:38:10 - video_production_app.Api - INFO - Creating video with audio tracks: [2]
+2025-11-12 15:38:10 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_30472_1762942090.mp4
+2025-11-12 15:38:17 - video_production_app.Api - INFO - Creating video with audio tracks: [2, 1]
+2025-11-12 15:38:18 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_30472_1762942097.mp4
+2025-11-12 15:39:00 - video_production_app.Api - INFO - Received request to export video cuts
+2025-11-12 15:39:00 - video_production_app.Api - INFO - 📁 Created folder: E:\PDF TOOl\test pdfs\2024-10-19 17-46-45
+
+2025-11-12 15:39:00 - video_production_app.Api - INFO - Auto-selected encoder: NVIDIA (H.264)
+
+2025-11-12 15:39:00 - video_production_app.Api - INFO - 📹 Exporting 4 cut(s)...
+
+2025-11-12 15:39:00 - video_production_app.Api - INFO - ✂️ Exporting cut 1/4: cut_001.mp4 (0.00s - 2.76s, 2.76s)
+
+2025-11-12 15:39:00 - video_production_app.Api - DEBUG - Progress: 0.00%, ETA: Cut 1/4, Speed: 0x
+2025-11-12 15:39:00 - video_production_app.Api - INFO - ✅ Cut 1/4 exported: cut_001.mp4
+
+2025-11-12 15:39:00 - video_production_app.Api - INFO - ✂️ Exporting cut 2/4: cut_002.mp4 (2.76s - 4.78s, 2.02s)
+
+2025-11-12 15:39:00 - video_production_app.Api - DEBUG - Progress: 25.00%, ETA: Cut 2/4, Speed: 0x
+2025-11-12 15:39:00 - video_production_app.Api - INFO - ✅ Cut 2/4 exported: cut_002.mp4
+
+2025-11-12 15:39:00 - video_production_app.Api - INFO - ✂️ Exporting cut 3/4: cut_003.mp4 (4.78s - 26.65s, 21.87s)
+
+2025-11-12 15:39:00 - video_production_app.Api - DEBUG - Progress: 50.00%, ETA: Cut 3/4, Speed: 0x
+2025-11-12 15:39:00 - video_production_app.Api - INFO - ✅ Cut 3/4 exported: cut_003.mp4
+
+2025-11-12 15:39:00 - video_production_app.Api - INFO - ✂️ Exporting cut 4/4: cut_004.mp4 (26.65s - 26.67s, 0.02s)
+
+2025-11-12 15:39:00 - video_production_app.Api - DEBUG - Progress: 75.00%, ETA: Cut 4/4, Speed: 0x
+2025-11-12 15:39:00 - video_production_app.Api - INFO - ✅ Cut 4/4 exported: cut_004.mp4
+
+2025-11-12 15:39:00 - video_production_app.Api - DEBUG - Progress: 100.00%, ETA: Complete, Speed: 0x
+2025-11-12 15:39:00 - video_production_app.Api - INFO - Export cuts complete! Saved 4 cut(s) to E:\PDF TOOl\test pdfs\2024-10-19 17-46-45
+2025-11-12 15:40:16 - video_production_app.Api - INFO - Received request to export video
+2025-11-12 15:40:16 - video_production_app.Api - INFO - Auto-selected encoder: NVIDIA (H.264)
+2025-11-12 15:40:16 - video_production_app.Api - INFO - Starting export with encoder: Automatic (Best GPU)...
+2025-11-12 15:40:16 - video_production_app.Api - INFO - ----------------------------------------
+
+2025-11-12 15:40:16 - video_production_app.Api - INFO - 🎬 Starting processing for: 2024-10-19 17-46-45.mp4
+
+2025-11-12 15:40:16 - video_production_app.Api - INFO - ⚙️ Running FFmpeg... This may take a while.
+
+2025-11-12 15:40:17 - video_production_app.Api - DEBUG - Progress: 1.81%, ETA: Calculating..., Speed: 0.0x
+2025-11-12 15:40:17 - video_production_app.Api - DEBUG - Progress: 6.44%, ETA: 0:00:26, Speed: 0.953x
+2025-11-12 15:40:18 - video_production_app.Api - DEBUG - Progress: 11.31%, ETA: 0:00:14, Speed: 1.68x
+2025-11-12 15:40:19 - video_production_app.Api - DEBUG - Progress: 16.06%, ETA: 0:00:11, Speed: 1.97x
+2025-11-12 15:40:19 - video_production_app.Api - DEBUG - Progress: 21.19%, ETA: 0:00:10, Speed: 2.09x
+2025-11-12 15:40:20 - video_production_app.Api - DEBUG - Progress: 26.06%, ETA: 0:00:08, Speed: 2.2x
+2025-11-12 15:40:20 - video_production_app.Api - DEBUG - Progress: 30.81%, ETA: 0:00:08, Speed: 2.26x
+2025-11-12 15:40:21 - video_production_app.Api - DEBUG - Progress: 36.00%, ETA: 0:00:07, Speed: 2.29x
+2025-11-12 15:40:21 - video_production_app.Api - DEBUG - Progress: 41.00%, ETA: 0:00:06, Speed: 2.33x
+2025-11-12 15:40:22 - video_production_app.Api - DEBUG - Progress: 46.25%, ETA: 0:00:06, Speed: 2.36x
+2025-11-12 15:40:22 - video_production_app.Api - DEBUG - Progress: 51.12%, ETA: 0:00:05, Speed: 2.4x
+2025-11-12 15:40:23 - video_production_app.Api - DEBUG - Progress: 56.31%, ETA: 0:00:04, Speed: 2.41x

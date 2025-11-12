@@ -539,6 +539,219 @@ class Api:
             self.log_to_console(f"Export failed: {str(e)}")
             return {"status": "error", "message": str(e)}
     
+    def export_video_cuts(self, video_info: Dict[str, Any], segments: List[Dict[str, Any]], 
+                          export_settings: Dict[str, Any]) -> Dict[str, str]:
+        """
+        Exports each audible segment as a separate video file in a folder named after the video.
+        
+        Args:
+            video_info: Video information dictionary
+            segments: List of audible segment dictionaries (only segments with keep=true)
+            export_settings: Export configuration dictionary
+            
+        Returns:
+            Dict with status and message
+        """
+        self.logger.info("Received request to export video cuts")
+        
+        # Validate inputs
+        if not video_info or not video_info.get('filePath'):
+            return self._error_response("Invalid video info")
+        
+        if not segments:
+            return self._error_response("No segments provided")
+        
+        # Validate video path
+        video_path = video_info.get('filePath')
+        is_valid, error_msg = validate_video_path(video_path)
+        if not is_valid:
+            return self._error_response(error_msg)
+        
+        # Validate trim values if provided
+        trim_start = export_settings.get('trim_start')
+        trim_end = export_settings.get('trim_end')
+        duration = video_info.get('duration', 0)
+        
+        if trim_start or trim_end:
+            is_valid_trim, trim_error = validate_trim_values(trim_start or 0, trim_end, duration)
+            if not is_valid_trim:
+                return self._error_response(trim_error)
+        
+        # 1. Get save location
+        save_path = export_settings.get('save_path')
+        if not save_path:
+            save_path = self.select_save_destination()
+            if not save_path:
+                self.logger.info("Export cancelled by user (no save folder)")
+                return {"status": "cancelled", "message": "No save folder selected."}
+        
+        # 2. Create folder named after video (without extension)
+        video_name = Path(video_info['fileName']).stem  # Get filename without extension
+        cuts_folder = Path(save_path) / video_name
+        
+        try:
+            cuts_folder.mkdir(parents=True, exist_ok=True)
+            self.log_to_console(f"📁 Created folder: {cuts_folder}\n")
+        except Exception as e:
+            self.logger.error(f"Error creating cuts folder: {e}")
+            return self._error_response(f"Could not create output folder: {str(e)}")
+        
+        # 3. Get settings
+        settings_dict = self.settings.settings
+        encoder_name = export_settings.get('encoder', 'CPU (x264)')
+        output_format = export_settings.get('format', 'mp4').lower()
+        
+        # 4. Get encoder parameters
+        video_params = ""
+        if encoder_name == "Automatic (Best GPU)":
+            for enc in self.available_encoders:
+                if "NVIDIA" in enc or "AMD" in enc or "Intel" in enc:
+                    params_tuple = ENCODER_OPTIONS.get(enc)
+                    if params_tuple:
+                        video_params = params_tuple[1]
+                        self.log_to_console(f"Auto-selected encoder: {enc}\n")
+                        break
+            if not video_params:
+                video_params = ENCODER_OPTIONS.get("CPU (x264)")[1]
+                self.log_to_console("Auto-selected encoder: CPU (x264)\n")
+        else:
+            params_tuple = ENCODER_OPTIONS.get(encoder_name)
+            if params_tuple:
+                video_params = params_tuple[1]
+            else:
+                self.log_to_console(f"Error: Could not find settings for {encoder_name}. Defaulting to CPU.\n")
+                video_params = ENCODER_OPTIONS.get("CPU (x264)")[1]
+        
+        # 5. Get trim settings
+        trim_start = export_settings.get('trim_start')
+        trim_end = export_settings.get('trim_end')
+        
+        status_callback = self.log_to_console
+        
+        def progress_callback(percentage, eta, speed):
+            # Send progress updates to JavaScript
+            self.logger.debug(f"Progress: {percentage:.2f}%, ETA: {eta}, Speed: {speed}x")
+            if self.window:
+                try:
+                    eta_escaped = eta.replace("'", "\\'")
+                    self.window.evaluate_js(f"window.updateProgress({percentage}, '{eta_escaped}', {speed});")
+                except Exception as e:
+                    self.logger.warning(f"Error sending progress update: {e}")
+        
+        try:
+            import subprocess
+            import shlex
+            
+            total_cuts = len(segments)
+            self.log_to_console(f"📹 Exporting {total_cuts} cut(s)...\n")
+            
+            # Process each segment
+            for i, segment in enumerate(segments, 1):
+                segment_start = segment['start']
+                segment_end = segment['end']
+                
+                # Apply trim offset if specified
+                if trim_start:
+                    segment_start += float(trim_start)
+                    segment_end += float(trim_start)
+                
+                # Check if segment is within trim_end limit
+                if trim_end and segment_start >= float(trim_end):
+                    continue  # Skip segments beyond trim_end
+                if trim_end and segment_end > float(trim_end):
+                    segment_end = float(trim_end)  # Clip to trim_end
+                
+                # Recalculate duration after trim adjustments
+                segment_duration = segment_end - segment_start
+                
+                # Skip if duration is invalid
+                if segment_duration <= 0:
+                    self.log_to_console(f"⚠️ Skipping cut {i}: Invalid duration ({segment_duration:.2f}s)\n")
+                    continue
+                
+                # Generate output filename
+                cut_filename = f"cut_{i:03d}.{output_format}"
+                output_file = cuts_folder / cut_filename
+                
+                self.log_to_console(f"✂️ Exporting cut {i}/{total_cuts}: {cut_filename} ({segment_start:.2f}s - {segment_end:.2f}s, {segment_duration:.2f}s)\n")
+                
+                # Update progress: overall progress across all cuts
+                overall_progress = ((i - 1) / total_cuts) * 100
+                progress_callback(overall_progress, f"Cut {i}/{total_cuts}", 0)
+                
+                # Build FFmpeg command to extract this segment
+                ffmpeg_executable = "ffmpeg"  # Use system PATH
+                cmd = [
+                    str(ffmpeg_executable),
+                    "-y",  # Overwrite output
+                    "-hide_banner",
+                    "-ss", str(segment_start),  # Start time
+                    "-i", str(video_path),  # Input file
+                    "-t", str(segment_duration),  # Duration
+                ]
+                
+                # Get input file extension (without dot)
+                input_ext = Path(video_path).suffix[1:].lower() if Path(video_path).suffix else ""
+                
+                # If we need to re-encode (for format conversion or codec changes)
+                if output_format != input_ext:
+                    # Need to re-encode
+                    video_args = shlex.split(video_params)
+                    cmd.extend(video_args)
+                    
+                    # Audio codec
+                    if output_format.lower() == "mp4":
+                        cmd.extend(["-c:a", "aac", "-b:a", "192k"])
+                    else:
+                        cmd.extend(["-c:a", "copy"])
+                    
+                    # Pixel format for MP4
+                    if output_format.lower() == "mp4":
+                        cmd.extend(["-pix_fmt", "yuv420p"])
+                else:
+                    # Just copy streams (much faster)
+                    cmd.extend(["-c", "copy"])
+                
+                cmd.append(str(output_file))
+                
+                # Run FFmpeg
+                startupinfo = None
+                if os.name == 'nt':
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    encoding='utf-8',
+                    errors='ignore',
+                    startupinfo=startupinfo
+                )
+                
+                if result.returncode != 0:
+                    error_msg = f"Failed to export cut {i}: {result.stderr[:200]}"
+                    self.logger.error(error_msg)
+                    self.log_to_console(f"❌ {error_msg}\n")
+                    # Continue with next cut instead of failing completely
+                    continue
+                
+                self.log_to_console(f"✅ Cut {i}/{total_cuts} exported: {cut_filename}\n")
+            
+            # Final progress update
+            progress_callback(100, "Complete", 0)
+            
+            self.logger.info(f"Export cuts complete! Saved {total_cuts} cut(s) to {cuts_folder}")
+            return {
+                "status": "success",
+                "message": f"Export complete! {total_cuts} cut(s) saved to:\n{cuts_folder}"
+            }
+        
+        except Exception as e:
+            self.logger.error(f"Export cuts failed: {e}", exc_info=True)
+            self.log_to_console(f"Export failed: {str(e)}\n")
+            return {"status": "error", "message": str(e)}
+    
     def get_waveform_data(self, file_path: str, width: Union[int, str]) -> Optional[Dict[str, Any]]:
         """
         Extracts, downsamples, and returns waveform data.

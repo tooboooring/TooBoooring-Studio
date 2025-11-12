@@ -68,6 +68,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const loadVideoButton = document.getElementById('btn-load-video');
     const detectSilenceButton = document.getElementById('btn-detect-silence');
     const exportButton = document.getElementById('btn-export-video');
+    const exportCutsButton = document.getElementById('btn-export-cuts');
     const skipSilenceCheckbox = document.getElementById('skip-silence-check');
     const btnScrollStart = document.getElementById('btn-scroll-start');
     const btnZoomReset = document.getElementById('btn-zoom-reset');
@@ -98,6 +99,7 @@ window.addEventListener('DOMContentLoaded', () => {
     loadVideoButton.addEventListener('click', loadVideo);
     detectSilenceButton.addEventListener('click', detectSilence);
     exportButton.addEventListener('click', exportVideo);
+    exportCutsButton.addEventListener('click', exportCuts);
 
     // --- Bind Listeners for local JS ---
     skipSilenceCheckbox.addEventListener('change', () => {
@@ -739,6 +741,114 @@ async function exportVideo() {
         // Always reset button and progress
         exportButton.disabled = false;
         exportButton.textContent = "Export Video";
+        
+        // Reset progress if not already set to 100%
+        if (!exportSucceeded) {
+            window.updateProgress(0, "Ready", 0);
+        }
+    }
+}
+
+async function exportCuts() {
+    const statusLabel = document.getElementById('status-label');
+    const exportCutsButton = document.getElementById('btn-export-cuts');
+
+    if (!currentVideoInfo || !timeline.segments || timeline.segments.length === 0) {
+        alert("Please load a video and detect segments first.");
+        return;
+    }
+
+    if (!saveDestination) {
+        alert("Please select a save destination first.");
+        return;
+    }
+
+    // Get only audible segments (where keep=true or keep is undefined)
+    const audibleSegments = timeline.segments.filter(seg => seg.keep !== false);
+    
+    if (audibleSegments.length === 0) {
+        alert("No audible segments to export. All segments are marked for removal.");
+        return;
+    }
+
+    exportCutsButton.disabled = true;
+    exportCutsButton.textContent = "Exporting Cuts...";
+    statusLabel.textContent = `Exporting ${audibleSegments.length} cut(s)...`;
+    
+    // Reset progress
+    window.updateProgress(0, "Starting...", 0);
+    window.clearConsole();
+    window.updateConsole(`Starting export of ${audibleSegments.length} cut(s)...\n`);
+
+    // Get trim values
+    const trimStartInput = document.getElementById('trim-start');
+    const trimEndInput = document.getElementById('trim-end');
+    const trimStart = parseFloat(trimStartInput.value) || 0;
+    const trimEnd = trimEndInput.value ? parseFloat(trimEndInput.value) : null;
+
+    // Validate trim values (client-side validation)
+    if (trimStart < 0) {
+        alert("Trim start must be >= 0");
+        exportCutsButton.disabled = false;
+        exportCutsButton.textContent = "Export in Cuts";
+        return;
+    }
+    if (trimEnd !== null && trimEnd <= trimStart) {
+        alert("Trim end must be greater than trim start");
+        exportCutsButton.disabled = false;
+        exportCutsButton.textContent = "Export in Cuts";
+        return;
+    }
+    if (trimEnd !== null && trimEnd > currentVideoInfo.duration) {
+        alert(`Trim end must be <= video duration (${currentVideoInfo.duration.toFixed(2)}s)`);
+        exportCutsButton.disabled = false;
+        exportCutsButton.textContent = "Export in Cuts";
+        return;
+    }
+
+    const export_settings = {
+        encoder: document.getElementById('encoder-select').value,
+        format: document.getElementById('format-select').value,
+        save_path: saveDestination,
+        trim_start: trimStartInput.value || null,
+        trim_end: trimEndInput.value || null
+    };
+
+    let exportSucceeded = false;
+    try {
+        const result = await window.pywebview.api.export_video_cuts(
+            currentVideoInfo,
+            audibleSegments,
+            export_settings
+        );
+
+        // Check for errors
+        const { hasError, message, data } = checkError(result);
+        
+        if (!hasError && result.status === 'success') {
+            window.updateProgress(100, "Complete", 0);
+            statusLabel.textContent = `Export complete! ${audibleSegments.length} cut(s) exported.`;
+            window.updateConsole(`\n✅ Export completed successfully! ${audibleSegments.length} cut(s) exported.\n`);
+            alert(result.message || `Export completed! ${audibleSegments.length} cut(s) exported.`);
+            exportSucceeded = true;
+        } else if (result.status === 'cancelled') {
+            statusLabel.textContent = "Export cancelled.";
+            window.updateConsole("\n❌ Export cancelled by user.\n");
+        } else {
+            statusLabel.textContent = "Export failed.";
+            const errorMsg = message || result.message || "Unknown error";
+            window.updateConsole(`\n❌ Export failed: ${errorMsg}\n`);
+            alert(`Export Failed: ${errorMsg}`);
+        }
+    } catch (error) {
+        // Handle exceptions
+        statusLabel.textContent = "Export failed.";
+        window.updateConsole(`\n❌ Export error: ${error.message}\n`);
+        alert(`Export Failed: ${error.message}`);
+    } finally {
+        // Always reset button and progress
+        exportCutsButton.disabled = false;
+        exportCutsButton.textContent = "Export in Cuts";
         
         // Reset progress if not already set to 100%
         if (!exportSucceeded) {
