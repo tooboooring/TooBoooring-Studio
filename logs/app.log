@@ -173,3 +173,257 @@
 2025-11-12 14:51:24 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939218.mp4
 2025-11-12 14:51:28 - video_production_app.Api - INFO - Creating video with audio tracks: [1, 2]
 2025-11-12 14:52:33 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939288.mp4
+2025-11-12 15:00:55 - video_production_app.Api - INFO - Analyzing all tracks for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 15:00:55 - video_production_app.Api - DEBUG - CORE: 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 15:00:55 - video_production_app.Api - DEBUG - CORE: ✅ Found 2 audio track(s).
+
+2025-11-12 15:00:56 - video_production_app.Api - INFO - Analyzed 2 tracks
+2025-11-12 15:01:57 - video_production_app.Api - INFO - Received request to export video
+2025-11-12 15:01:57 - video_production_app.Api - INFO - Auto-selected encoder: NVIDIA (H.264)
+2025-11-12 15:01:57 - video_production_app.Api - INFO - Starting export with encoder: Automatic (Best GPU)...
+2025-11-12 15:01:57 - video_production_app.Api - INFO - ----------------------------------------
+
+2025-11-12 15:01:57 - video_production_app.Api - INFO - 🎬 Starting processing for: 2024-10-19 18-17-15.mp4
+
+2025-11-12 15:01:57 - video_production_app.Api - INFO - 🛠️ Filter string is very long. Using a temporary script file.
+
+2025-11-12 15:01:57 - video_production_app.Api - INFO - ⚙️ Running FFmpeg... This may take a while.
+
+2025-11-12 15:11:57 - video_production_app.Api - INFO - API initialized
+2025-11-12 15:12:00 - video_production_app.Api - INFO - Getting app configuration
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-12 15:12:00 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-12 15:12:00 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-12 15:12:00 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-12 15:12:00 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-12 15:12:00 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-12 15:12:00 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-12 15:12:00 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-12 15:12:15 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 15:12:16 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 15:12:16 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 15:12:16 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 18-17-15.mp4 (1340.85s, 2 tracks)
+2025-11-12 15:13:01 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4 on track 2
+2025-11-12 15:13:01 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 15:13:01 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 15:13:01 - video_production_app.Api - INFO - 🤫 Detecting silence in track 2...
+
+2025-11-12 15:13:02 - video_production_app.Api - INFO - 🔍 Found 183 audible segments and 183 silent segments.
+
+2025-11-12 15:13:02 - video_production_app.Api - INFO - Found 366 segments
+2025-11-12 15:13:02 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 15:13:02 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 1...
+
+2025-11-12 15:13:06 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 2...
+
+2025-11-12 15:13:07 - video_production_app.Api - DEBUG - CORE: ✅ Extracted 2 waveforms!
+
+2025-11-12 15:13:07 - video_production_app.Api - INFO - Extracted 2 waveforms
+2025-11-12 15:13:07 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 15:13:24 - video_production_app.Api - INFO - Analyzing all tracks for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 15:13:24 - video_production_app.Api - DEBUG - CORE: 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 15:13:24 - video_production_app.Api - DEBUG - CORE: ✅ Found 2 audio track(s).
+
+2025-11-12 15:13:24 - video_production_app.Api - INFO - Analyzed 2 tracks
+2025-11-12 15:13:42 - video_production_app.Api - INFO - Received request to export video
+2025-11-12 15:13:42 - video_production_app.Api - INFO - Auto-selected encoder: NVIDIA (H.264)
+2025-11-12 15:13:42 - video_production_app.Api - INFO - Starting export with encoder: Automatic (Best GPU)...
+2025-11-12 15:13:42 - video_production_app.Api - INFO - ----------------------------------------
+
+2025-11-12 15:13:42 - video_production_app.Api - INFO - 🎬 Starting processing for: 2024-10-19 18-17-15.mp4
+
+2025-11-12 15:13:42 - video_production_app.Api - INFO - 🛠️ Filter string is very long. Using a temporary script file.
+
+2025-11-12 15:13:42 - video_production_app.Api - INFO - ⚙️ Running FFmpeg... This may take a while.
+
+2025-11-12 15:13:45 - video_production_app.Api - DEBUG - Progress: 0.64%, ETA: 0:07:34, Speed: 2.03x
+2025-11-12 15:13:47 - video_production_app.Api - DEBUG - Progress: 1.29%, ETA: 0:06:02, Speed: 2.53x
+2025-11-12 15:13:49 - video_production_app.Api - DEBUG - Progress: 1.80%, ETA: 0:06:09, Speed: 2.47x
+2025-11-12 15:13:51 - video_production_app.Api - DEBUG - Progress: 2.42%, ETA: 0:05:58, Speed: 2.53x
+2025-11-12 15:13:52 - video_production_app.Api - DEBUG - Progress: 2.93%, ETA: 0:05:48, Speed: 2.59x
+2025-11-12 15:13:54 - video_production_app.Api - DEBUG - Progress: 3.47%, ETA: 0:05:33, Speed: 2.69x
+2025-11-12 15:13:56 - video_production_app.Api - DEBUG - Progress: 4.14%, ETA: 0:05:26, Speed: 2.73x
+2025-11-12 15:13:58 - video_production_app.Api - DEBUG - Progress: 4.70%, ETA: 0:05:16, Speed: 2.8x
+2025-11-12 15:13:59 - video_production_app.Api - DEBUG - Progress: 5.25%, ETA: 0:05:08, Speed: 2.85x
+2025-11-12 15:14:01 - video_production_app.Api - DEBUG - Progress: 5.82%, ETA: 0:05:02, Speed: 2.89x
+2025-11-12 15:14:02 - video_production_app.Api - DEBUG - Progress: 6.42%, ETA: 0:04:55, Speed: 2.94x
+2025-11-12 15:14:04 - video_production_app.Api - DEBUG - Progress: 7.01%, ETA: 0:04:48, Speed: 2.99x
+2025-11-12 15:14:05 - video_production_app.Api - DEBUG - Progress: 7.61%, ETA: 0:04:43, Speed: 3.03x
+2025-11-12 15:14:07 - video_production_app.Api - DEBUG - Progress: 8.21%, ETA: 0:04:37, Speed: 3.07x
+2025-11-12 15:14:08 - video_production_app.Api - DEBUG - Progress: 8.81%, ETA: 0:04:33, Speed: 3.1x
+2025-11-12 15:14:10 - video_production_app.Api - DEBUG - Progress: 9.40%, ETA: 0:04:28, Speed: 3.13x
+2025-11-12 15:14:12 - video_production_app.Api - DEBUG - Progress: 9.98%, ETA: 0:04:25, Speed: 3.15x
+2025-11-12 15:14:13 - video_production_app.Api - DEBUG - Progress: 10.57%, ETA: 0:04:21, Speed: 3.17x
+2025-11-12 15:14:15 - video_production_app.Api - DEBUG - Progress: 11.17%, ETA: 0:04:21, Speed: 3.15x
+2025-11-12 15:14:17 - video_production_app.Api - DEBUG - Progress: 11.84%, ETA: 0:04:21, Speed: 3.13x
+2025-11-12 15:14:19 - video_production_app.Api - DEBUG - Progress: 12.37%, ETA: 0:04:19, Speed: 3.13x
+2025-11-12 15:14:20 - video_production_app.Api - DEBUG - Progress: 12.96%, ETA: 0:04:16, Speed: 3.15x
+2025-11-12 15:14:22 - video_production_app.Api - DEBUG - Progress: 13.55%, ETA: 0:04:14, Speed: 3.16x
+2025-11-12 15:14:23 - video_production_app.Api - DEBUG - Progress: 14.14%, ETA: 0:04:10, Speed: 3.18x
+2025-11-12 15:14:25 - video_production_app.Api - DEBUG - Progress: 14.67%, ETA: 0:04:09, Speed: 3.18x
+2025-11-12 15:14:26 - video_production_app.Api - DEBUG - Progress: 15.24%, ETA: 0:04:06, Speed: 3.19x
+2025-11-12 15:14:28 - video_production_app.Api - DEBUG - Progress: 15.80%, ETA: 0:04:05, Speed: 3.19x
+2025-11-12 15:14:30 - video_production_app.Api - DEBUG - Progress: 16.38%, ETA: 0:04:02, Speed: 3.2x
+2025-11-12 15:14:31 - video_production_app.Api - DEBUG - Progress: 16.95%, ETA: 0:04:00, Speed: 3.21x
+2025-11-12 15:14:33 - video_production_app.Api - DEBUG - Progress: 17.52%, ETA: 0:03:57, Speed: 3.22x
+2025-11-12 15:14:34 - video_production_app.Api - DEBUG - Progress: 18.09%, ETA: 0:03:56, Speed: 3.22x
+2025-11-12 15:14:36 - video_production_app.Api - DEBUG - Progress: 18.65%, ETA: 0:03:53, Speed: 3.23x
+2025-11-12 15:14:37 - video_production_app.Api - DEBUG - Progress: 19.21%, ETA: 0:03:52, Speed: 3.23x
+2025-11-12 15:14:39 - video_production_app.Api - DEBUG - Progress: 19.85%, ETA: 0:03:51, Speed: 3.22x
+2025-11-12 15:14:41 - video_production_app.Api - DEBUG - Progress: 20.50%, ETA: 0:03:49, Speed: 3.21x
+2025-11-12 15:14:43 - video_production_app.Api - DEBUG - Progress: 21.17%, ETA: 0:03:48, Speed: 3.2x
+2025-11-12 15:14:45 - video_production_app.Api - DEBUG - Progress: 21.75%, ETA: 0:03:46, Speed: 3.21x
+2025-11-12 15:14:47 - video_production_app.Api - DEBUG - Progress: 22.34%, ETA: 0:03:44, Speed: 3.21x
+2025-11-12 15:14:49 - video_production_app.Api - DEBUG - Progress: 22.94%, ETA: 0:03:42, Speed: 3.21x
+2025-11-12 15:14:50 - video_production_app.Api - DEBUG - Progress: 23.45%, ETA: 0:03:42, Speed: 3.2x
+2025-11-12 15:14:52 - video_production_app.Api - DEBUG - Progress: 24.03%, ETA: 0:03:41, Speed: 3.19x
+2025-11-12 15:14:54 - video_production_app.Api - DEBUG - Progress: 24.55%, ETA: 0:03:40, Speed: 3.18x
+2025-11-12 15:14:55 - video_production_app.Api - DEBUG - Progress: 25.09%, ETA: 0:03:38, Speed: 3.18x
+2025-11-12 15:14:57 - video_production_app.Api - DEBUG - Progress: 25.71%, ETA: 0:03:37, Speed: 3.17x
+2025-11-12 15:14:59 - video_production_app.Api - DEBUG - Progress: 26.28%, ETA: 0:03:35, Speed: 3.18x
+2025-11-12 15:15:01 - video_production_app.Api - DEBUG - Progress: 26.82%, ETA: 0:03:35, Speed: 3.16x
+2025-11-12 15:15:03 - video_production_app.Api - DEBUG - Progress: 27.37%, ETA: 0:03:33, Speed: 3.16x
+2025-11-12 15:15:04 - video_production_app.Api - DEBUG - Progress: 27.91%, ETA: 0:03:31, Speed: 3.16x
+2025-11-12 15:15:06 - video_production_app.Api - DEBUG - Progress: 28.44%, ETA: 0:03:31, Speed: 3.14x
+2025-11-12 15:15:08 - video_production_app.Api - DEBUG - Progress: 28.99%, ETA: 0:03:30, Speed: 3.13x
+2025-11-12 15:15:10 - video_production_app.Api - DEBUG - Progress: 29.61%, ETA: 0:03:29, Speed: 3.12x
+2025-11-12 15:15:12 - video_production_app.Api - DEBUG - Progress: 30.15%, ETA: 0:03:28, Speed: 3.11x
+2025-11-12 15:15:14 - video_production_app.Api - DEBUG - Progress: 30.69%, ETA: 0:03:27, Speed: 3.1x
+2025-11-12 15:15:15 - video_production_app.Api - DEBUG - Progress: 31.20%, ETA: 0:03:25, Speed: 3.11x
+2025-11-12 15:15:18 - video_production_app.Api - DEBUG - Progress: 31.85%, ETA: 0:03:24, Speed: 3.1x
+2025-11-12 15:15:20 - video_production_app.Api - DEBUG - Progress: 32.46%, ETA: 0:03:22, Speed: 3.1x
+2025-11-12 15:15:22 - video_production_app.Api - DEBUG - Progress: 32.99%, ETA: 0:03:22, Speed: 3.08x
+2025-11-12 15:15:23 - video_production_app.Api - DEBUG - Progress: 33.49%, ETA: 0:03:20, Speed: 3.08x
+2025-11-12 15:15:25 - video_production_app.Api - DEBUG - Progress: 34.03%, ETA: 0:03:18, Speed: 3.08x
+2025-11-12 15:15:26 - video_production_app.Api - DEBUG - Progress: 34.57%, ETA: 0:03:17, Speed: 3.08x
+2025-11-12 15:15:28 - video_production_app.Api - DEBUG - Progress: 35.16%, ETA: 0:03:16, Speed: 3.07x
+2025-11-12 15:15:30 - video_production_app.Api - DEBUG - Progress: 35.69%, ETA: 0:03:13, Speed: 3.08x
+2025-11-12 15:15:32 - video_production_app.Api - DEBUG - Progress: 36.34%, ETA: 0:03:12, Speed: 3.07x
+2025-11-12 15:15:34 - video_production_app.Api - DEBUG - Progress: 36.87%, ETA: 0:03:11, Speed: 3.06x
+2025-11-12 15:15:36 - video_production_app.Api - DEBUG - Progress: 37.51%, ETA: 0:03:09, Speed: 3.06x
+2025-11-12 15:15:38 - video_production_app.Api - DEBUG - Progress: 38.07%, ETA: 0:03:08, Speed: 3.05x
+2025-11-12 15:15:40 - video_production_app.Api - DEBUG - Progress: 38.73%, ETA: 0:03:07, Speed: 3.04x
+2025-11-12 15:15:42 - video_production_app.Api - DEBUG - Progress: 39.31%, ETA: 0:03:04, Speed: 3.05x
+2025-11-12 15:15:44 - video_production_app.Api - DEBUG - Progress: 39.88%, ETA: 0:03:03, Speed: 3.04x
+2025-11-12 15:15:46 - video_production_app.Api - DEBUG - Progress: 40.43%, ETA: 0:03:01, Speed: 3.04x
+2025-11-12 15:15:48 - video_production_app.Api - DEBUG - Progress: 41.08%, ETA: 0:03:00, Speed: 3.03x
+2025-11-12 15:15:49 - video_production_app.Api - DEBUG - Progress: 41.66%, ETA: 0:02:58, Speed: 3.04x
+2025-11-12 15:15:51 - video_production_app.Api - DEBUG - Progress: 42.25%, ETA: 0:02:56, Speed: 3.04x
+2025-11-12 15:15:53 - video_production_app.Api - DEBUG - Progress: 42.83%, ETA: 0:02:54, Speed: 3.05x
+2025-11-12 15:15:54 - video_production_app.Api - DEBUG - Progress: 43.41%, ETA: 0:02:52, Speed: 3.05x
+2025-11-12 15:15:56 - video_production_app.Api - DEBUG - Progress: 43.92%, ETA: 0:02:50, Speed: 3.05x
+2025-11-12 15:15:58 - video_production_app.Api - DEBUG - Progress: 44.61%, ETA: 0:02:48, Speed: 3.05x
+2025-11-12 15:15:59 - video_production_app.Api - DEBUG - Progress: 45.17%, ETA: 0:02:46, Speed: 3.06x
+2025-11-12 15:16:01 - video_production_app.Api - DEBUG - Progress: 45.75%, ETA: 0:02:45, Speed: 3.05x
+2025-11-12 15:16:04 - video_production_app.Api - DEBUG - Progress: 46.37%, ETA: 0:02:43, Speed: 3.04x
+2025-11-12 15:16:07 - video_production_app.Api - DEBUG - Progress: 46.95%, ETA: 0:02:43, Speed: 3.02x
+2025-11-12 15:16:09 - video_production_app.Api - DEBUG - Progress: 47.52%, ETA: 0:02:41, Speed: 3.01x
+2025-11-12 15:16:11 - video_production_app.Api - DEBUG - Progress: 48.06%, ETA: 0:02:40, Speed: 3.01x
+2025-11-12 15:16:13 - video_production_app.Api - DEBUG - Progress: 48.61%, ETA: 0:02:39, Speed: 3.0x
+2025-11-12 15:16:15 - video_production_app.Api - DEBUG - Progress: 49.23%, ETA: 0:02:37, Speed: 3.0x
+2025-11-12 15:16:17 - video_production_app.Api - DEBUG - Progress: 49.79%, ETA: 0:02:35, Speed: 2.99x
+2025-11-12 15:16:19 - video_production_app.Api - DEBUG - Progress: 50.35%, ETA: 0:02:34, Speed: 2.98x
+2025-11-12 15:16:21 - video_production_app.Api - DEBUG - Progress: 51.00%, ETA: 0:02:32, Speed: 2.98x
+2025-11-12 15:16:22 - video_production_app.Api - DEBUG - Progress: 51.57%, ETA: 0:02:30, Speed: 2.98x
+2025-11-12 15:16:25 - video_production_app.Api - DEBUG - Progress: 52.20%, ETA: 0:02:28, Speed: 2.99x
+2025-11-12 15:16:27 - video_production_app.Api - DEBUG - Progress: 52.81%, ETA: 0:02:27, Speed: 2.97x
+2025-11-12 15:16:29 - video_production_app.Api - DEBUG - Progress: 53.38%, ETA: 0:02:25, Speed: 2.97x
+2025-11-12 15:16:31 - video_production_app.Api - DEBUG - Progress: 54.01%, ETA: 0:02:23, Speed: 2.97x
+2025-11-12 15:16:33 - video_production_app.Api - DEBUG - Progress: 54.59%, ETA: 0:02:22, Speed: 2.96x
+2025-11-12 15:16:36 - video_production_app.Api - DEBUG - Progress: 55.11%, ETA: 0:02:21, Speed: 2.95x
+2025-11-12 15:16:38 - video_production_app.Api - DEBUG - Progress: 55.65%, ETA: 0:02:20, Speed: 2.93x
+2025-11-12 15:16:41 - video_production_app.Api - DEBUG - Progress: 56.16%, ETA: 0:02:18, Speed: 2.93x
+2025-11-12 15:16:43 - video_production_app.Api - DEBUG - Progress: 56.73%, ETA: 0:02:17, Speed: 2.92x
+2025-11-12 15:16:45 - video_production_app.Api - DEBUG - Progress: 57.33%, ETA: 0:02:15, Speed: 2.92x
+2025-11-12 15:16:46 - video_production_app.Api - DEBUG - Progress: 57.87%, ETA: 0:02:13, Speed: 2.92x
+2025-11-12 15:16:48 - video_production_app.Api - DEBUG - Progress: 58.42%, ETA: 0:02:12, Speed: 2.92x
+2025-11-12 15:16:50 - video_production_app.Api - DEBUG - Progress: 59.06%, ETA: 0:02:10, Speed: 2.91x
+2025-11-12 15:16:52 - video_production_app.Api - DEBUG - Progress: 59.61%, ETA: 0:02:08, Speed: 2.91x
+2025-11-12 15:16:54 - video_production_app.Api - DEBUG - Progress: 60.17%, ETA: 0:02:07, Speed: 2.91x
+2025-11-12 15:16:57 - video_production_app.Api - DEBUG - Progress: 60.76%, ETA: 0:02:05, Speed: 2.9x
+2025-11-12 15:16:59 - video_production_app.Api - DEBUG - Progress: 61.40%, ETA: 0:02:03, Speed: 2.9x
+2025-11-12 15:17:01 - video_production_app.Api - DEBUG - Progress: 62.03%, ETA: 0:02:01, Speed: 2.9x
+2025-11-12 15:17:03 - video_production_app.Api - DEBUG - Progress: 62.72%, ETA: 0:01:59, Speed: 2.9x
+2025-11-12 15:17:04 - video_production_app.Api - DEBUG - Progress: 63.30%, ETA: 0:01:57, Speed: 2.91x
+2025-11-12 15:17:06 - video_production_app.Api - DEBUG - Progress: 63.88%, ETA: 0:01:55, Speed: 2.91x
+2025-11-12 15:17:07 - video_production_app.Api - DEBUG - Progress: 64.46%, ETA: 0:01:53, Speed: 2.92x
+2025-11-12 15:17:09 - video_production_app.Api - DEBUG - Progress: 65.04%, ETA: 0:01:51, Speed: 2.92x
+2025-11-12 15:17:10 - video_production_app.Api - DEBUG - Progress: 65.62%, ETA: 0:01:49, Speed: 2.92x
+2025-11-12 15:17:12 - video_production_app.Api - DEBUG - Progress: 66.19%, ETA: 0:01:47, Speed: 2.93x
+2025-11-12 15:17:14 - video_production_app.Api - DEBUG - Progress: 66.77%, ETA: 0:01:45, Speed: 2.93x
+2025-11-12 15:17:15 - video_production_app.Api - DEBUG - Progress: 67.35%, ETA: 0:01:43, Speed: 2.94x
+2025-11-12 15:17:17 - video_production_app.Api - DEBUG - Progress: 67.93%, ETA: 0:01:41, Speed: 2.94x
+2025-11-12 15:17:18 - video_production_app.Api - DEBUG - Progress: 68.51%, ETA: 0:01:39, Speed: 2.94x
+2025-11-12 15:17:20 - video_production_app.Api - DEBUG - Progress: 69.09%, ETA: 0:01:37, Speed: 2.95x
+2025-11-12 15:17:21 - video_production_app.Api - DEBUG - Progress: 69.67%, ETA: 0:01:35, Speed: 2.95x
+2025-11-12 15:17:23 - video_production_app.Api - DEBUG - Progress: 70.24%, ETA: 0:01:33, Speed: 2.95x
+2025-11-12 15:17:24 - video_production_app.Api - DEBUG - Progress: 70.74%, ETA: 0:01:32, Speed: 2.95x
+2025-11-12 15:17:26 - video_production_app.Api - DEBUG - Progress: 71.33%, ETA: 0:01:30, Speed: 2.95x
+2025-11-12 15:17:29 - video_production_app.Api - DEBUG - Progress: 71.95%, ETA: 0:01:28, Speed: 2.95x
+2025-11-12 15:17:31 - video_production_app.Api - DEBUG - Progress: 72.61%, ETA: 0:01:26, Speed: 2.95x
+2025-11-12 15:17:35 - video_production_app.Api - DEBUG - Progress: 73.19%, ETA: 0:01:25, Speed: 2.92x
+2025-11-12 15:17:37 - video_production_app.Api - DEBUG - Progress: 73.74%, ETA: 0:01:23, Speed: 2.92x
+2025-11-12 15:17:39 - video_production_app.Api - DEBUG - Progress: 74.43%, ETA: 0:01:21, Speed: 2.92x
+2025-11-12 15:17:41 - video_production_app.Api - DEBUG - Progress: 75.06%, ETA: 0:01:19, Speed: 2.92x
+2025-11-12 15:17:43 - video_production_app.Api - DEBUG - Progress: 75.68%, ETA: 0:01:17, Speed: 2.92x
+2025-11-12 15:17:45 - video_production_app.Api - DEBUG - Progress: 76.31%, ETA: 0:01:15, Speed: 2.92x
+2025-11-12 15:17:47 - video_production_app.Api - DEBUG - Progress: 76.90%, ETA: 0:01:13, Speed: 2.92x
+2025-11-12 15:17:49 - video_production_app.Api - DEBUG - Progress: 77.54%, ETA: 0:01:11, Speed: 2.91x
+2025-11-12 15:17:51 - video_production_app.Api - DEBUG - Progress: 78.17%, ETA: 0:01:09, Speed: 2.91x
+2025-11-12 15:17:53 - video_production_app.Api - DEBUG - Progress: 78.69%, ETA: 0:01:07, Speed: 2.92x
+2025-11-12 15:17:54 - video_production_app.Api - DEBUG - Progress: 79.20%, ETA: 0:01:06, Speed: 2.92x
+2025-11-12 15:17:56 - video_production_app.Api - DEBUG - Progress: 79.75%, ETA: 0:01:04, Speed: 2.92x
+2025-11-12 15:17:58 - video_production_app.Api - DEBUG - Progress: 80.36%, ETA: 0:01:02, Speed: 2.92x
+2025-11-12 15:18:00 - video_production_app.Api - DEBUG - Progress: 80.91%, ETA: 0:01:00, Speed: 2.92x
+2025-11-12 15:18:02 - video_production_app.Api - DEBUG - Progress: 81.46%, ETA: 0:00:58, Speed: 2.92x
+2025-11-12 15:18:03 - video_production_app.Api - DEBUG - Progress: 82.04%, ETA: 0:00:57, Speed: 2.92x
+2025-11-12 15:18:05 - video_production_app.Api - DEBUG - Progress: 82.58%, ETA: 0:00:55, Speed: 2.92x
+2025-11-12 15:18:07 - video_production_app.Api - DEBUG - Progress: 83.09%, ETA: 0:00:53, Speed: 2.92x
+2025-11-12 15:18:09 - video_production_app.Api - DEBUG - Progress: 83.72%, ETA: 0:00:51, Speed: 2.92x
+2025-11-12 15:18:10 - video_production_app.Api - DEBUG - Progress: 84.30%, ETA: 0:00:49, Speed: 2.92x
+2025-11-12 15:18:12 - video_production_app.Api - DEBUG - Progress: 84.87%, ETA: 0:00:48, Speed: 2.92x
+2025-11-12 15:18:13 - video_production_app.Api - DEBUG - Progress: 85.45%, ETA: 0:00:46, Speed: 2.92x
+2025-11-12 15:18:15 - video_production_app.Api - DEBUG - Progress: 86.03%, ETA: 0:00:44, Speed: 2.93x
+2025-11-12 15:18:16 - video_production_app.Api - DEBUG - Progress: 86.60%, ETA: 0:00:42, Speed: 2.93x
+2025-11-12 15:18:18 - video_production_app.Api - DEBUG - Progress: 87.15%, ETA: 0:00:40, Speed: 2.93x
+2025-11-12 15:18:20 - video_production_app.Api - DEBUG - Progress: 87.82%, ETA: 0:00:38, Speed: 2.93x
+2025-11-12 15:18:23 - video_production_app.Api - DEBUG - Progress: 88.44%, ETA: 0:00:36, Speed: 2.93x
+2025-11-12 15:18:25 - video_production_app.Api - DEBUG - Progress: 89.09%, ETA: 0:00:34, Speed: 2.93x
+2025-11-12 15:18:26 - video_production_app.Api - DEBUG - Progress: 89.62%, ETA: 0:00:32, Speed: 2.93x
+2025-11-12 15:18:28 - video_production_app.Api - DEBUG - Progress: 90.18%, ETA: 0:00:31, Speed: 2.93x
+2025-11-12 15:18:29 - video_production_app.Api - DEBUG - Progress: 90.70%, ETA: 0:00:29, Speed: 2.93x
+2025-11-12 15:18:31 - video_production_app.Api - DEBUG - Progress: 91.24%, ETA: 0:00:27, Speed: 2.93x
+2025-11-12 15:18:32 - video_production_app.Api - DEBUG - Progress: 91.80%, ETA: 0:00:25, Speed: 2.94x
+2025-11-12 15:18:35 - video_production_app.Api - DEBUG - Progress: 92.43%, ETA: 0:00:23, Speed: 2.94x
+2025-11-12 15:18:36 - video_production_app.Api - DEBUG - Progress: 92.95%, ETA: 0:00:22, Speed: 2.94x
+2025-11-12 15:18:38 - video_production_app.Api - DEBUG - Progress: 93.62%, ETA: 0:00:20, Speed: 2.94x
+2025-11-12 15:18:40 - video_production_app.Api - DEBUG - Progress: 94.13%, ETA: 0:00:18, Speed: 2.94x
+2025-11-12 15:18:42 - video_production_app.Api - DEBUG - Progress: 94.75%, ETA: 0:00:16, Speed: 2.94x
+2025-11-12 15:18:44 - video_production_app.Api - DEBUG - Progress: 95.35%, ETA: 0:00:14, Speed: 2.94x
+2025-11-12 15:18:46 - video_production_app.Api - DEBUG - Progress: 95.99%, ETA: 0:00:12, Speed: 2.93x
+2025-11-12 15:18:48 - video_production_app.Api - DEBUG - Progress: 96.65%, ETA: 0:00:10, Speed: 2.93x
+2025-11-12 15:18:49 - video_production_app.Api - DEBUG - Progress: 97.18%, ETA: 0:00:08, Speed: 2.94x
+2025-11-12 15:18:51 - video_production_app.Api - DEBUG - Progress: 97.75%, ETA: 0:00:07, Speed: 2.94x
+2025-11-12 15:18:53 - video_production_app.Api - DEBUG - Progress: 98.32%, ETA: 0:00:05, Speed: 2.94x
+2025-11-12 15:18:54 - video_production_app.Api - DEBUG - Progress: 98.87%, ETA: 0:00:03, Speed: 2.94x
+2025-11-12 15:18:56 - video_production_app.Api - DEBUG - Progress: 99.38%, ETA: 0:00:01, Speed: 2.94x
+2025-11-12 15:18:57 - video_production_app.Api - DEBUG - Progress: 99.89%, ETA: 0:00:00, Speed: 2.94x
+2025-11-12 15:18:58 - video_production_app.Api - INFO - ✅ Successfully created: 2024-10-19 18-17-15_final.mp4
+
+2025-11-12 15:18:58 - video_production_app.Api - INFO - 📍 Saved to: C:\Users\ASUS\Downloads\2024-10-19 18-17-15_final.mp4
+
+2025-11-12 15:18:58 - video_production_app.Api - INFO - Export complete! Saved to C:/Users/ASUS/Downloads

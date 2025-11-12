@@ -503,11 +503,14 @@ class Api:
         
         def progress_callback(percentage, eta, speed):
             # Send progress updates to JavaScript
+            self.logger.debug(f"Progress: {percentage:.2f}%, ETA: {eta}, Speed: {speed}x")
             if self.window:
                 try:
-                    self.window.evaluate_js(f"window.updateProgress({percentage}, '{eta}', {speed});")
-                except:
-                    pass  # Ignore errors if JS function doesn't exist yet
+                    # Escape single quotes in ETA string
+                    eta_escaped = eta.replace("'", "\\'")
+                    self.window.evaluate_js(f"window.updateProgress({percentage}, '{eta_escaped}', {speed});")
+                except Exception as e:
+                    self.logger.warning(f"Error sending progress update: {e}")
 
         try:
             # 6. Call our existing core function!

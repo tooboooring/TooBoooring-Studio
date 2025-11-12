@@ -218,6 +218,9 @@ def process_video_logic(video_path: str, output_dir: str, output_format: str, vi
         
         if progress_callback:
             # Run with progress monitoring
+            import select
+            import sys
+            
             process = subprocess.Popen(
                 cmd, 
                 stdout=subprocess.PIPE, 
@@ -225,43 +228,104 @@ def process_video_logic(video_path: str, output_dir: str, output_format: str, vi
                 text=True, 
                 encoding='utf-8', 
                 errors='ignore', 
-                startupinfo=startupinfo
+                startupinfo=startupinfo,
+                bufsize=1  # Line buffered
             )
             
             # Calculate total duration of all segments to keep
             total_duration = sum(seg['end'] - seg['start'] for seg in segments_to_keep)
             
-            # Monitor progress
+            # Progress data accumulator (for -progress format)
+            current_time = 0.0
+            speed = 0.0
+            last_progress_update = 0.0
+            
+            # Monitor progress from stdout (where -progress pipe:1 sends data)
+            # Also monitor stderr for error messages
+            import threading
+            
+            stderr_lines = []
+            def read_stderr():
+                """Read stderr in background to prevent blocking"""
+                for line in process.stderr:
+                    stderr_lines.append(line)
+            
+            stderr_thread = threading.Thread(target=read_stderr, daemon=True)
+            stderr_thread.start()
+            
+            # Read stdout line by line
             while True:
                 output = process.stdout.readline()
                 if output == '' and process.poll() is not None:
                     break
                     
                 if output:
-                    # Parse progress information
-                    progress_data = parse_ffmpeg_progress(output)
-                    if progress_data and 'time' in progress_data:
-                        current_time = progress_data['time']
-                        
-                        # Calculate percentage complete
-                        percentage = min(100, (current_time / total_duration) * 100) if total_duration > 0 else 0
-                        speed = progress_data.get('speed', 0)
-                        
-                        # Calculate estimated time remaining
-                        if speed > 0:
-                            remaining_time = (total_duration - current_time) / speed
-                            eta = str(timedelta(seconds=int(remaining_time)))
-                        else:
-                            eta = "Calculating..."
-                        
-                        # Call progress callback
-                        progress_callback(percentage, eta, speed)
+                    line = output.strip()
+                    # Skip empty lines
+                    if not line:
+                        continue
+                    
+                    # Parse -progress format: key=value pairs
+                    if '=' in line:
+                        try:
+                            key, value = line.split('=', 1)
+                            
+                            # Check if we have complete progress info
+                            if key == 'out_time_ms':
+                                # Convert microseconds to seconds
+                                try:
+                                    current_time = float(value) / 1000000.0
+                                except ValueError:
+                                    pass
+                            elif key == 'out_time':
+                                # Parse time format HH:MM:SS.microseconds
+                                try:
+                                    time_parts = value.split(':')
+                                    if len(time_parts) == 3:
+                                        hours = float(time_parts[0])
+                                        minutes = float(time_parts[1])
+                                        seconds = float(time_parts[2])
+                                        current_time = hours * 3600 + minutes * 60 + seconds
+                                except (ValueError, IndexError):
+                                    pass
+                            elif key == 'speed':
+                                # Parse speed (e.g., "1.5x" or "1.5")
+                                try:
+                                    speed_str = value.replace('x', '').strip()
+                                    speed = float(speed_str)
+                                except ValueError:
+                                    speed = 0.0
+                            
+                            # Update progress when we have time info (update at least every 0.5% change)
+                            if current_time > 0 and total_duration > 0:
+                                percentage = min(100, (current_time / total_duration) * 100)
+                                
+                                # Only update if progress changed significantly (avoid spam)
+                                if abs(percentage - last_progress_update) >= 0.5 or percentage >= 100:
+                                    last_progress_update = percentage
+                                    
+                                    # Calculate estimated time remaining
+                                    if speed > 0:
+                                        remaining_time = (total_duration - current_time) / speed
+                                        eta = str(timedelta(seconds=int(remaining_time)))
+                                    else:
+                                        eta = "Calculating..."
+                                    
+                                    # Call progress callback
+                                    progress_callback(percentage, eta, speed)
+                        except Exception as e:
+                            # Log parsing errors but continue
+                            status_callback(f"⚠️ Progress parsing warning: {e}\n")
             
             # Wait for process to complete and check return code
             return_code = process.wait()
+            
+            # Wait for stderr thread to finish
+            stderr_thread.join(timeout=1.0)
+            
             if return_code != 0:
-                stderr = process.stderr.read()
-                raise subprocess.CalledProcessError(return_code, cmd, stderr=stderr)
+                stderr_output = ''.join(stderr_lines) if stderr_lines else process.stderr.read()
+                raise subprocess.CalledProcessError(return_code, cmd, stderr=stderr_output)
         else:
             # Run without progress monitoring
             subprocess.run(
