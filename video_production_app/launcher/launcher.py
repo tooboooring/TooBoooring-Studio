@@ -10,12 +10,19 @@ from pathlib import Path
 
 def launch_web_ui():
     """Launch the web-based UI using PyWebView."""
-    print("🌐 Launching Web UI...")
     try:
-        # Import and run the web UI
-        sys.path.insert(0, str(Path(__file__).parent))
-        from video_production_app.web_main import main
-        main()
+        # Add project root to path (go up two levels: launcher -> video_production_app -> root)
+        project_root = Path(__file__).parent.parent.parent
+        if str(project_root) not in sys.path:
+            sys.path.insert(0, str(project_root))
+        try:
+            # Try standalone entry point first (in entry_points folder)
+            from video_production_app.entry_points.web_ui import main
+            main()
+        except ImportError:
+            # Fallback to direct import from web_main
+            from video_production_app.web.web_main import main
+            main()
     except ImportError as e:
         print(f"❌ Error: Could not import web UI. Make sure PyWebView is installed.")
         print(f"   Install with: pip install pywebview")
@@ -27,13 +34,20 @@ def launch_web_ui():
 
 def launch_tkinter_ui():
     """Launch the Tkinter-based UI."""
-    print("🖥️  Launching Tkinter UI...")
     try:
-        # Import and run the Tkinter UI
-        sys.path.insert(0, str(Path(__file__).parent))
-        from video_production_app.ui.app import VideoProductionApp
-        app = VideoProductionApp()
-        app.mainloop()
+        # Add project root to path (go up two levels: launcher -> video_production_app -> root)
+        project_root = Path(__file__).parent.parent.parent
+        if str(project_root) not in sys.path:
+            sys.path.insert(0, str(project_root))
+        try:
+            # Try standalone entry point first (in entry_points folder)
+            from video_production_app.entry_points.tkinter_ui import main
+            main()
+        except ImportError:
+            # Fallback to direct import
+            from video_production_app.ui.app import VideoProductionApp
+            app = VideoProductionApp()
+            app.mainloop()
     except ImportError as e:
         print(f"❌ Error: Could not import Tkinter UI. Make sure CustomTkinter is installed.")
         print(f"   Install with: pip install customtkinter")
@@ -52,6 +66,9 @@ def show_launcher_menu():
     print("  1. Web UI (Modern, PyWebView-based)")
     print("  2. Tkinter UI (Classic, CustomTkinter-based)")
     print("  3. Exit")
+    print("\n💡 Tip: You can also run directly:")
+    print("   - python -m video_production_app.entry_points.web_ui (for Web UI)")
+    print("   - python -m video_production_app.entry_points.tkinter_ui (for Tkinter UI)")
     print()
     
     choice = input("Enter your choice (1-3): ").strip()
@@ -68,6 +85,11 @@ def show_launcher_menu():
         show_launcher_menu()
 
 if __name__ == "__main__":
+    # Add project root to path for imports
+    project_root = Path(__file__).parent.parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    
     # Check for command-line arguments
     if len(sys.argv) > 1:
         arg = sys.argv[1].lower()
@@ -77,7 +99,7 @@ if __name__ == "__main__":
             launch_tkinter_ui()
         else:
             print(f"Unknown argument: {arg}")
-            print("Usage: python launcher.py [web|tkinter]")
+            print("Usage: python -m video_production_app.launcher [web|tkinter]")
             sys.exit(1)
     else:
         # Show interactive menu

@@ -166,12 +166,13 @@ class VideoProductionApp(ctk.CTk):
         directory and falls back to system PATH if not found.
         """
         # Determine base path (works for both frozen and development)
-        base_path = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).parent
+        base_path = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).parent.parent
         
-        # Set FFmpeg paths
-        self.ffmpeg_path = base_path / "ffmpeg.exe"
-        self.ffprobe_path = base_path / "ffprobe.exe"
-        self.ffplay_path = base_path / "ffplay.exe"
+        # Set FFmpeg paths (now in bin/ folder)
+        bin_path = base_path / "bin"
+        self.ffmpeg_path = bin_path / "ffmpeg.exe"
+        self.ffprobe_path = bin_path / "ffprobe.exe"
+        self.ffplay_path = bin_path / "ffplay.exe"
         
         # Check if files exist, fall back to empty string for system PATH
         if not self.ffmpeg_path.exists():

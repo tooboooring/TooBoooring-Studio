@@ -471,10 +471,11 @@ class FramePreview(ctk.CTkFrame):
             messagebox.showwarning("Warning", "No video loaded!")
             return
         
-        # Find FFmpeg and FFplay executables
-        base_path = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).parent
-        ffplay_path = base_path / "ffplay.exe"
-        ffmpeg_path = base_path / "ffmpeg.exe"
+        # Find FFmpeg and FFplay executables (now in bin/ folder)
+        base_path = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).parent.parent.parent
+        bin_path = base_path / "bin"
+        ffplay_path = bin_path / "ffplay.exe"
+        ffmpeg_path = bin_path / "ffmpeg.exe"
         
         # Fall back to system PATH if not found
         if not ffplay_path.exists():

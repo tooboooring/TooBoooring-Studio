@@ -1161,3 +1161,383 @@
 
 2025-11-12 19:04:33 - video_production_app.Api - INFO -    - Or: Media Pool → Right-click offline media → Relink
 
+2025-11-12 19:11:13 - video_production_app.Api - INFO - API initialized
+2025-11-12 19:11:15 - video_production_app.Api - INFO - Getting app configuration
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-12 19:11:15 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-12 19:11:15 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-12 19:11:15 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-12 19:11:15 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-12 19:11:15 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-12 19:11:15 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-12 19:11:15 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-12 19:12:08 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 19:12:08 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 19:12:08 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 19:12:08 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 18-17-15.mp4 (1340.85s, 2 tracks)
+2025-11-12 19:12:26 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4 on track 2
+2025-11-12 19:12:26 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 19:12:26 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 19:12:26 - video_production_app.Api - INFO - 🤫 Detecting silence in track 2...
+
+2025-11-12 19:12:30 - video_production_app.Api - INFO - 🔍 Found 183 audible segments and 183 silent segments.
+
+2025-11-12 19:12:30 - video_production_app.Api - INFO - Found 366 segments
+2025-11-12 19:12:30 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 19:12:30 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 1...
+
+2025-11-12 19:12:36 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 2...
+
+2025-11-12 19:12:38 - video_production_app.Api - DEBUG - CORE: ✅ Extracted 2 waveforms!
+
+2025-11-12 19:12:38 - video_production_app.Api - INFO - Extracted 2 waveforms
+2025-11-12 19:12:38 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 19:13:15 - video_production_app.Api - INFO - Received request to export FCP XML file
+2025-11-12 19:13:18 - video_production_app.Api - INFO - Detected: 60.00 fps, 1920x1080
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - FCP XML file exported: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15_cuts.xml
+2025-11-12 19:13:18 - video_production_app.Api - INFO - ✅ FCP XML file generated: 2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 📁 Location: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 📊 Contains 183 cut(s) with 2 audio track(s)
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 🎬 Frame rate: 60.00 fps
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 
+💡 Import Instructions:
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 1. Open DaVinci Resolve
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 2. IMPORTANT: Import your video file to Media Pool FIRST
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO -    - Right-click in Media Pool → Import Media
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO -    - Select: 2024-10-19 18-17-15.mp4
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 3. File → Import → Timeline → Timeline... (Ctrl+Shift+I)
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 4. Select: 2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 5. In import dialog:
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO -    - Set timeline frame rate to 60.00 fps
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO -    - If video shows as 'Offline', click 'Relink Media'
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO -    - Browse and select: 2024-10-19 18-17-15.mp4
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO -    - Resolve will link all clips to this file
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 6. Click Import
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 
+⚠️ TROUBLESHOOTING:
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - If video doesn't appear on timeline:
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 1. Make sure video is in Media Pool BEFORE importing XML
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 2. Check video path: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15.mp4
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 3. In import dialog, use 'Relink Media' button
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 4. Select your video file manually
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO - 5. After import, if clips are offline:
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO -    - Right-click timeline → Relink Selected Clips
+
+2025-11-12 19:13:18 - video_production_app.Api - INFO -    - Or: Media Pool → Right-click offline media → Relink
+
+2025-11-12 19:21:25 - video_production_app.Api - INFO - API initialized
+2025-11-12 19:21:27 - video_production_app.Api - INFO - Getting app configuration
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-12 19:21:27 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-12 19:21:27 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-12 19:21:27 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-12 19:21:27 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-12 19:21:27 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-12 19:21:27 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-12 19:21:27 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-12 19:21:31 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 19:21:31 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 19:21:32 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 19:21:32 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 18-17-15.mp4 (1340.85s, 2 tracks)
+2025-11-12 19:21:37 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4 on track 2
+2025-11-12 19:21:37 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 19:21:37 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 19:21:37 - video_production_app.Api - INFO - 🤫 Detecting silence in track 2...
+
+2025-11-12 19:21:39 - video_production_app.Api - INFO - 🔍 Found 183 audible segments and 183 silent segments.
+
+2025-11-12 19:21:39 - video_production_app.Api - INFO - Found 366 segments
+2025-11-12 19:21:39 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 19:21:39 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 1...
+
+2025-11-12 19:21:43 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 2...
+
+2025-11-12 19:21:45 - video_production_app.Api - DEBUG - CORE: ✅ Extracted 2 waveforms!
+
+2025-11-12 19:21:45 - video_production_app.Api - INFO - Extracted 2 waveforms
+2025-11-12 19:21:45 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 19:21:46 - video_production_app.Api - INFO - Received request to export FCP XML file
+2025-11-12 19:21:49 - video_production_app.Api - INFO - Detected: 60.00 fps, 1920x1080
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - FCP XML file exported: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15_cuts.xml
+2025-11-12 19:21:49 - video_production_app.Api - INFO - ✅ FCP XML file generated: 2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 📁 Location: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 📊 Contains 183 cut(s) with 2 audio track(s)
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 🎬 Frame rate: 60.00 fps
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 
+💡 Import Instructions:
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 1. Open DaVinci Resolve
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 2. IMPORTANT: Import your video file to Media Pool FIRST
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO -    - Right-click in Media Pool → Import Media
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO -    - Select: 2024-10-19 18-17-15.mp4
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 3. File → Import → Timeline → Timeline... (Ctrl+Shift+I)
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 4. Select: 2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 5. In import dialog:
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO -    - Set timeline frame rate to 60.00 fps
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO -    - If video shows as 'Offline', click 'Relink Media'
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO -    - Browse and select: 2024-10-19 18-17-15.mp4
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO -    - Resolve will link all clips to this file
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 6. Click Import
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 
+⚠️ TROUBLESHOOTING:
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - If video doesn't appear on timeline:
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 1. Make sure video is in Media Pool BEFORE importing XML
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 2. Check video path: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15.mp4
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 3. In import dialog, use 'Relink Media' button
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 4. Select your video file manually
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO - 5. After import, if clips are offline:
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO -    - Right-click timeline → Relink Selected Clips
+
+2025-11-12 19:21:49 - video_production_app.Api - INFO -    - Or: Media Pool → Right-click offline media → Relink
+
+2025-11-12 19:26:38 - video_production_app.Api - INFO - API initialized
+2025-11-12 19:26:41 - video_production_app.Api - INFO - Getting app configuration
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-12 19:26:41 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-12 19:26:41 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-12 19:26:41 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-12 19:26:41 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-12 19:26:41 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-12 19:26:41 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-12 19:26:41 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-12 19:26:47 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 19:26:47 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 19:26:47 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 19:26:47 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 18-17-15.mp4 (1340.85s, 2 tracks)
+2025-11-12 19:26:51 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4 on track 2
+2025-11-12 19:26:51 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 19:26:51 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 19:26:51 - video_production_app.Api - INFO - 🤫 Detecting silence in track 2...
+
+2025-11-12 19:26:54 - video_production_app.Api - INFO - 🔍 Found 183 audible segments and 183 silent segments.
+
+2025-11-12 19:26:54 - video_production_app.Api - INFO - Found 366 segments
+2025-11-12 19:26:54 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 19:26:54 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 1...
+
+2025-11-12 19:26:58 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 2...
+
+2025-11-12 19:27:00 - video_production_app.Api - DEBUG - CORE: ✅ Extracted 2 waveforms!
+
+2025-11-12 19:27:00 - video_production_app.Api - INFO - Extracted 2 waveforms
+2025-11-12 19:27:00 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 19:30:00 - video_production_app.Api - INFO - Received request to export FCP XML file
+2025-11-12 19:30:10 - video_production_app.Api - INFO - Detected: 60.00 fps, 1920x1080
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - FCP XML file exported: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15_cuts.xml
+2025-11-12 19:30:10 - video_production_app.Api - INFO - ✅ FCP XML file generated: 2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 📁 Location: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 📊 Contains 183 cut(s) with 2 audio track(s)
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 🎬 Frame rate: 60.00 fps
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 
+💡 Import Instructions:
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 1. Open DaVinci Resolve
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 2. IMPORTANT: Import your video file to Media Pool FIRST
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO -    - Right-click in Media Pool → Import Media
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO -    - Select: 2024-10-19 18-17-15.mp4
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 3. File → Import → Timeline → Timeline... (Ctrl+Shift+I)
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 4. Select: 2024-10-19 18-17-15_cuts.xml
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 5. In import dialog:
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO -    - Set timeline frame rate to 60.00 fps
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO -    - If video shows as 'Offline', click 'Relink Media'
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO -    - Browse and select: 2024-10-19 18-17-15.mp4
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO -    - Resolve will link all clips to this file
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 6. Click Import
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 
+⚠️ TROUBLESHOOTING:
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - If video doesn't appear on timeline:
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 1. Make sure video is in Media Pool BEFORE importing XML
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 2. Check video path: E:\PDF TOOl\test pdfs\2024-10-19 18-17-15.mp4
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 3. In import dialog, use 'Relink Media' button
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 4. Select your video file manually
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO - 5. After import, if clips are offline:
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO -    - Right-click timeline → Relink Selected Clips
+
+2025-11-12 19:30:10 - video_production_app.Api - INFO -    - Or: Media Pool → Right-click offline media → Relink
+
+2025-11-12 21:34:51 - video_production_app.Api - INFO - API initialized
+2025-11-12 21:34:55 - video_production_app.Api - INFO - Getting app configuration
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-12 21:34:55 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-12 21:34:55 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-12 21:34:55 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-12 21:34:55 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-12 21:34:55 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-12 21:34:55 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-12 21:34:55 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-12 21:35:16 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 21:35:16 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 21:35:16 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 21:35:16 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 18-17-15.mp4 (1340.85s, 2 tracks)
+2025-11-12 21:35:27 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4 on track 2
+2025-11-12 21:35:27 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 21:35:27 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 21:35:27 - video_production_app.Api - INFO - 🤫 Detecting silence in track 2...
+
+2025-11-12 21:35:36 - video_production_app.Api - INFO - 🔍 Found 183 audible segments and 183 silent segments.
+
+2025-11-12 21:35:36 - video_production_app.Api - INFO - Found 366 segments
+2025-11-12 21:35:36 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 21:35:36 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 1...
+
+2025-11-12 21:35:37 - video_production_app.Api - INFO - Analyzing all tracks for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 21:35:37 - video_production_app.Api - DEBUG - CORE: 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 21:35:37 - video_production_app.Api - DEBUG - CORE: ✅ Found 2 audio track(s).
+
+2025-11-12 21:35:37 - video_production_app.Api - INFO - Analyzed 2 tracks
+2025-11-12 21:35:44 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 2...
+
+2025-11-12 21:35:47 - video_production_app.Api - DEBUG - CORE: ✅ Extracted 2 waveforms!
+
+2025-11-12 21:35:47 - video_production_app.Api - INFO - Extracted 2 waveforms
+2025-11-12 21:35:47 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 21:37:28 - video_production_app.Api - INFO - Creating video with audio tracks: [2]
+2025-11-12 21:37:28 - video_production_app.Api - DEBUG - Cleaned up old temp file: C:\Users\ASUS\AppData\Local\Temp\video_audio_30472_1762942090.mp4
+2025-11-12 21:37:28 - video_production_app.Api - DEBUG - Cleaned up old temp file: C:\Users\ASUS\AppData\Local\Temp\video_audio_30472_1762942097.mp4
+2025-11-12 21:37:28 - video_production_app.Api - DEBUG - Cleaned up old temp file: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939217.mp4
+2025-11-12 21:37:28 - video_production_app.Api - DEBUG - Cleaned up old temp file: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939218.mp4
+2025-11-12 21:37:28 - video_production_app.Api - DEBUG - Cleaned up old temp file: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939269.mp4
+2025-11-12 21:37:28 - video_production_app.Api - DEBUG - Cleaned up old temp file: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939288.mp4
+2025-11-12 21:37:31 - video_production_app.Api - INFO - Creating video with audio tracks: [2, 1]
+2025-11-12 21:37:32 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_19148_1762963648.mp4
+2025-11-12 21:38:51 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_19148_1762963651.mp4
+2025-11-12 21:59:52 - video_production_app.Api - INFO - API initialized
+2025-11-12 21:59:54 - video_production_app.Api - INFO - Getting app configuration
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-12 21:59:54 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-12 21:59:54 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-12 21:59:54 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-12 21:59:54 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-12 21:59:54 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-12 21:59:54 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-12 21:59:54 - video_production_app.Api - DEBUG - Returning config with 8 encoders

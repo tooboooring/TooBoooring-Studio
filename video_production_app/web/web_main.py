@@ -1095,6 +1095,17 @@ class Api:
             audio_tracks = video_info.get('audioTracks', [])
             num_audio_tracks = len(audio_tracks) if audio_tracks else 1
             
+            # Store audio track stream indices for proper audio stream mapping
+            audio_stream_indices = []
+            if audio_tracks:
+                for track in audio_tracks:
+                    # Get the stream index (FFprobe index, typically 1-based for first audio)
+                    stream_idx = track.get('index', len(audio_stream_indices) + 1)
+                    audio_stream_indices.append(stream_idx)
+            else:
+                # Default to first audio stream if no track info
+                audio_stream_indices = [1]
+            
             # Generate XML filename
             video_name = Path(video_info['fileName']).stem
             xml_filename = f"{video_name}_cuts.xml"
@@ -1176,7 +1187,26 @@ class Api:
             for audio_idx in range(num_audio_tracks):
                 audio_sample = ET.SubElement(audio_media, "samplecharacteristics")
                 ET.SubElement(audio_sample, "depth").text = "16"
-                ET.SubElement(audio_sample, "samplerate").text = "48000"
+                # Get actual sample rate from track info if available
+                sample_rate = "48000"  # Default
+                if audio_tracks and audio_idx < len(audio_tracks):
+                    track_info = audio_tracks[audio_idx]
+                    # sample_rate might be in Hz, convert to string
+                    sr = track_info.get('sample_rate', '48000')
+                    if isinstance(sr, str) and 'kHz' in sr:
+                        # Convert "48kHz" to "48000"
+                        sample_rate = str(int(float(sr.replace('kHz', '').strip()) * 1000))
+                    elif isinstance(sr, (int, float)):
+                        sample_rate = str(int(sr))
+                    else:
+                        sample_rate = str(sr).replace('kHz', '').replace(' ', '')
+                ET.SubElement(audio_sample, "samplerate").text = sample_rate
+                
+                # Add channel count for each audio stream
+                channel_count = 2  # Default stereo
+                if audio_tracks and audio_idx < len(audio_tracks):
+                    channel_count = audio_tracks[audio_idx].get('channels', 2)
+                ET.SubElement(audio_sample, "channelcount").text = str(channel_count)
             
             # Add file to media FIRST (before video/audio sections)
             # This is critical - file must be first child of <media>
@@ -1209,6 +1239,8 @@ class Api:
             audio_track_elements = []
             for audio_idx in range(num_audio_tracks):
                 audio_track_elem = ET.SubElement(audio, "track")
+                # Set track output channel (required for audio to work)
+                ET.SubElement(audio_track_elem, "outputchannelindex").text = str(audio_idx + 1)
                 audio_track_elements.append(audio_track_elem)
             
             # Add clips to video track
@@ -1272,6 +1304,18 @@ class Api:
                     audio_file_ref = ET.SubElement(audio_clipitem, "file")
                     audio_file_ref.set("id", file_id)
                     
+                    # Specify which audio stream to use from the file (critical for multi-track audio)
+                    # FCP XML uses 0-based indexing for streams (0=first audio, 1=second audio, etc.)
+                    # But we need to map FFprobe's stream index to FCP's audio stream index
+                    if audio_idx < len(audio_stream_indices):
+                        # FFprobe index is the actual stream index in the file
+                        # For FCP XML, we need to count only audio streams (skip video stream)
+                        # If video is stream 0, first audio is stream 1, but FCP XML audio streamindex is 0-based
+                        ffprobe_index = audio_stream_indices[audio_idx]
+                        # FCP XML streamindex for audio: 0 = first audio stream, 1 = second audio stream, etc.
+                        # We use audio_idx directly as it's already 0-based
+                        ET.SubElement(audio_file_ref, "streamindex").text = str(audio_idx)
+                    
                     # In/Out points (MUST come before sourcetimecode for Resolve)
                     ET.SubElement(audio_clipitem, "in").text = str(source_start_frames)
                     ET.SubElement(audio_clipitem, "out").text = str(source_end_frames)
@@ -1294,13 +1338,37 @@ class Api:
                     # Enabled (required by Resolve)
                     ET.SubElement(audio_clipitem, "enabled").text = "TRUE"
                     
+                    # Audio channel configuration (required for audio to work)
+                    # Get channel count from audio track info
+                    channel_count = 2  # Default to stereo
+                    if audio_tracks and audio_idx < len(audio_tracks):
+                        track_info = audio_tracks[audio_idx]
+                        channel_count = track_info.get('channels', 2)
+                    
+                    channelcount = ET.SubElement(audio_clipitem, "channelcount")
+                    channelcount.text = str(channel_count)
+                    
                     # Link to video clip for sync (Resolve needs this)
+                    # The link element structure is critical for audio/video sync
+                    # Note: Some FCP XML versions don't require link, but Resolve often does
+                    # IMPORTANT: clipindex should be 0-based (i), not 1-based (i+1)
                     link_elem = ET.SubElement(audio_clipitem, "link")
                     link_elem.set("linkclipref", f"clip-video-{i+1}")
                     ET.SubElement(link_elem, "mediatype").text = "video"
                     ET.SubElement(link_elem, "trackindex").text = "1"
-                    ET.SubElement(link_elem, "clipindex").text = str(i + 1)
+                    ET.SubElement(link_elem, "clipindex").text = str(i)  # 0-based index
+                    
+                    # Audio output mapping (maps to track output)
+                    # This tells Resolve which output channel to use
+                    outputchannelindex = ET.SubElement(audio_clipitem, "outputchannelindex")
+                    outputchannelindex.text = str(audio_idx + 1)
+                    
+                    # Add audio source channel mapping (may be required for Resolve)
+                    # This maps source channels to output channels
+                    sourcechannel = ET.SubElement(audio_clipitem, "sourcechannel")
+                    sourcechannel.text = str(audio_idx + 1)
                 
+                # Update timeline position for next clip (CRITICAL - must be after all clips for this segment)
                 timeline_start = record_end
             
             # Format XML with proper indentation
@@ -1612,7 +1680,7 @@ class Api:
 def main():
     api = Api() # Create the API
 
-    ui_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'web_ui')
+    ui_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web_ui')
     ui_dir = os.path.normpath(ui_dir)
 
     window = webview.create_window(
