@@ -44,6 +44,8 @@ class Api:
         # Performance: Waveform cache
         self.waveform_cache = {}  # Cache waveforms: {file_path:width: waveform_data}
         self.multi_track_cache = {}  # Cache multi-track waveforms: {file_path:width: {track_index: data}}
+        # Temporary files management
+        self.temp_video_files = []  # Track temporary video files for cleanup
         self.logger.info("API initialized")
     
     def _error_response(self, message: str) -> Dict[str, Any]:
@@ -312,6 +314,9 @@ class Api:
             temp_dir = tempfile.gettempdir()
             temp_file = os.path.join(temp_dir, f"video_audio_{os.getpid()}_{int(time.time())}.mp4")
             
+            # Clean up old temporary files from previous operations
+            self._cleanup_old_temp_files(temp_dir)
+            
             # Build FFmpeg command to copy video and mix selected audio tracks
             cmd = ["ffmpeg", "-i", video_path]
             
@@ -351,6 +356,8 @@ class Api:
             
             if result.returncode == 0 and os.path.exists(temp_file):
                 self.logger.info(f"Created temporary video: {temp_file}")
+                # Track this temp file for cleanup
+                self.temp_video_files.append(temp_file)
                 return temp_file
             else:
                 self.logger.error(f"FFmpeg failed: {result.stderr}")
@@ -359,6 +366,53 @@ class Api:
         except Exception as e:
             self.logger.error(f"Error creating video with audio tracks: {e}", exc_info=True)
             return None
+    
+    def _cleanup_old_temp_files(self, temp_dir: str, max_age_seconds: int = 3600) -> None:
+        """
+        Clean up old temporary video files created by this app.
+        
+        Args:
+            temp_dir: Directory to search for temp files
+            max_age_seconds: Delete files older than this (default: 1 hour)
+        """
+        try:
+            import glob
+            current_time = time.time()
+            pattern = os.path.join(temp_dir, "video_audio_*.mp4")
+            
+            for temp_file in glob.glob(pattern):
+                try:
+                    # Check file age
+                    file_age = current_time - os.path.getmtime(temp_file)
+                    if file_age > max_age_seconds:
+                        os.remove(temp_file)
+                        self.logger.debug(f"Cleaned up old temp file: {temp_file}")
+                except (OSError, FileNotFoundError) as e:
+                    # File might have been deleted already, ignore
+                    self.logger.debug(f"Could not delete temp file {temp_file}: {e}")
+        except Exception as e:
+            self.logger.warning(f"Error cleaning up temp files: {e}")
+    
+    def cleanup_temp_files(self) -> None:
+        """
+        Clean up all temporary video files created during this session.
+        Call this when the app is closing or when switching videos.
+        """
+        for temp_file in self.temp_video_files[:]:  # Copy list to avoid modification during iteration
+            try:
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+                    self.logger.debug(f"Deleted temp file: {temp_file}")
+            except (OSError, FileNotFoundError) as e:
+                self.logger.debug(f"Could not delete temp file {temp_file}: {e}")
+        
+        # Clear the list
+        self.temp_video_files.clear()
+        
+        # Also clean up any orphaned temp files older than 1 hour
+        import tempfile
+        temp_dir = tempfile.gettempdir()
+        self._cleanup_old_temp_files(temp_dir)
     
     def export_video(self, video_info: Dict[str, Any], segments: List[Dict[str, Any]], 
                      export_settings: Dict[str, Any]) -> Dict[str, str]:

@@ -419,6 +419,16 @@ window.addEventListener('pywebviewready', async () => {
     window.app.addLog("Welcome! Please select a video file to begin.\n");
 });
 
+// Clean up temporary files when page is unloading
+window.addEventListener('beforeunload', () => {
+    if (window.pywebview && window.pywebview.api && window.pywebview.api.cleanup_temp_files) {
+        // Try to clean up, but don't wait (async cleanup)
+        window.pywebview.api.cleanup_temp_files().catch(err => {
+            console.warn("Error cleaning up temp files on unload:", err);
+        });
+    }
+});
+
 // --- Helper function for error checking ---
 function checkError(result) {
     if (!result) {
