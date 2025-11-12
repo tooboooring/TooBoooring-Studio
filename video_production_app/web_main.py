@@ -752,6 +752,617 @@ class Api:
             self.log_to_console(f"Export failed: {str(e)}\n")
             return {"status": "error", "message": str(e)}
     
+    def export_edl(self, video_info: Dict[str, Any], segments: List[Dict[str, Any]]) -> Dict[str, str]:
+        """
+        Exports an Edit Decision List (EDL) file for DaVinci Resolve/Premiere Pro.
+        
+        Args:
+            video_info: Video information dictionary
+            segments: List of audible segment dictionaries (only segments with keep=true)
+            
+        Returns:
+            Dict with status and message/file_path
+        """
+        self.logger.info("Received request to export EDL file")
+        
+        # Validate inputs
+        if not video_info or not video_info.get('filePath'):
+            return self._error_response("Invalid video info")
+        
+        if not segments:
+            return self._error_response("No segments provided")
+        
+        # Validate video path
+        video_path = video_info.get('filePath')
+        is_valid, error_msg = validate_video_path(video_path)
+        if not is_valid:
+            return self._error_response(error_msg)
+        
+        # Get save location
+        save_path = self.select_save_destination()
+        if not save_path:
+            self.logger.info("EDL export cancelled by user (no save folder)")
+            return {"status": "cancelled", "message": "No save folder selected."}
+        
+        try:
+            # Get video frame rate (default to 30fps if not available)
+            fps = 30.0  # Default
+            try:
+                # Try to get actual frame rate from video
+                import subprocess
+                ffprobe_executable = "ffprobe"
+                cmd = [
+                    str(ffprobe_executable),
+                    "-v", "error",
+                    "-select_streams", "v:0",
+                    "-show_entries", "stream=r_frame_rate",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    str(video_path)
+                ]
+                
+                startupinfo = None
+                if os.name == 'nt':
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    encoding='utf-8',
+                    errors='ignore',
+                    startupinfo=startupinfo
+                )
+                
+                if result.returncode == 0 and result.stdout.strip():
+                    # Parse frame rate (format: "30/1" or "30000/1001")
+                    frame_rate_str = result.stdout.strip()
+                    if '/' in frame_rate_str:
+                        num, den = map(int, frame_rate_str.split('/'))
+                        fps = num / den if den > 0 else 30.0
+                    else:
+                        fps = float(frame_rate_str) if frame_rate_str else 30.0
+                    
+                    self.log_to_console(f"Detected frame rate: {fps:.2f} fps\n")
+                else:
+                    self.log_to_console(f"Using default frame rate: {fps:.2f} fps\n")
+            except Exception as e:
+                self.logger.warning(f"Could not detect frame rate, using default: {e}")
+                self.log_to_console(f"Using default frame rate: {fps:.2f} fps\n")
+            
+            # Generate EDL filename
+            video_name = Path(video_info['fileName']).stem
+            edl_filename = f"{video_name}_cuts.edl"
+            edl_path = Path(save_path) / edl_filename
+            
+            # Generate EDL content
+            edl_lines = []
+            
+            # EDL Header
+            edl_lines.append("TITLE: Silence Cuts")
+            edl_lines.append(f"FCM: NON-DROP FRAME")
+            edl_lines.append("")
+            
+            # Get video filename for reel name (EDL format requirement)
+            # Use full filename stem (without extension) but limit to 8 chars for EDL compatibility
+            # Resolve matches reel name to media file name, so we want it to match as closely as possible
+            video_stem = Path(video_info['fileName']).stem
+            reel_name = video_stem[:8].upper() if len(video_stem) >= 8 else video_stem.upper()
+            if not reel_name:
+                reel_name = "VIDEO"
+            
+            # Log the reel name for debugging
+            self.log_to_console(f"Using reel name: '{reel_name}' (from video: '{video_stem}')\n")
+            self.log_to_console(f"⚠️ IMPORTANT: Make sure your video file name starts with '{reel_name}' or matches this reel name in Resolve!\n")
+            
+            # Get audio tracks info from video
+            audio_tracks = video_info.get('audioTracks', [])
+            num_audio_tracks = len(audio_tracks) if audio_tracks else 1  # Default to 1 if unknown
+            
+            # Calculate timeline position (record in/out)
+            timeline_start = 0.0
+            
+            # Generate edit entries for each segment
+            for i, segment in enumerate(segments, 1):
+                source_start = segment['start']
+                source_end = segment['end']
+                duration = source_end - source_start
+                
+                # Calculate timeline positions - ensure sequential placement with no gaps
+                record_start = timeline_start
+                record_end = timeline_start + duration
+                
+                # Convert seconds to timecode (HH:MM:SS:FF format) with better precision
+                def seconds_to_timecode(seconds, fps):
+                    """Convert seconds to EDL timecode format HH:MM:SS:FF with frame-accurate rounding"""
+                    # Use round() for better accuracy instead of int()
+                    # Ensure we don't go negative
+                    if seconds < 0:
+                        seconds = 0
+                    total_frames = round(seconds * fps)
+                    fps_int = int(round(fps))
+                    if fps_int <= 0:
+                        fps_int = 30  # Safety fallback
+                    hours = total_frames // (fps_int * 3600)
+                    minutes = (total_frames // (fps_int * 60)) % 60
+                    secs = (total_frames // fps_int) % 60
+                    frames = total_frames % fps_int
+                    return f"{hours:02d}:{minutes:02d}:{secs:02d}:{frames:02d}"
+                
+                source_in = seconds_to_timecode(source_start, fps)
+                source_out = seconds_to_timecode(source_end, fps)
+                record_in = seconds_to_timecode(record_start, fps)
+                record_out = seconds_to_timecode(record_end, fps)
+                
+                # EDL format: Edit# Reel Track EditType SourceIn SourceOut RecordIn RecordOut
+                # Format: "001  REEL     V     C        00:00:00:00 00:00:10:15 00:00:00:00 00:00:10:15"
+                # Important: Each edit must have a unique edit number, and record times must be sequential
+                
+                # Add video track edit - use unique edit number for each segment
+                edit_line = f"{i:03d}  {reel_name:<8s} V     C        {source_in} {source_out} {record_in} {record_out}"
+                edl_lines.append(edit_line)
+                
+                # Add audio track edits (EDL supports multiple audio tracks)
+                # EDL format: First audio track is "A", subsequent tracks are "A2", "A3", etc.
+                # All tracks for the same edit use the same edit number
+                for audio_idx in range(num_audio_tracks):
+                    if audio_idx == 0:
+                        audio_track_letter = "A"
+                    else:
+                        audio_track_letter = f"A{audio_idx + 1}"
+                    # Use same edit number as video track for this segment
+                    audio_edit_line = f"{i:03d}  {reel_name:<8s} {audio_track_letter:<6s} C        {source_in} {source_out} {record_in} {record_out}"
+                    edl_lines.append(audio_edit_line)
+                
+                # Update timeline position for next segment - ensure no gaps
+                # The next segment's record_in should equal this segment's record_out
+                timeline_start = record_end
+            
+            # Write EDL file
+            edl_content = "\n".join(edl_lines)
+            with open(edl_path, 'w', encoding='utf-8') as f:
+                f.write(edl_content)
+            
+            self.logger.info(f"EDL file exported: {edl_path}")
+            self.log_to_console(f"✅ EDL file generated: {edl_filename}\n")
+            self.log_to_console(f"📁 Location: {edl_path}\n")
+            self.log_to_console(f"📊 Contains {len(segments)} cut(s)\n")
+            self.log_to_console(f"\n💡 Import Instructions:\n")
+            self.log_to_console(f"1. Open DaVinci Resolve\n")
+            self.log_to_console(f"2. Import your video file into Media Pool FIRST\n")
+            self.log_to_console(f"3. File → Import → Timeline → Import EDL (Pre-conformed EDL)\n")
+            self.log_to_console(f"4. Select: {edl_filename}\n")
+            self.log_to_console(f"5. In import dialog:\n")
+            self.log_to_console(f"   - Set timeline frame rate to {fps:.2f} fps\n")
+            self.log_to_console(f"   - Check reel name matches: '{reel_name}'\n")
+            self.log_to_console(f"   - If reel not found, manually link to your video file\n")
+            self.log_to_console(f"6. Click Import\n")
+            self.log_to_console(f"\n⚠️ TROUBLESHOOTING:\n")
+            self.log_to_console(f"If you see one continuous clip instead of cuts:\n")
+            self.log_to_console(f"- Make sure video is imported to Media Pool BEFORE importing EDL\n")
+            self.log_to_console(f"- Check that reel name '{reel_name}' matches your video file\n")
+            self.log_to_console(f"- Try renaming your video file to start with '{reel_name}'\n")
+            self.log_to_console(f"- Or manually link the reel in the import dialog\n")
+            
+            return {
+                "status": "success",
+                "message": f"EDL file exported successfully!\n\nFile: {edl_filename}\nLocation: {edl_path}",
+                "file_path": str(edl_path)
+            }
+        
+        except Exception as e:
+            self.logger.error(f"EDL export failed: {e}", exc_info=True)
+            self.log_to_console(f"EDL export failed: {str(e)}\n")
+            return {"status": "error", "message": str(e)}
+    
+    def export_fcp_xml(self, video_info: Dict[str, Any], segments: List[Dict[str, Any]]) -> Dict[str, str]:
+        """
+        Exports a Final Cut Pro XML file for DaVinci Resolve/Premiere Pro.
+        FCP XML is more reliable than EDL and better supports audio tracks.
+        
+        Args:
+            video_info: Video information dictionary
+            segments: List of audible segment dictionaries (only segments with keep=true)
+            
+        Returns:
+            Dict with status and message/file_path
+        """
+        self.logger.info("Received request to export FCP XML file")
+        
+        # Validate inputs
+        if not video_info or not video_info.get('filePath'):
+            return self._error_response("Invalid video info")
+        
+        if not segments:
+            return self._error_response("No segments provided")
+        
+        # Validate video path
+        video_path = video_info.get('filePath')
+        is_valid, error_msg = validate_video_path(video_path)
+        if not is_valid:
+            return self._error_response(error_msg)
+        
+        # Get save location
+        save_path = self.select_save_destination()
+        if not save_path:
+            self.logger.info("FCP XML export cancelled by user (no save folder)")
+            return {"status": "cancelled", "message": "No save folder selected."}
+        
+        try:
+            import xml.etree.ElementTree as ET
+            from xml.dom import minidom
+            
+            # Get video frame rate and other properties
+            fps = 30.0  # Default
+            video_width = 1920
+            video_height = 1080
+            timebase = "30"
+            ntsc = "FALSE"
+            
+            try:
+                # Get video properties using ffprobe
+                import subprocess
+                ffprobe_executable = "ffprobe"
+                # Get frame rate first (separate call for cleaner parsing)
+                cmd_fps = [
+                    str(ffprobe_executable),
+                    "-v", "error",
+                    "-select_streams", "v:0",
+                    "-show_entries", "stream=r_frame_rate",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    str(video_path)
+                ]
+                
+                # Get dimensions (separate call)
+                cmd_dim = [
+                    str(ffprobe_executable),
+                    "-v", "error",
+                    "-select_streams", "v:0",
+                    "-show_entries", "stream=width,height",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    str(video_path)
+                ]
+                
+                startupinfo = None
+                if os.name == 'nt':
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                
+                # Get frame rate
+                result_fps = subprocess.run(
+                    cmd_fps,
+                    capture_output=True,
+                    text=True,
+                    encoding='utf-8',
+                    errors='ignore',
+                    startupinfo=startupinfo
+                )
+                
+                if result_fps.returncode == 0 and result_fps.stdout.strip():
+                    frame_rate_str = result_fps.stdout.strip()
+                    try:
+                        if '/' in frame_rate_str:
+                            parts = frame_rate_str.split('/')
+                            if len(parts) == 2:
+                                num = int(parts[0].strip())
+                                den = int(parts[1].strip())
+                                fps = num / den if den > 0 else 30.0
+                            else:
+                                fps = float(frame_rate_str) if frame_rate_str else 30.0
+                        else:
+                            fps = float(frame_rate_str) if frame_rate_str else 30.0
+                    except (ValueError, IndexError) as e:
+                        self.logger.warning(f"Could not parse frame rate '{frame_rate_str}': {e}")
+                        fps = 30.0
+                
+                # Get dimensions
+                result_dim = subprocess.run(
+                    cmd_dim,
+                    capture_output=True,
+                    text=True,
+                    encoding='utf-8',
+                    errors='ignore',
+                    startupinfo=startupinfo
+                )
+                
+                if result_dim.returncode == 0 and result_dim.stdout.strip():
+                    dim_lines = result_dim.stdout.strip().split('\n')
+                    if len(dim_lines) > 0 and dim_lines[0].strip():
+                        try:
+                            video_width = int(dim_lines[0].strip())
+                        except ValueError:
+                            pass
+                    if len(dim_lines) > 1 and dim_lines[1].strip():
+                        try:
+                            video_height = int(dim_lines[1].strip())
+                        except ValueError:
+                            pass
+                    
+                    # Set timebase (frames per second as string)
+                    timebase = str(int(round(fps)))
+                    # Check if NTSC (29.97, 59.94, etc.)
+                    if abs(fps - 29.97) < 0.1 or abs(fps - 59.94) < 0.1 or abs(fps - 23.976) < 0.1:
+                        ntsc = "TRUE"
+                    
+                    self.log_to_console(f"Detected: {fps:.2f} fps, {video_width}x{video_height}\n")
+                else:
+                    self.log_to_console(f"Using defaults: {fps:.2f} fps, {video_width}x{video_height}\n")
+            except Exception as e:
+                self.logger.warning(f"Could not detect video properties, using defaults: {e}")
+                self.log_to_console(f"Using defaults: {fps:.2f} fps\n")
+            
+            # Get audio tracks
+            audio_tracks = video_info.get('audioTracks', [])
+            num_audio_tracks = len(audio_tracks) if audio_tracks else 1
+            
+            # Generate XML filename
+            video_name = Path(video_info['fileName']).stem
+            xml_filename = f"{video_name}_cuts.xml"
+            xml_path = Path(save_path) / xml_filename
+            
+            # Create XML root
+            root = ET.Element("xmeml")
+            root.set("version", "5")
+            
+            # Create sequence
+            sequence = ET.SubElement(root, "sequence")
+            ET.SubElement(sequence, "name").text = f"{video_name} - Silence Cuts"
+            ET.SubElement(sequence, "duration").text = "0"  # Will be calculated
+            
+            # Rate (frame rate)
+            rate = ET.SubElement(sequence, "rate")
+            ET.SubElement(rate, "timebase").text = timebase
+            ET.SubElement(rate, "ntsc").text = ntsc
+            
+            # Timecode
+            timecode = ET.SubElement(sequence, "timecode")
+            timecode_rate = ET.SubElement(timecode, "rate")
+            ET.SubElement(timecode_rate, "timebase").text = timebase
+            ET.SubElement(timecode_rate, "ntsc").text = ntsc
+            ET.SubElement(timecode, "string").text = "01:00:00:00"
+            ET.SubElement(timecode, "frame").text = "0"
+            
+            # Media
+            media = ET.SubElement(sequence, "media")
+            
+            # Define the source file FIRST (before video/audio tracks)
+            # This is critical - file must be defined before it's referenced
+            video_file_path = Path(video_path)
+            file_id = "file-1"
+            file_elem = ET.Element("file")
+            file_elem.set("id", file_id)
+            ET.SubElement(file_elem, "name").text = video_file_path.name
+            
+            # Add pathurl - Resolve needs this to find the file
+            pathurl = ET.SubElement(file_elem, "pathurl")
+            # Convert Windows path to file:// URL format
+            abs_path = video_file_path.resolve()
+            # Use forward slashes and ensure proper file:// format
+            path_str = str(abs_path).replace('\\', '/')
+            # Windows paths need file:/// (three slashes), Unix needs file:// (two slashes)
+            if os.name == 'nt':
+                pathurl.text = f"file:///{path_str}"
+            else:
+                pathurl.text = f"file://{path_str}"
+            
+            # Also add path element (some XML readers prefer this)
+            path_elem = ET.SubElement(file_elem, "path")
+            path_elem.text = str(abs_path)
+            
+            # File rate
+            file_rate = ET.SubElement(file_elem, "rate")
+            ET.SubElement(file_rate, "timebase").text = timebase
+            ET.SubElement(file_rate, "ntsc").text = ntsc
+            
+            # Duration (total frames)
+            total_duration = video_info.get('duration', 0)
+            total_frames = int(round(total_duration * fps))
+            ET.SubElement(file_elem, "duration").text = str(total_frames)
+            
+            # Media info
+            media_info = ET.SubElement(file_elem, "media")
+            video_media = ET.SubElement(media_info, "video")
+            sample_char = ET.SubElement(video_media, "samplecharacteristics")
+            ET.SubElement(sample_char, "width").text = str(video_width)
+            ET.SubElement(sample_char, "height").text = str(video_height)
+            ET.SubElement(sample_char, "pixelaspectratio").text = "square"
+            ET.SubElement(sample_char, "fielddominance").text = "none"
+            rate_elem = ET.SubElement(sample_char, "rate")
+            ET.SubElement(rate_elem, "timebase").text = timebase
+            ET.SubElement(rate_elem, "ntsc").text = ntsc
+            
+            # Audio media info
+            audio_media = ET.SubElement(media_info, "audio")
+            for audio_idx in range(num_audio_tracks):
+                audio_sample = ET.SubElement(audio_media, "samplecharacteristics")
+                ET.SubElement(audio_sample, "depth").text = "16"
+                ET.SubElement(audio_sample, "samplerate").text = "48000"
+            
+            # Add file to media FIRST (before video/audio sections)
+            # This is critical - file must be first child of <media>
+            media.insert(0, file_elem)
+            
+            # Format element (required by Resolve)
+            format_elem = ET.SubElement(media, "format")
+            format_sample = ET.SubElement(format_elem, "samplecharacteristics")
+            ET.SubElement(format_sample, "width").text = str(video_width)
+            ET.SubElement(format_sample, "height").text = str(video_height)
+            ET.SubElement(format_sample, "pixelaspectratio").text = "square"
+            ET.SubElement(format_sample, "fielddominance").text = "none"
+            format_rate = ET.SubElement(format_sample, "rate")
+            ET.SubElement(format_rate, "timebase").text = timebase
+            ET.SubElement(format_rate, "ntsc").text = ntsc
+            
+            # Video section (after file definition)
+            video = ET.SubElement(media, "video")
+            video_track = ET.SubElement(video, "track")
+            
+            # Audio section (after file definition)
+            audio = ET.SubElement(media, "audio")
+            
+            # Calculate total timeline duration
+            timeline_duration = sum(seg['end'] - seg['start'] for seg in segments)
+            timeline_frames = int(round(timeline_duration * fps))
+            sequence.find("duration").text = str(timeline_frames)
+            
+            # Create audio track elements (one per audio track)
+            audio_track_elements = []
+            for audio_idx in range(num_audio_tracks):
+                audio_track_elem = ET.SubElement(audio, "track")
+                audio_track_elements.append(audio_track_elem)
+            
+            # Add clips to video track
+            timeline_start = 0.0
+            for i, segment in enumerate(segments):
+                source_start = segment['start']
+                source_end = segment['end']
+                duration = source_end - source_start
+                
+                record_start = timeline_start
+                record_end = timeline_start + duration
+                
+                # Convert to frames
+                source_start_frames = int(round(source_start * fps))
+                source_end_frames = int(round(source_end * fps))
+                record_start_frames = int(round(record_start * fps))
+                record_end_frames = int(round(record_end * fps))
+                
+                # Video clip
+                video_clipitem = ET.SubElement(video_track, "clipitem")
+                video_clipitem.set("id", f"clip-video-{i+1}")
+                ET.SubElement(video_clipitem, "name").text = video_file_path.name
+                ET.SubElement(video_clipitem, "duration").text = str(record_end_frames - record_start_frames)
+                
+                # File reference (MUST be first child of clipitem for Resolve)
+                file_ref = ET.SubElement(video_clipitem, "file")
+                file_ref.set("id", file_id)
+                
+                # In/Out points (MUST come before sourcetimecode for Resolve)
+                ET.SubElement(video_clipitem, "in").text = str(source_start_frames)
+                ET.SubElement(video_clipitem, "out").text = str(source_end_frames)
+                ET.SubElement(video_clipitem, "start").text = str(record_start_frames)
+                ET.SubElement(video_clipitem, "end").text = str(record_end_frames)
+                
+                # Rate (required by Resolve)
+                clip_rate = ET.SubElement(video_clipitem, "rate")
+                ET.SubElement(clip_rate, "timebase").text = timebase
+                ET.SubElement(clip_rate, "ntsc").text = ntsc
+                
+                # Source timecode
+                source_tc = ET.SubElement(video_clipitem, "sourcetimecode")
+                source_tc_rate = ET.SubElement(source_tc, "rate")
+                ET.SubElement(source_tc_rate, "timebase").text = timebase
+                ET.SubElement(source_tc_rate, "ntsc").text = ntsc
+                ET.SubElement(source_tc, "string").text = self._frames_to_timecode(source_start_frames, fps)
+                ET.SubElement(source_tc, "frame").text = str(source_start_frames)
+                
+                # Enabled (required by Resolve)
+                ET.SubElement(video_clipitem, "enabled").text = "TRUE"
+                
+                # Audio clips for each track - add to the corresponding track element
+                for audio_idx in range(num_audio_tracks):
+                    audio_track_elem = audio_track_elements[audio_idx]
+                    
+                    audio_clipitem = ET.SubElement(audio_track_elem, "clipitem")
+                    audio_clipitem.set("id", f"clip-audio-{i+1}-{audio_idx}")
+                    ET.SubElement(audio_clipitem, "name").text = video_file_path.name
+                    ET.SubElement(audio_clipitem, "duration").text = str(record_end_frames - record_start_frames)
+                    
+                    # File reference (MUST be first child of clipitem for Resolve)
+                    audio_file_ref = ET.SubElement(audio_clipitem, "file")
+                    audio_file_ref.set("id", file_id)
+                    
+                    # In/Out points (MUST come before sourcetimecode for Resolve)
+                    ET.SubElement(audio_clipitem, "in").text = str(source_start_frames)
+                    ET.SubElement(audio_clipitem, "out").text = str(source_end_frames)
+                    ET.SubElement(audio_clipitem, "start").text = str(record_start_frames)
+                    ET.SubElement(audio_clipitem, "end").text = str(record_end_frames)
+                    
+                    # Rate (required by Resolve)
+                    audio_clip_rate = ET.SubElement(audio_clipitem, "rate")
+                    ET.SubElement(audio_clip_rate, "timebase").text = timebase
+                    ET.SubElement(audio_clip_rate, "ntsc").text = ntsc
+                    
+                    # Source timecode
+                    audio_source_tc = ET.SubElement(audio_clipitem, "sourcetimecode")
+                    audio_tc_rate = ET.SubElement(audio_source_tc, "rate")
+                    ET.SubElement(audio_tc_rate, "timebase").text = timebase
+                    ET.SubElement(audio_tc_rate, "ntsc").text = ntsc
+                    ET.SubElement(audio_source_tc, "string").text = self._frames_to_timecode(source_start_frames, fps)
+                    ET.SubElement(audio_source_tc, "frame").text = str(source_start_frames)
+                    
+                    # Enabled (required by Resolve)
+                    ET.SubElement(audio_clipitem, "enabled").text = "TRUE"
+                    
+                    # Link to video clip for sync (Resolve needs this)
+                    link_elem = ET.SubElement(audio_clipitem, "link")
+                    link_elem.set("linkclipref", f"clip-video-{i+1}")
+                    ET.SubElement(link_elem, "mediatype").text = "video"
+                    ET.SubElement(link_elem, "trackindex").text = "1"
+                    ET.SubElement(link_elem, "clipindex").text = str(i + 1)
+                
+                timeline_start = record_end
+            
+            # Format XML with proper indentation
+            xml_str = ET.tostring(root, encoding='unicode')
+            dom = minidom.parseString(xml_str)
+            pretty_xml = dom.toprettyxml(indent="  ")
+            
+            # Write XML file
+            with open(xml_path, 'w', encoding='utf-8') as f:
+                f.write(pretty_xml)
+            
+            self.logger.info(f"FCP XML file exported: {xml_path}")
+            self.log_to_console(f"✅ FCP XML file generated: {xml_filename}\n")
+            self.log_to_console(f"📁 Location: {xml_path}\n")
+            self.log_to_console(f"📊 Contains {len(segments)} cut(s) with {num_audio_tracks} audio track(s)\n")
+            self.log_to_console(f"🎬 Frame rate: {fps:.2f} fps\n")
+            self.log_to_console(f"\n💡 Import Instructions:\n")
+            self.log_to_console(f"1. Open DaVinci Resolve\n")
+            self.log_to_console(f"2. IMPORTANT: Import your video file to Media Pool FIRST\n")
+            self.log_to_console(f"   - Right-click in Media Pool → Import Media\n")
+            self.log_to_console(f"   - Select: {video_file_path.name}\n")
+            self.log_to_console(f"3. File → Import → Timeline → Timeline... (Ctrl+Shift+I)\n")
+            self.log_to_console(f"4. Select: {xml_filename}\n")
+            self.log_to_console(f"5. In import dialog:\n")
+            self.log_to_console(f"   - Set timeline frame rate to {fps:.2f} fps\n")
+            self.log_to_console(f"   - If video shows as 'Offline', click 'Relink Media'\n")
+            self.log_to_console(f"   - Browse and select: {video_file_path.name}\n")
+            self.log_to_console(f"   - Resolve will link all clips to this file\n")
+            self.log_to_console(f"6. Click Import\n")
+            self.log_to_console(f"\n⚠️ TROUBLESHOOTING:\n")
+            self.log_to_console(f"If video doesn't appear on timeline:\n")
+            self.log_to_console(f"1. Make sure video is in Media Pool BEFORE importing XML\n")
+            self.log_to_console(f"2. Check video path: {abs_path}\n")
+            self.log_to_console(f"3. In import dialog, use 'Relink Media' button\n")
+            self.log_to_console(f"4. Select your video file manually\n")
+            self.log_to_console(f"5. After import, if clips are offline:\n")
+            self.log_to_console(f"   - Right-click timeline → Relink Selected Clips\n")
+            self.log_to_console(f"   - Or: Media Pool → Right-click offline media → Relink\n")
+            
+            return {
+                "status": "success",
+                "message": f"FCP XML file exported successfully!\n\nFile: {xml_filename}\nLocation: {xml_path}",
+                "file_path": str(xml_path)
+            }
+        
+        except Exception as e:
+            self.logger.error(f"FCP XML export failed: {e}", exc_info=True)
+            self.log_to_console(f"FCP XML export failed: {str(e)}\n")
+            return {"status": "error", "message": str(e)}
+    
+    def _frames_to_timecode(self, frames: int, fps: float) -> str:
+        """Convert frame number to timecode string HH:MM:SS:FF (FF is always 2 digits)"""
+        fps_int = int(round(fps))
+        if fps_int <= 0:
+            fps_int = 30
+        hours = frames // (fps_int * 3600)
+        minutes = (frames // (fps_int * 60)) % 60
+        secs = (frames // fps_int) % 60
+        frame_num = frames % fps_int
+        # Ensure frame number is always 2 digits (0-29 for 30fps, 0-59 for 60fps, etc.)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}:{frame_num:02d}"
+    
     def get_waveform_data(self, file_path: str, width: Union[int, str]) -> Optional[Dict[str, Any]]:
         """
         Extracts, downsamples, and returns waveform data.

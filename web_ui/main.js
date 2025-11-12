@@ -69,6 +69,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const detectSilenceButton = document.getElementById('btn-detect-silence');
     const exportButton = document.getElementById('btn-export-video');
     const exportCutsButton = document.getElementById('btn-export-cuts');
+    const exportEdlButton = document.getElementById('btn-export-edl');
+    const exportXmlButton = document.getElementById('btn-export-xml');
     const skipSilenceCheckbox = document.getElementById('skip-silence-check');
     const btnScrollStart = document.getElementById('btn-scroll-start');
     const btnZoomReset = document.getElementById('btn-zoom-reset');
@@ -100,6 +102,8 @@ window.addEventListener('DOMContentLoaded', () => {
     detectSilenceButton.addEventListener('click', detectSilence);
     exportButton.addEventListener('click', exportVideo);
     exportCutsButton.addEventListener('click', exportCuts);
+    exportEdlButton.addEventListener('click', exportEdl);
+    exportXmlButton.addEventListener('click', exportXml);
 
     // --- Bind Listeners for local JS ---
     skipSilenceCheckbox.addEventListener('change', () => {
@@ -854,5 +858,123 @@ async function exportCuts() {
         if (!exportSucceeded) {
             window.updateProgress(0, "Ready", 0);
         }
+    }
+}
+
+async function exportEdl() {
+    const statusLabel = document.getElementById('status-label');
+    const exportEdlButton = document.getElementById('btn-export-edl');
+
+    if (!currentVideoInfo || !timeline.segments || timeline.segments.length === 0) {
+        alert("Please load a video and detect segments first.");
+        return;
+    }
+
+    // Get only audible segments (where keep=true or keep is undefined)
+    const audibleSegments = timeline.segments.filter(seg => seg.keep !== false);
+    
+    if (audibleSegments.length === 0) {
+        alert("No audible segments to export. All segments are marked for removal.");
+        return;
+    }
+
+    exportEdlButton.disabled = true;
+    exportEdlButton.textContent = "Exporting EDL...";
+    statusLabel.textContent = "Exporting Edit Decision List...";
+    
+    window.clearConsole();
+    window.updateConsole("Generating EDL file...\n");
+
+    try {
+        const result = await window.pywebview.api.export_edl(
+            currentVideoInfo,
+            audibleSegments
+        );
+
+        // Check for errors
+        const { hasError, message, data } = checkError(result);
+        
+        if (!hasError && result.status === 'success') {
+            statusLabel.textContent = "EDL export complete!";
+            window.updateConsole(`\n✅ EDL file exported successfully!\n`);
+            window.updateConsole(`📁 Saved to: ${result.message || result.file_path || 'Unknown location'}\n`);
+            alert(`EDL file exported successfully!\n\n${result.message || result.file_path || 'File saved'}`);
+        } else if (result.status === 'cancelled') {
+            statusLabel.textContent = "EDL export cancelled.";
+            window.updateConsole("\n❌ EDL export cancelled by user.\n");
+        } else {
+            statusLabel.textContent = "EDL export failed.";
+            const errorMsg = message || result.message || "Unknown error";
+            window.updateConsole(`\n❌ EDL export failed: ${errorMsg}\n`);
+            alert(`EDL Export Failed: ${errorMsg}`);
+        }
+    } catch (error) {
+        // Handle exceptions
+        statusLabel.textContent = "EDL export failed.";
+        window.updateConsole(`\n❌ EDL export error: ${error.message}\n`);
+        alert(`EDL Export Failed: ${error.message}`);
+    } finally {
+        // Always reset button
+        exportEdlButton.disabled = false;
+        exportEdlButton.textContent = "Export Edit List (EDL)";
+    }
+}
+
+async function exportXml() {
+    const statusLabel = document.getElementById('status-label');
+    const exportXmlButton = document.getElementById('btn-export-xml');
+
+    if (!currentVideoInfo || !timeline.segments || timeline.segments.length === 0) {
+        alert("Please load a video and detect segments first.");
+        return;
+    }
+
+    // Get only audible segments (where keep=true or keep is undefined)
+    const audibleSegments = timeline.segments.filter(seg => seg.keep !== false);
+    
+    if (audibleSegments.length === 0) {
+        alert("No audible segments to export. All segments are marked for removal.");
+        return;
+    }
+
+    exportXmlButton.disabled = true;
+    exportXmlButton.textContent = "Exporting XML...";
+    statusLabel.textContent = "Exporting FCP XML...";
+    
+    window.clearConsole();
+    window.updateConsole("Generating FCP XML file...\n");
+
+    try {
+        const result = await window.pywebview.api.export_fcp_xml(
+            currentVideoInfo,
+            audibleSegments
+        );
+
+        // Check for errors
+        const { hasError, message, data } = checkError(result);
+        
+        if (!hasError && result.status === 'success') {
+            statusLabel.textContent = "XML export complete!";
+            window.updateConsole(`\n✅ FCP XML file exported successfully!\n`);
+            window.updateConsole(`📁 Saved to: ${result.message || result.file_path || 'Unknown location'}\n`);
+            alert(`FCP XML file exported successfully!\n\n${result.message || result.file_path || 'File saved'}`);
+        } else if (result.status === 'cancelled') {
+            statusLabel.textContent = "XML export cancelled.";
+            window.updateConsole("\n❌ XML export cancelled by user.\n");
+        } else {
+            statusLabel.textContent = "XML export failed.";
+            const errorMsg = message || result.message || "Unknown error";
+            window.updateConsole(`\n❌ XML export failed: ${errorMsg}\n`);
+            alert(`XML Export Failed: ${errorMsg}`);
+        }
+    } catch (error) {
+        // Handle exceptions
+        statusLabel.textContent = "XML export failed.";
+        window.updateConsole(`\n❌ XML export error: ${error.message}\n`);
+        alert(`XML Export Failed: ${error.message}`);
+    } finally {
+        // Always reset button
+        exportXmlButton.disabled = false;
+        exportXmlButton.textContent = "Export FCP XML";
     }
 }
