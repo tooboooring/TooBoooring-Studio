@@ -34,7 +34,7 @@ body, html {
     grid-row: 2 / 3;
     display: grid;
     grid-template-columns: 2fr 1fr; /* Player | Controls */
-    gap: 5px; /* Creates the resizer "gutter" */
+    gap: 5px; /* CSS Grid gap between columns */
     padding: 5px;
     min-height: 0; /* Allow grid to shrink */
     overflow: hidden;
