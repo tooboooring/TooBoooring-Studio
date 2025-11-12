@@ -1541,3 +1541,59 @@
 2025-11-12 21:59:54 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
 2025-11-12 21:59:54 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
 2025-11-12 21:59:54 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-12 23:08:52 - video_production_app.Api - INFO - API initialized
+2025-11-12 23:09:38 - video_production_app.Api - INFO - API initialized
+2025-11-12 23:09:40 - video_production_app.Api - INFO - Getting app configuration
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-12 23:09:40 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-12 23:09:40 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-12 23:09:40 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-12 23:09:40 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-12 23:09:40 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-12 23:09:40 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-12 23:09:40 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-12 23:18:06 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 23:18:06 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 23:18:06 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 23:18:06 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 18-17-15.mp4 (1340.85s, 2 tracks)
+2025-11-12 23:18:36 - video_production_app.Api - INFO - Analyzing all tracks for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 23:18:36 - video_production_app.Api - DEBUG - CORE: 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 23:18:36 - video_production_app.Api - DEBUG - CORE: ✅ Found 2 audio track(s).
+
+2025-11-12 23:18:37 - video_production_app.Api - INFO - Analyzed 2 tracks
+2025-11-12 23:18:51 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4 on track 2
+2025-11-12 23:18:51 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-12 23:18:51 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-12 23:18:51 - video_production_app.Api - INFO - 🤫 Detecting silence in track 2...
+
+2025-11-12 23:18:54 - video_production_app.Api - INFO - 🔍 Found 183 audible segments and 183 silent segments.
+
+2025-11-12 23:18:54 - video_production_app.Api - INFO - Found 366 segments
+2025-11-12 23:18:54 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-12 23:18:54 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 1...
+
+2025-11-12 23:19:00 - video_production_app.Api - DEBUG - CORE: 📊 Extracting waveform for Track 2...
+
+2025-11-12 23:19:01 - video_production_app.Api - DEBUG - CORE: ✅ Extracted 2 waveforms!
+
+2025-11-12 23:19:02 - video_production_app.Api - INFO - Extracted 2 waveforms
+2025-11-12 23:19:02 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 23:22:45 - video_production_app.Api - INFO - Creating video with audio tracks: [2]
+2025-11-12 23:22:45 - video_production_app.Api - DEBUG - Cleaned up old temp file: C:\Users\ASUS\AppData\Local\Temp\video_audio_19148_1762963648.mp4
+2025-11-12 23:22:45 - video_production_app.Api - DEBUG - Cleaned up old temp file: C:\Users\ASUS\AppData\Local\Temp\video_audio_19148_1762963651.mp4
+2025-11-12 23:22:46 - video_production_app.Api - INFO - Creating video with audio tracks: [2, 1]
+2025-11-12 23:22:50 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_14804_1762969965.mp4
+2025-11-12 23:24:12 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_14804_1762969966.mp4

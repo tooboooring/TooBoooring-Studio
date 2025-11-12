@@ -23,14 +23,14 @@ if __name__ == '__main__':
     import numpy as np
 else:
         # Use relative imports when run as a module
-        from .core.ffmpeg_wrapper import get_video_duration, get_audio_tracks, get_available_encoders, analyze_audio_track_content
-        from .core.silence_detector import detect_silence, parse_segments
-        from .core.settings_manager import SettingsManager
-        from .core.video_processor import process_video_logic
-        from .ui.widgets.waveform import WaveformGenerator
-        from .config import ENCODER_OPTIONS, UI_SETTINGS
-        from .utils.logger import app_logger
-        from .utils.validators import validate_video_path, validate_track_index, validate_trim_values
+        from ..core.ffmpeg_wrapper import get_video_duration, get_audio_tracks, get_available_encoders, analyze_audio_track_content
+        from ..core.silence_detector import detect_silence, parse_segments
+        from ..core.settings_manager import SettingsManager
+        from ..core.video_processor import process_video_logic
+        from ..ui.widgets.waveform import WaveformGenerator
+        from ..config import ENCODER_OPTIONS, UI_SETTINGS
+        from ..utils.logger import app_logger
+        from ..utils.validators import validate_video_path, validate_track_index, validate_trim_values
         import numpy as np
 
 # This is the "bridge" for JS to call Python
