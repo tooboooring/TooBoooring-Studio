@@ -99,3 +99,25 @@ DEFAULT_OUTPUT_FORMAT = "mp4"
 
 # Settings file name (maintains compatibility with existing installations)
 SETTINGS_FILE_NAME = "video_cutter_settings.json"
+
+# File validation limits (for security and stability)
+FILE_LIMITS = {
+    "max_file_size_mb": None,  # None = no limit (allow any file size)
+    "max_waveform_samples": 1000000,  # Maximum samples for waveform display
+    "max_segments": 10000  # Maximum number of segments to prevent memory issues
+}
+
+# UI Settings (can be customized by users)
+UI_SETTINGS = {
+    "timeline": {
+        "max_zoom": 100.0,
+        "min_zoom": 0.1,
+        "waveform_height": 210,  # pixels
+        "default_theme": "dark"
+    },
+    "performance": {
+        "enable_waveform_cache": True,
+        "cache_size_mb": 100,  # Maximum cache size
+        "lazy_load_waveforms": True  # Load waveforms on demand
+    }
+}

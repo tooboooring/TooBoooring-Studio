@@ -27,9 +27,12 @@ export class Timeline {
         this.waveforms = {}; // Multi-track: {track_index: {waveform: [...], track_info: {...}}}
         
         // Zoom and scroll
+        // Use config values if available, otherwise defaults
+        const config = window.app?.config || {};
+        const timelineConfig = config.ui_settings?.timeline || {};
         this.zoom = 1.0; // 1.0 = normal, >1.0 = zoomed in, <1.0 = zoomed out
-        this.minZoom = 0.1;
-        this.maxZoom = 100.0;
+        this.minZoom = timelineConfig.min_zoom || 0.1;
+        this.maxZoom = timelineConfig.max_zoom || 100.0;
         this.scrollOffset = 0; // Horizontal scroll offset in seconds
         
         // Get reference to the scrollable wrapper (panel-content div)

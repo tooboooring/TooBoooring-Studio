@@ -92,6 +92,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const previousFrameBtn = document.getElementById('btn-previous-frame');
     const nextFrameBtn = document.getElementById('btn-next-frame');
     const stopBtn = document.getElementById('btn-stop');
+    const playbackAudioTrackSelector = document.getElementById('playback-audio-track');
 
     // --- Bind Listeners for Python calls ---
     loadVideoButton.addEventListener('click', loadVideo);
@@ -102,6 +103,8 @@ window.addEventListener('DOMContentLoaded', () => {
     skipSilenceCheckbox.addEventListener('change', () => {
         player.setSkipSilence(skipSilenceCheckbox.checked);
     });
+    
+    // Audio track mute buttons are handled in loadVideo() function
 
     // Connect player and timeline
     player.onTimeUpdate = (time) => {
@@ -284,41 +287,47 @@ window.addEventListener('DOMContentLoaded', () => {
             if (statusLabel) statusLabel.textContent = "Analyzing audio tracks...";
 
             try {
-                const results = await window.pywebview.api.analyze_all_tracks(currentVideoInfo.filePath);
+                const result = await window.pywebview.api.analyze_all_tracks(currentVideoInfo.filePath);
                 
-                if (results.error) {
-                    audioDetailsTextbox.value = `Error: ${results.error}`;
+                // Check for errors
+                const { hasError, message, data } = checkError(result);
+                if (hasError) {
+                    audioDetailsTextbox.value = `Error: ${message}`;
                     if (statusLabel) statusLabel.textContent = "Analysis failed.";
-                } else {
-                    // Format results as a table
-                    let output = "Track    Codec      Channels    Status         Mean Volume   Max Volume\n";
-                    output += "─────────────────────────────────────────────────────────────────────\n";
-                    
-                    results.forEach(track => {
-                        const meanStr = track.mean_volume !== null ? `${track.mean_volume.toFixed(1)} dB` : "N/A";
-                        const maxStr = track.max_volume !== null ? `${track.max_volume.toFixed(1)} dB` : "N/A";
-                        
-                        let statusIcon = "";
-                        if (track.is_silent) {
-                            statusIcon = "🔇 ";
-                        } else if (track.status === "Normal Audio") {
-                            statusIcon = "🔊 ";
-                        } else if (track.status === "Quiet Audio") {
-                            statusIcon = "🔉 ";
-                        } else if (track.status === "Loud Audio") {
-                            statusIcon = "📢 ";
-                        }
-                        
-                        const line = `${String(track.index).padEnd(8)} ${track.codec.padEnd(10)} ${track.channels.padEnd(10)} ${statusIcon}${track.status.padEnd(13)} ${meanStr.padEnd(12)} ${maxStr}\n`;
-                        output += line;
-                    });
-                    
-                    output += "\n✅ Analysis complete!\n";
-                    output += "🔇 = Silent/Empty track | 🔉 = Quiet | 🔊 = Normal | 📢 = Loud\n";
-                    
-                    audioDetailsTextbox.value = output;
-                    if (statusLabel) statusLabel.textContent = `Analyzed ${results.length} track(s).`;
+                    return;
                 }
+                
+                // Extract tracks from response (handle both new format and legacy)
+                const tracks = data.tracks || data || [];
+                
+                // Format results as a table
+                let output = "Track    Codec      Channels    Status         Mean Volume   Max Volume\n";
+                output += "─────────────────────────────────────────────────────────────────────\n";
+                
+                tracks.forEach(track => {
+                    const meanStr = track.mean_volume !== null ? `${track.mean_volume.toFixed(1)} dB` : "N/A";
+                    const maxStr = track.max_volume !== null ? `${track.max_volume.toFixed(1)} dB` : "N/A";
+                    
+                    let statusIcon = "";
+                    if (track.is_silent) {
+                        statusIcon = "🔇 ";
+                    } else if (track.status === "Normal Audio") {
+                        statusIcon = "🔊 ";
+                    } else if (track.status === "Quiet Audio") {
+                        statusIcon = "🔉 ";
+                    } else if (track.status === "Loud Audio") {
+                        statusIcon = "📢 ";
+                    }
+                    
+                    const line = `${String(track.index).padEnd(8)} ${track.codec.padEnd(10)} ${track.channels.padEnd(10)} ${statusIcon}${track.status.padEnd(13)} ${meanStr.padEnd(12)} ${maxStr}\n`;
+                    output += line;
+                });
+                
+                output += "\n✅ Analysis complete!\n";
+                output += "🔇 = Silent/Empty track | 🔉 = Quiet | 🔊 = Normal | 📢 = Loud\n";
+                
+                audioDetailsTextbox.value = output;
+                if (statusLabel) statusLabel.textContent = `Analyzed ${tracks.length} track(s).`;
             } catch (error) {
                 audioDetailsTextbox.value = `Error: ${error.message}`;
                 if (statusLabel) statusLabel.textContent = "Analysis failed.";
@@ -410,6 +419,17 @@ window.addEventListener('pywebviewready', async () => {
     window.app.addLog("Welcome! Please select a video file to begin.\n");
 });
 
+// --- Helper function for error checking ---
+function checkError(result) {
+    if (!result) {
+        return { hasError: true, message: "No response from server" };
+    }
+    if (result.status === "error" || result.error) {
+        return { hasError: true, message: result.error || result.message || "Unknown error" };
+    }
+    return { hasError: false, data: result };
+}
+
 // --- 5. Async Functions (called by listeners) ---
 // We move the main logic into separate functions.
 
@@ -421,9 +441,39 @@ async function loadVideo() {
     window.clearConsole();
     window.updateConsole("Loading video file...\n");
     
-    const videoInfo = await window.pywebview.api.load_video();
+    try {
+        const result = await window.pywebview.api.load_video();
+        console.log("load_video result:", result);
+        
+        // Handle cancellation (None/null)
+        if (!result) {
+            statusLabel.textContent = "No video loaded.";
+            window.updateConsole("No video selected.\n");
+            return;
+        }
 
-    if (videoInfo && !videoInfo.error) {
+        // Check for errors
+        const { hasError, message, data } = checkError(result);
+        console.log("checkError result:", { hasError, message, data });
+        
+        if (hasError) {
+            statusLabel.textContent = "Error loading video.";
+            window.updateConsole(`❌ Error: ${message}\n`);
+            console.error("Python Error:", message);
+            return;
+        }
+
+        // Success - use data (which is the videoInfo) or result directly if no wrapper
+        const videoInfo = data || result;
+        console.log("Using videoInfo:", videoInfo);
+        
+        if (!videoInfo || !videoInfo.fileName) {
+            console.error("Invalid videoInfo structure:", videoInfo);
+            statusLabel.textContent = "Error: Invalid video data received.";
+            window.updateConsole("❌ Error: Invalid video data structure\n");
+            return;
+        }
+        
         currentVideoInfo = videoInfo;
         statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
         window.updateConsole(`✅ Video loaded: ${videoInfo.fileName}\n`);
@@ -438,15 +488,56 @@ async function loadVideo() {
             trackSelector.appendChild(option);
         });
 
-        player.loadVideo(videoInfo.filePath);
+        // Populate audio track mute buttons (Premiere Pro style)
+        const audioTracksButtons = document.getElementById('audio-tracks-buttons');
+        if (audioTracksButtons) {
+            audioTracksButtons.innerHTML = ""; // Clear existing buttons
+            
+            // Initialize all tracks as enabled
+            player.enabledTrackIndices = videoInfo.audioTracks.map(track => track.index);
+            
+            // Create a mute button for each track
+            videoInfo.audioTracks.forEach(track => {
+                const button = document.createElement('button');
+                button.className = 'audio-track-button';
+                button.dataset.trackIndex = track.index;
+                button.innerHTML = `<span class="track-icon">🔊</span> <span>${track.name}</span>`;
+                button.title = `Click to mute/unmute ${track.name}`;
+                button.setAttribute('aria-label', `Toggle ${track.name}`);
+                
+                // Add click handler
+                button.addEventListener('click', async () => {
+                    const trackIndex = parseInt(button.dataset.trackIndex);
+                    const isMuted = button.classList.contains('muted');
+                    
+                    if (isMuted) {
+                        // Unmute: add track to enabled list
+                        if (!player.enabledTrackIndices.includes(trackIndex)) {
+                            player.enabledTrackIndices.push(trackIndex);
+                        }
+                        button.classList.remove('muted');
+                        button.querySelector('.track-icon').textContent = '🔊';
+                    } else {
+                        // Mute: remove track from enabled list
+                        player.enabledTrackIndices = player.enabledTrackIndices.filter(idx => idx !== trackIndex);
+                        button.classList.add('muted');
+                        button.querySelector('.track-icon').textContent = '🔇';
+                    }
+                    
+                    // Update video with new track selection
+                    await player.updateAudioTracks(player.enabledTrackIndices);
+                });
+                
+                audioTracksButtons.appendChild(button);
+            });
+        }
+
+        player.loadVideo(videoInfo.filePath, videoInfo.audioTracks);
         timeline.draw([], 0, null); // Clear timeline
-    } else if (videoInfo && videoInfo.error) {
+    } catch (error) {
+        console.error("Error in loadVideo:", error);
         statusLabel.textContent = "Error loading video.";
-        window.updateConsole(`❌ Error: ${videoInfo.error}\n`);
-        console.error("Python Error:", videoInfo.error);
-    } else {
-        statusLabel.textContent = "No video loaded.";
-        window.updateConsole("No video selected.\n");
+        window.updateConsole(`❌ Error: ${error.message}\n`);
     }
 }
 
@@ -471,16 +562,26 @@ async function detectSilence() {
     window.updateConsole(`Detecting silence on track ${selectedTrackIndex}...\n`);
     console.log(`JavaScript: Asking Python to detect silence on track ${selectedTrackIndex}...`);
 
-    const segments = await window.pywebview.api.detect_silence(
+    const result = await window.pywebview.api.detect_silence(
         currentVideoInfo.filePath,
         parseInt(selectedTrackIndex)
     );
 
     detectSilenceButton.disabled = false;
 
-    if (segments && !segments.error) {
-        console.log("Got segments from Python:", segments);
-        window.updateConsole(`✅ Found ${segments.length} segments\n`);
+    // Check for errors
+    const { hasError, message, data } = checkError(result);
+    if (hasError) {
+        statusLabel.textContent = "Error detecting silence.";
+        window.updateConsole(`❌ Error: ${message}\n`);
+        console.error("Python Error:", message);
+        return;
+    }
+
+    // Extract segments from response
+    const segments = data.segments || data; // Handle both new format and legacy
+    console.log("Got segments from Python:", segments);
+    window.updateConsole(`✅ Found ${segments.length} segments\n`);
         
         // Extract waveform data for all tracks
         statusLabel.textContent = "Extracting waveforms...";
@@ -489,24 +590,28 @@ async function detectSilence() {
         // Get canvas width to tell Python how much to downsample
         const canvasWidth = document.getElementById('waveform-canvas').offsetWidth;
         
-        const waveformsData = await window.pywebview.api.get_waveforms_all_tracks(
+        const waveformsResult = await window.pywebview.api.get_waveforms_all_tracks(
             currentVideoInfo.filePath,
             currentVideoInfo.audioTracks,
             canvasWidth
         );
         
-        if (waveformsData && !waveformsData.error) {
-            const trackCount = Object.keys(waveformsData).length;
+        // Check for errors
+        const { hasError: hasWaveformError, message: waveformError, data: waveformsData } = checkError(waveformsResult);
+        if (!hasWaveformError && waveformsData) {
+            // Extract waveforms from response (handle both new format and legacy)
+            const waveforms = waveformsData.waveforms || waveformsData;
+            const trackCount = Object.keys(waveforms).length;
             console.log(`Got waveforms for ${trackCount} tracks.`);
             window.updateConsole(`✅ Waveforms extracted for ${trackCount} track(s)\n`);
             // Now draw everything
-            timeline.draw(segments, currentVideoInfo.duration, waveformsData);
+            timeline.draw(segments, currentVideoInfo.duration, waveforms);
             statusLabel.textContent = `Found ${segments.length} segments!`;
         } else {
             // Still draw, but without waveform
             timeline.draw(segments, currentVideoInfo.duration, null);
             statusLabel.textContent = "Segments found, but waveform extraction failed.";
-            window.updateConsole("⚠️ Waveform extraction failed\n");
+            window.updateConsole(`⚠️ Waveform extraction failed: ${waveformError || 'Unknown error'}\n`);
         }
         
         // Update statistics
@@ -532,11 +637,6 @@ async function detectSilence() {
         
         // Send segments to the player for skip silence functionality
         player.setSegments(segments);
-    } else {
-        statusLabel.textContent = "Error detecting silence.";
-        window.updateConsole(`❌ Error: ${segments?.error || 'Unknown error'}\n`);
-        console.error("Python Error:", segments?.error);
-    }
 }
 
 async function exportVideo() {
@@ -561,7 +661,7 @@ async function exportVideo() {
     const trimStart = parseFloat(trimStartInput.value) || 0;
     const trimEnd = trimEndInput.value ? parseFloat(trimEndInput.value) : null;
 
-    // Validate trim values
+    // Validate trim values (client-side validation)
     if (trimStart < 0) {
         alert("Trim start must be >= 0");
         return;
@@ -594,26 +694,45 @@ async function exportVideo() {
         trim_end: trimEndInput.value || null
     };
 
-    const result = await window.pywebview.api.export_video(
-        currentVideoInfo,
-        timeline.segments,
-        export_settings
-    );
+    let exportSucceeded = false;
+    try {
+        const result = await window.pywebview.api.export_video(
+            currentVideoInfo,
+            timeline.segments,
+            export_settings
+        );
 
-    exportButton.disabled = false;
-    exportButton.textContent = "Export Video";
-
-    if (result.status === 'success') {
-        window.updateProgress(100, "Complete", 0);
-        statusLabel.textContent = "Export complete!";
-        window.updateConsole("\n✅ Export completed successfully!\n");
-        alert(result.message);
-    } else if (result.status === 'cancelled') {
-        statusLabel.textContent = "Export cancelled.";
-        window.updateConsole("\n❌ Export cancelled by user.\n");
-    } else {
+        // Check for errors
+        const { hasError, message, data } = checkError(result);
+        
+        if (!hasError && result.status === 'success') {
+            window.updateProgress(100, "Complete", 0);
+            statusLabel.textContent = "Export complete!";
+            window.updateConsole("\n✅ Export completed successfully!\n");
+            alert(result.message || "Export completed successfully!");
+            exportSucceeded = true;
+        } else if (result.status === 'cancelled') {
+            statusLabel.textContent = "Export cancelled.";
+            window.updateConsole("\n❌ Export cancelled by user.\n");
+        } else {
+            statusLabel.textContent = "Export failed.";
+            const errorMsg = message || result.message || "Unknown error";
+            window.updateConsole(`\n❌ Export failed: ${errorMsg}\n`);
+            alert(`Export Failed: ${errorMsg}`);
+        }
+    } catch (error) {
+        // Handle exceptions
         statusLabel.textContent = "Export failed.";
-        window.updateConsole(`\n❌ Export failed: ${result.message}\n`);
-        alert(`Export Failed: ${result.message}`);
+        window.updateConsole(`\n❌ Export error: ${error.message}\n`);
+        alert(`Export Failed: ${error.message}`);
+    } finally {
+        // Always reset button and progress
+        exportButton.disabled = false;
+        exportButton.textContent = "Export Video";
+        
+        // Reset progress if not already set to 100%
+        if (!exportSucceeded) {
+            window.updateProgress(0, "Ready", 0);
+        }
     }
 }

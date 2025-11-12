@@ -6,6 +6,10 @@ export class Player {
         this.onTimeUpdate = null;
         this.segments = [];
         this.skipSilence = false;
+        this.audioTracks = [];
+        this.currentAudioTrackIndex = null;
+        this.originalVideoPath = null;
+        this.enabledTrackIndices = []; // Track which tracks are enabled
         
         // Listen for timeupdate events from the video element
         this.videoElement.addEventListener('timeupdate', () => {
@@ -40,7 +44,7 @@ export class Player {
         });
     }
 
-    loadVideo(filePath) {
+    loadVideo(filePath, audioTracks = []) {
         // PyWebView has a special 'pywebview.api.toggle_fullscreen' etc.
         // but for local files, we need to ask Python for a special URL.
         // For now, let's try the direct file path, but this is tricky.
@@ -49,6 +53,10 @@ export class Player {
         // Let's create a URL that the local 'file://' protocol can use.
         // Note: This can fail due to browser security (CORS).
         console.log("Loading video with file path:", filePath);
+        
+        // Store original video path and audio tracks info
+        this.originalVideoPath = filePath;
+        this.audioTracks = audioTracks || [];
         
         // We need to convert the path to a 'file:///' URL
         // But `pywebview` gives us a better way.
@@ -59,10 +67,118 @@ export class Player {
                 console.log("Got loadable URL:", url);
                 this.videoElement.src = url;
                 this.videoElement.load();
+                
+                // Wait for video metadata to load, then set up audio track selection
+                this.videoElement.addEventListener('loadedmetadata', () => {
+                    this.setupAudioTracks();
+                }, { once: true });
             } else {
                 console.error("Could not get loadable URL for video.");
             }
         });
+    }
+    
+    setupAudioTracks() {
+        // Try to use HTML5 audioTracks API if available
+        if (this.videoElement.audioTracks && this.videoElement.audioTracks.length > 0) {
+            console.log(`Found ${this.videoElement.audioTracks.length} audio track(s) in video element`);
+            
+            // Enable the first track by default
+            if (this.videoElement.audioTracks.length > 0) {
+                this.videoElement.audioTracks[0].enabled = true;
+                // Disable others
+                for (let i = 1; i < this.videoElement.audioTracks.length; i++) {
+                    this.videoElement.audioTracks[i].enabled = false;
+                }
+            }
+        } else {
+            console.log("audioTracks API not available, using fallback method");
+        }
+    }
+    
+    setAudioTrack(trackIndex) {
+        // Try to use HTML5 audioTracks API
+        if (this.videoElement.audioTracks && this.videoElement.audioTracks.length > 0) {
+            // Disable all tracks first
+            for (let i = 0; i < this.videoElement.audioTracks.length; i++) {
+                this.videoElement.audioTracks[i].enabled = false;
+            }
+            
+            // Enable the selected track
+            if (trackIndex >= 0 && trackIndex < this.videoElement.audioTracks.length) {
+                this.videoElement.audioTracks[trackIndex].enabled = true;
+                this.currentAudioTrackIndex = trackIndex;
+                console.log(`Switched to audio track ${trackIndex}`);
+            }
+        } else {
+            // Fallback: If audioTracks API is not available, we'll need to use FFmpeg
+            // For now, just log a message
+            console.log(`Audio track selection requested for track ${trackIndex}, but audioTracks API not available`);
+            this.currentAudioTrackIndex = trackIndex;
+            
+            // Note: To actually switch tracks, we would need to:
+            // 1. Use FFmpeg to create a temporary video with only the selected track
+            // 2. Or use a media source extension (MSE) approach
+            // For now, we'll just store the preference
+        }
+    }
+    
+    async updateAudioTracks(enabledTrackIndices) {
+        // This will be called when track mute buttons are clicked
+        // We'll use Python backend to create a temporary video with selected tracks
+        if (!this.originalVideoPath) {
+            console.error("No original video path available");
+            return;
+        }
+        
+        console.log(`Updating audio tracks: ${enabledTrackIndices}`);
+        
+        // Call Python to create video with selected tracks
+        try {
+            const tempVideoPath = await window.pywebview.api.create_video_with_audio_tracks(
+                this.originalVideoPath,
+                enabledTrackIndices
+            );
+            
+            if (tempVideoPath) {
+                // Load the new video
+                const url = await window.pywebview.api.get_loadable_file_url(tempVideoPath);
+                if (url) {
+                    const wasPlaying = !this.videoElement.paused;
+                    const currentTime = this.videoElement.currentTime;
+                    
+                    this.videoElement.src = url;
+                    this.videoElement.load();
+                    
+                    // Restore playback state
+                    this.videoElement.addEventListener('loadedmetadata', () => {
+                        this.videoElement.currentTime = currentTime;
+                        if (wasPlaying) {
+                            this.videoElement.play();
+                        }
+                    }, { once: true });
+                }
+            } else {
+                // No temp file means use original (all tracks)
+                const url = await window.pywebview.api.get_loadable_file_url(this.originalVideoPath);
+                if (url) {
+                    const wasPlaying = !this.videoElement.paused;
+                    const currentTime = this.videoElement.currentTime;
+                    
+                    this.videoElement.src = url;
+                    this.videoElement.load();
+                    
+                    this.videoElement.addEventListener('loadedmetadata', () => {
+                        this.videoElement.currentTime = currentTime;
+                        if (wasPlaying) {
+                            this.videoElement.play();
+                        }
+                    }, { once: true });
+                }
+            }
+        } catch (error) {
+            console.error("Error updating audio tracks:", error);
+        }
     }
 
     seek(timeSeconds) {

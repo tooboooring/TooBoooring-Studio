@@ -237,6 +237,51 @@ button:not(.panel-header button):not(.player-controls-bar button) {
     height: 100%;
 }
 
+/* Waveform canvas height - can be customized via config */
+#waveform-canvas {
+    height: 210px; /* Default, can be overridden by config */
+}
+
+/* Audio track mute buttons (Premiere Pro style) */
+.audio-track-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background-color: #383838;
+    border: 1px solid #555;
+    border-radius: 3px;
+    color: #CCC;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 80px;
+}
+
+.audio-track-button:hover {
+    background-color: #444;
+    border-color: #666;
+}
+
+.audio-track-button.muted {
+    background-color: #2B2B2B;
+    border-color: #444;
+    opacity: 0.6;
+}
+
+.audio-track-button.muted .track-icon {
+    opacity: 0.4;
+}
+
+.track-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.audio-track-button:not(.muted) .track-icon {
+    color: #1f6aa5;
+}
+
 /* Fix canvas sizing */
 #ruler-canvas, #waveform-canvas, #segments-canvas {
     background-color: #2B2B2B;
