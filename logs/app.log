@@ -168,3 +168,8 @@
 
 2025-11-12 14:50:46 - video_production_app.Api - INFO - Extracted 2 waveforms
 2025-11-12 14:50:46 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-12 14:51:09 - video_production_app.Api - INFO - Creating video with audio tracks: [1]
+2025-11-12 14:51:11 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939269.mp4
+2025-11-12 14:51:24 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939218.mp4
+2025-11-12 14:51:28 - video_production_app.Api - INFO - Creating video with audio tracks: [1, 2]
+2025-11-12 14:52:33 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_8796_1762939288.mp4
