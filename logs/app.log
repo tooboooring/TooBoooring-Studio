@@ -1597,3 +1597,4 @@
 2025-11-12 23:22:46 - video_production_app.Api - INFO - Creating video with audio tracks: [2, 1]
 2025-11-12 23:22:50 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_14804_1762969965.mp4
 2025-11-12 23:24:12 - video_production_app.Api - INFO - Created temporary video: C:\Users\ASUS\AppData\Local\Temp\video_audio_14804_1762969966.mp4
+2025-11-13 06:14:28 - video_production_app.Api - INFO - API initialized

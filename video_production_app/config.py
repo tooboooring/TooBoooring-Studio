@@ -121,3 +121,50 @@ UI_SETTINGS = {
         "lazy_load_waveforms": True  # Load waveforms on demand
     }
 }
+
+# AI Content Analysis Settings
+AI_ANALYSIS_SETTINGS = {
+    # together.ai API configuration
+    "api_key": "",  # User must provide their own API key
+    "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",  # Default model
+    "temperature": 0.7,  # LLM temperature (0.0-1.0)
+    "max_tokens": 500,  # Maximum response tokens
+    
+    # Whisper transcription settings
+    "whisper_model": "base",  # Options: 'tiny', 'base', 'small', 'medium', 'large'
+    # Model sizes and memory requirements:
+    # - tiny: ~1GB VRAM, fastest, lower accuracy
+    # - base: ~1GB VRAM, good balance (recommended)
+    # - small: ~2GB VRAM, better accuracy
+    # - medium: ~5GB VRAM, very good accuracy
+    # - large: ~10GB VRAM, best accuracy, slowest
+    
+    # Context window configuration
+    "context_window_seconds": 30.0,  # How many seconds before/after to include
+    
+    # API rate limiting
+    "api_delay_seconds": 0.5,  # Delay between API calls to avoid rate limits
+    
+    # Caching and performance
+    "cache_transcriptions": True,  # Cache Whisper results
+    "cache_ai_decisions": True,  # Cache AI analysis results
+    "export_decisions_json": True,  # Export analysis to JSON for review
+    
+    # Prompt configuration (can be overridden in UI)
+    "use_custom_prompt": False,  # Set to True to use custom prompt template
+    "custom_prompt_template": None,  # Path to custom prompt file or template string
+    
+    # Content evaluation criteria (for reference in prompt design)
+    "keep_criteria": [
+        "Asides, jokes, moments of letting audience in",
+        "Valuable insights or information",
+        "Good storytelling and narrative flow",
+        "Authentic connection with viewers"
+    ],
+    "flag_criteria": [
+        "Technical difficulties or errors",
+        "Filler words and meaningless sentences",
+        "Self-aggrandizing or self-important rants",
+        "Content that doesn't contribute value"
+    ]
+}
