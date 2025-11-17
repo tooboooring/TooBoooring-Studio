@@ -3,7 +3,7 @@
 > Professional video editing application with AI-powered content analysis, silence detection, and GPU-accelerated encoding
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/tooboooring/video_production_by_tooboooring)
 
 **Repository**: [https://github.com/tooboooring/video_production_by_tooboooring](https://github.com/tooboooring/video_production_by_tooboooring)
@@ -391,7 +391,9 @@ Contributions are welcome! This project follows best practices for maintainabili
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+Copyright 2024 Shankargouda Hanchinal
 
 ---
 
@@ -477,7 +479,7 @@ We welcome feature requests from the community! If you have an idea for a featur
 
 ---
 
-**Made with ❤️ by the Video Production Suite team**
+**Made with ❤️ by the Tooboooring (Shankargouda Hanchinal)**
 
 For questions, issues, or contributions, please visit the [GitHub repository](https://github.com/tooboooring/video_production_by_tooboooring).
 
