@@ -403,17 +403,13 @@ Copyright 2024 Shankargouda Hanchinal
 
 #### Video Processing
 - [ ] **Multi-format Export**: Support for additional video formats and codecs
-- [ ] **Video Effects**: Basic video effects (brightness, contrast, saturation adjustments)
 - [ ] **Audio Mixing**: Mix multiple audio tracks with volume control
 - [ ] **Subtitle Support**: Import and export SRT subtitle files
 - [ ] **Video Stabilization**: Automatic video stabilization for shaky footage
-- [ ] **Color Grading**: Basic color correction and grading tools
 
 #### AI Analysis
 - [ ] **Custom Prompt Templates**: User-defined AI analysis prompts
-- [ ] **Multiple AI Models**: Support for different LLM providers and models
 - [ ] **Ensemble Analysis**: Combine decisions from multiple AI models
-- [ ] **Content Type Detection**: Automatic detection of video type (tutorial, vlog, interview)
 - [ ] **Sentiment Analysis**: Analyze emotional tone of content segments
 - [ ] **Keyword Extraction**: Automatic extraction of important keywords and topics
 - [ ] **AI Confidence Visualization**: Visual representation of AI confidence levels
@@ -462,8 +458,7 @@ We welcome feature requests from the community! If you have an idea for a featur
 
 - **Q1 2025**: Multi-format export, subtitle support, theme toggle
 - **Q2 2025**: Custom prompt templates, GPU Whisper acceleration, project files
-- **Q3 2025**: Scene detection, audio ducking, cloud storage integration
-- **Q4 2025**: Collaborative editing, advanced effects, mobile app
+- **Q3 2025**: Scene detection, audio ducking, 
 
 *Note: Timeline is subject to change based on community feedback and development priorities.*
 
