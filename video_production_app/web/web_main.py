@@ -264,6 +264,104 @@ class Api:
             self.logger.error(f"Error detecting silence: {e}", exc_info=True)
             return self._error_response(f"Error detecting silence: {str(e)}")
     
+    def run_ai_analysis(
+        self,
+        video_path: str,
+        segments: List[Dict[str, Any]],
+        api_key: str,
+        whisper_model: str = "base",
+        together_model: str = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
+    ) -> Dict[str, Any]:
+        """
+        Run AI content analysis on video segments.
+        
+        This method coordinates the full AI analysis pipeline:
+        1. Transcription using local Whisper
+        2. Context building (extracting before/after text)
+        3. AI analysis using together.ai
+        4. Updating segment colors based on decisions
+        
+        Args:
+            video_path: Path to the video file
+            segments: List of segment dictionaries from silence detection
+            api_key: together.ai API key
+            whisper_model: Whisper model size ('tiny', 'base', 'small', 'medium', 'large')
+            together_model: together.ai model ID
+            
+        Returns:
+            Dict with updated segments and analysis results, or error dict on failure
+        """
+        self.logger.info(f"Starting AI analysis for {video_path}")
+        self.log_to_console("🤖 Starting AI Content Analysis...\n")
+        
+        # Validate video path
+        is_valid, error_msg = validate_video_path(video_path)
+        if not is_valid:
+            return self._error_response(error_msg)
+        
+        # Validate API key
+        if not api_key or not api_key.strip():
+            return self._error_response("together.ai API key is required")
+        
+        try:
+            # Import AI analysis modules
+            from ..ai_analysis.orchestrator import analyze_content, apply_decisions_to_segments
+            
+            # Status callback that sends messages to UI console
+            status_callback = self.log_to_console
+            
+            # Progress callback
+            def progress_callback(stage: str, current: int, total: int):
+                message = f"   [{stage}] {current}/{total}\n"
+                self.log_to_console(message)
+            
+            # Run the analysis pipeline
+            results = analyze_content(
+                video_path=video_path,
+                segments=segments,
+                api_key=api_key,
+                ffmpeg_path="",  # Use system FFmpeg
+                whisper_model=whisper_model,
+                together_model=together_model,
+                prompt_template=None,  # Use default prompt
+                context_window_seconds=30.0,
+                status_callback=status_callback,
+                progress_callback=progress_callback,
+                export_path=None  # Could save to temp file if needed
+            )
+            
+            # Check for errors
+            if results.errors:
+                error_msg = "; ".join(results.errors)
+                self.logger.error(f"AI analysis completed with errors: {error_msg}")
+                return self._error_response(f"Analysis failed: {error_msg}")
+            
+            # Apply decisions to segments
+            updated_segments = apply_decisions_to_segments(segments, results.decisions)
+            
+            self.logger.info(f"AI analysis complete: {results.keep_count} keep, {results.flag_count} flag")
+            
+            return {
+                "status": "success",
+                "segments": updated_segments,
+                "analysis_summary": {
+                    "segments_analyzed": results.segments_analyzed,
+                    "keep_count": results.keep_count,
+                    "flag_count": results.flag_count,
+                    "uncertain_count": results.uncertain_count,
+                    "avg_confidence": results.avg_confidence,
+                    "processing_time": results.processing_time
+                }
+            }
+            
+        except ImportError as e:
+            error_msg = f"AI analysis dependencies not installed: {str(e)}"
+            self.logger.error(error_msg)
+            return self._error_response(error_msg)
+        except Exception as e:
+            self.logger.error(f"AI analysis error: {e}", exc_info=True)
+            return self._error_response(f"AI analysis error: {str(e)}")
+    
     def get_loadable_file_url(self, file_path: str) -> Optional[str]:
         """
         Returns a URL that the pywebview window can use to load a local file.

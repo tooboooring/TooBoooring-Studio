@@ -67,6 +67,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Get elements
     const loadVideoButton = document.getElementById('btn-load-video');
     const detectSilenceButton = document.getElementById('btn-detect-silence');
+    const aiAnalysisButton = document.getElementById('btn-ai-analysis');
     const exportButton = document.getElementById('btn-export-video');
     const exportCutsButton = document.getElementById('btn-export-cuts');
     const exportEdlButton = document.getElementById('btn-export-edl');
@@ -100,6 +101,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // --- Bind Listeners for Python calls ---
     loadVideoButton.addEventListener('click', loadVideo);
     detectSilenceButton.addEventListener('click', detectSilence);
+    aiAnalysisButton.addEventListener('click', runAIAnalysis);
     exportButton.addEventListener('click', exportVideo);
     exportCutsButton.addEventListener('click', exportCuts);
     exportEdlButton.addEventListener('click', exportEdl);
@@ -653,6 +655,109 @@ async function detectSilence() {
         
         // Send segments to the player for skip silence functionality
         player.setSegments(segments);
+}
+
+async function runAIAnalysis() {
+    const statusLabel = document.getElementById('status-label');
+    const aiAnalysisButton = document.getElementById('btn-ai-analysis');
+    const apiKeyInput = document.getElementById('ai-api-key');
+    const whisperModelSelect = document.getElementById('whisper-model-select');
+    const aiAnalysisStatus = document.getElementById('ai-analysis-status');
+    const aiAnalysisSummary = document.getElementById('ai-analysis-summary');
+
+    // Check if video is loaded
+    if (!currentVideoInfo) {
+        alert("Please load a video first!");
+        return;
+    }
+
+    // Check if silence detection has been run (need segments)
+    if (!timeline || !timeline.segments || timeline.segments.length === 0) {
+        alert("Please run silence detection first!");
+        return;
+    }
+
+    // Check if API key is provided
+    const apiKey = apiKeyInput.value.trim();
+    if (!apiKey) {
+        alert("Please enter your together.ai API key in the AI Content Analysis settings!");
+        return;
+    }
+
+    const whisperModel = whisperModelSelect.value;
+
+    aiAnalysisButton.disabled = true;
+    statusLabel.textContent = "Running AI analysis...";
+    window.updateConsole(`\n${"=".repeat(60)}\n🤖 Starting AI Content Analysis...\n${"=".repeat(60)}\n`);
+    console.log("JavaScript: Starting AI analysis...");
+
+    try {
+        const result = await window.pywebview.api.run_ai_analysis(
+            currentVideoInfo.filePath,
+            timeline.segments,
+            apiKey,
+            whisperModel
+        );
+
+        aiAnalysisButton.disabled = false;
+
+        // Check for errors
+        const { hasError, message, data } = checkError(result);
+        if (hasError) {
+            statusLabel.textContent = "AI analysis failed.";
+            window.updateConsole(`❌ Error: ${message}\n`);
+            console.error("Python Error:", message);
+            return;
+        }
+
+        // Extract updated segments and summary
+        const updatedSegments = data.segments || result.segments;
+        const summary = data.analysis_summary || result.analysis_summary;
+
+        console.log("AI analysis complete:", summary);
+        window.updateConsole(`\n✅ AI Analysis Complete!\n`);
+        window.updateConsole(`   Analyzed: ${summary.segments_analyzed} segments\n`);
+        window.updateConsole(`   ✅ KEEP: ${summary.keep_count}\n`);
+        window.updateConsole(`   ⚠️  FLAG: ${summary.flag_count}\n`);
+        window.updateConsole(`   ❓ UNCERTAIN: ${summary.uncertain_count}\n`);
+        window.updateConsole(`   Confidence: ${(summary.avg_confidence * 100).toFixed(1)}%\n`);
+        window.updateConsole(`   Time: ${summary.processing_time.toFixed(1)}s\n\n`);
+
+        // Update timeline with AI-annotated segments
+        // Get canvas width for waveform
+        const canvasWidth = document.getElementById('waveform-canvas').offsetWidth;
+        
+        const waveformsResult = await window.pywebview.api.get_waveforms_all_tracks(
+            currentVideoInfo.filePath,
+            currentVideoInfo.audioTracks,
+            canvasWidth
+        );
+        
+        const { hasError: hasWaveformError, data: waveformsData } = checkError(waveformsResult);
+        const waveforms = (!hasWaveformError && waveformsData) ? (waveformsData.waveforms || waveformsData) : null;
+        
+        // Redraw timeline with updated segments
+        timeline.draw(updatedSegments, currentVideoInfo.duration, waveforms);
+        
+        // Update status display
+        aiAnalysisStatus.style.display = 'block';
+        aiAnalysisSummary.innerHTML = `
+            <strong>Analysis Summary:</strong><br>
+            ✅ Keep: ${summary.keep_count} | ⚠️ Flag: ${summary.flag_count} | ❓ Uncertain: ${summary.uncertain_count}<br>
+            Confidence: ${(summary.avg_confidence * 100).toFixed(1)}%
+        `;
+        
+        statusLabel.textContent = `AI analysis complete: ${summary.segments_analyzed} segments analyzed`;
+
+        // Update player with new segments
+        player.setSegments(updatedSegments);
+
+    } catch (error) {
+        aiAnalysisButton.disabled = false;
+        statusLabel.textContent = "AI analysis error.";
+        window.updateConsole(`❌ Unexpected error: ${error}\n`);
+        console.error("JavaScript Error:", error);
+    }
 }
 
 async function exportVideo() {
