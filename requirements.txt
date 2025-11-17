@@ -22,7 +22,7 @@ requests>=2.31.0  # For together.ai API calls
 pydantic>=2.5.0  # Structured data validation and parsing
 
 # Optional: API Key Management
-# python-dotenv>=1.0.0  # For .env file support (see AI_ANALYSIS_IMPLEMENTATION_SUMMARY.md)
+python-dotenv>=1.0.0  # For .env file support (see AI_ANALYSIS_IMPLEMENTATION_SUMMARY.md)
 
 # Optional: Enhanced transcription
 # torch>=2.1.0  # Required by Whisper (usually auto-installed)

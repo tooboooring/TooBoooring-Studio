@@ -13,6 +13,12 @@ These settings are used throughout the application to maintain consistency
 and allow easy customization of behavior.
 """
 
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 # Default settings for silence detection
 # These values are used when no user preferences are saved
 DEFAULT_SETTINGS = {
@@ -125,7 +131,7 @@ UI_SETTINGS = {
 # AI Content Analysis Settings
 AI_ANALYSIS_SETTINGS = {
     # together.ai API configuration
-    "api_key": "",  # User must provide their own API key
+    "api_key": os.getenv("TOGETHER_API_KEY", ""),  # Load from .env file or use empty string as fallback
     "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",  # Default model
     "temperature": 0.7,  # LLM temperature (0.0-1.0)
     "max_tokens": 500,  # Maximum response tokens
