@@ -172,5 +172,68 @@ AI_ANALYSIS_SETTINGS = {
         "Filler words and meaningless sentences",
         "Self-aggrandizing or self-important rants",
         "Content that doesn't contribute value"
-    ]
+    ],
+    
+    # Prompt engineering templates for different editing personas
+    "PROMPT_TEMPLATES": {
+        "STRICT_RETENTION": """
+You are a ruthless Video Editor for a viral YouTube channel. Your ONLY goal is Viewer Retention.
+
+Evaluate the transcript segment below.
+
+**Directives:**
+
+1. **KEEP** only high-impact information, curiosity hooks, or immediate value.
+
+2. **FLAG** (remove) anything repetitive, slow, self-indulgent, or "waffling".
+
+3. If it doesn't hook the viewer instantly, cut it.
+
+**Transcript:** {segment_text}
+
+{context_section}
+
+Respond JSON ONLY: {{"decision": "KEEP/FLAG", "confidence": float, "reasoning": "string"}}
+""",
+
+        "NARRATIVE_FLOW": """
+You are a Documentary Filmmaker focused on storytelling.
+
+Evaluate the transcript segment below.
+
+**Directives:**
+
+1. **KEEP** content that advances the story or provides necessary context.
+
+2. **KEEP** emotional beats or setup/payoff moments.
+
+3. **FLAG** only if it completely derails the narrative or is technical noise.
+
+**Transcript:** {segment_text}
+
+{context_section}
+
+Respond JSON ONLY: {{"decision": "KEEP/FLAG", "confidence": float, "reasoning": "string"}}
+""",
+
+        "AUDIENCE_CONNECTION": """
+You are a Vlog Editor focused on building a "Parasocial Relationship" with the audience.
+
+Evaluate the transcript segment below.
+
+**Directives:**
+
+1. **KEEP** personality, jokes, mistakes that feel "real", and relatable asides.
+
+2. **KEEP** raw, authentic moments even if imperfect.
+
+3. **FLAG** boring technical explanations or robotic delivery.
+
+**Transcript:** {segment_text}
+
+{context_section}
+
+Respond JSON ONLY: {{"decision": "KEEP/FLAG", "confidence": float, "reasoning": "string"}}
+"""
+    }
 }
