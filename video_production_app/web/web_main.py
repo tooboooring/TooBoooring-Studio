@@ -1621,7 +1621,8 @@ class Api:
             return self._error_response(error_msg)
         
         def status_callback(msg: str):
-            self.logger.debug(f"CORE: {msg}")
+            # Log at INFO level so we can see waveform extraction progress
+            self.logger.info(f"Waveform: {msg.strip()}")
         
         try:
             # Prepare track info in the format expected by extract_audio_waveforms_all_tracks
@@ -1635,7 +1636,12 @@ class Api:
                     "language": track.get("language", "")
                 })
             
-            # Extract waveforms for all tracks
+            # Log track information
+            self.logger.info(f"Preparing to extract waveforms for {len(waveform_tracks)} track(s)")
+            for track in waveform_tracks:
+                self.logger.info(f"  Track {track['audio_index']}: stream_index={track['stream_index']}, name={track['name']}")
+            
+            # Extract waveforms for all tracks (if librosa is available)
             waveforms = WaveformGenerator.extract_audio_waveforms_all_tracks(
                 file_path,
                 "",  # ffmpeg_path (use system)
@@ -1643,25 +1649,42 @@ class Api:
                 status_callback
             )
             
+            self.logger.info(f"Waveform extraction returned {len(waveforms) if waveforms else 0} waveforms")
+            
             if not waveforms:
-                return self._error_response("No waveforms extracted")
+                # No waveforms extracted - log detailed info
+                from video_production_app.ui.widgets.waveform import AUDIO_ANALYSIS_AVAILABLE
+                self.logger.warning("No waveforms extracted (librosa may not be installed or extraction failed)")
+                self.logger.info(f"  - AUDIO_ANALYSIS_AVAILABLE: {AUDIO_ANALYSIS_AVAILABLE}")
+                self.logger.info(f"  - Number of tracks requested: {len(waveform_tracks)}")
+                # Return empty result but still success (frontend handles empty waveforms)
+                return {"status": "success", "waveforms": {}}
             
             # Downsample each waveform and convert to JSON-serializable format
             result = {}
             for track_index, waveform_data in waveforms.items():
-                waveform_array = waveform_data["waveform"]
-                track_info = waveform_data["track_info"]
-                
-                # Downsample to canvas width
-                downsampled = WaveformGenerator.downsample_waveform(waveform_array, int(width))
-                
-                # Convert numpy array to list for JSON
-                result[track_index] = {
-                    "waveform": downsampled.tolist(),
-                    "track_info": track_info
-                }
+                try:
+                    waveform_array = waveform_data["waveform"]
+                    track_info = waveform_data["track_info"]
+                    
+                    self.logger.info(f"Processing waveform for track {track_index}, shape: {waveform_array.shape if hasattr(waveform_array, 'shape') else 'unknown'}")
+                    
+                    # Downsample to canvas width
+                    downsampled = WaveformGenerator.downsample_waveform(waveform_array, int(width))
+                    
+                    # Convert numpy array to list for JSON
+                    waveform_list = downsampled.tolist()
+                    self.logger.info(f"  Downsampled to {len(waveform_list)} points")
+                    
+                    result[track_index] = {
+                        "waveform": waveform_list,
+                        "track_info": track_info
+                    }
+                except Exception as e:
+                    self.logger.error(f"Error processing waveform for track {track_index}: {e}", exc_info=True)
+                    continue
             
-            self.logger.info(f"Extracted {len(result)} waveforms")
+            self.logger.info(f"Successfully processed {len(result)} waveforms for frontend")
             
             # Cache the result
             self.multi_track_cache[cache_key] = result

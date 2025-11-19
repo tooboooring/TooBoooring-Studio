@@ -66,6 +66,10 @@ window.addEventListener('DOMContentLoaded', () => {
     // --- Bind all UI event listeners ---
     // Get elements
     const loadVideoButton = document.getElementById('btn-load-video');
+    if (!loadVideoButton) {
+        console.error("ERROR: btn-load-video button not found!");
+        alert("ERROR: Load video button not found. Check console for details.");
+    }
     const detectSilenceButton = document.getElementById('btn-detect-silence');
     const aiAnalysisButton = document.getElementById('btn-ai-analysis');
     const exportButton = document.getElementById('btn-export-video');
@@ -99,7 +103,21 @@ window.addEventListener('DOMContentLoaded', () => {
     const playbackAudioTrackSelector = document.getElementById('playback-audio-track');
 
     // --- Bind Listeners for Python calls ---
-    loadVideoButton.addEventListener('click', loadVideo);
+    if (loadVideoButton) {
+        loadVideoButton.addEventListener('click', () => {
+            console.log("Load video button clicked");
+            loadVideo().catch(error => {
+                console.error("Error in loadVideo:", error);
+                const statusLabel = document.getElementById('status-label');
+                if (statusLabel) {
+                    statusLabel.textContent = "Error loading video.";
+                }
+                window.updateConsole(`❌ Error: ${error.message}\n`);
+            });
+        });
+    } else {
+        console.error("Cannot attach event listener: btn-load-video not found");
+    }
     detectSilenceButton.addEventListener('click', detectSilence);
     aiAnalysisButton.addEventListener('click', runAIAnalysis);
     exportButton.addEventListener('click', exportVideo);
@@ -452,14 +470,30 @@ function checkError(result) {
 // We move the main logic into separate functions.
 
 async function loadVideo() {
+    console.log("loadVideo() called");
     const statusLabel = document.getElementById('status-label');
     const trackSelector = document.getElementById('audio-track-selector');
+
+    if (!statusLabel) {
+        console.error("status-label element not found!");
+        return;
+    }
 
     statusLabel.textContent = "Loading video...";
     window.clearConsole();
     window.updateConsole("Loading video file...\n");
     
     try {
+        // Check if pywebview API is available
+        if (!window.pywebview || !window.pywebview.api) {
+            throw new Error("pywebview API not available. Make sure the app is running in pywebview.");
+        }
+        
+        if (!window.pywebview.api.load_video) {
+            throw new Error("load_video API method not found.");
+        }
+        
+        console.log("Calling window.pywebview.api.load_video()...");
         const result = await window.pywebview.api.load_video();
         console.log("load_video result:", result);
         
@@ -616,20 +650,32 @@ async function detectSilence() {
         
         // Check for errors
         const { hasError: hasWaveformError, message: waveformError, data: waveformsData } = checkError(waveformsResult);
+        console.log("Waveform result:", waveformsResult);
+        console.log("Has error:", hasWaveformError, "Data:", waveformsData);
+        
         if (!hasWaveformError && waveformsData) {
             // Extract waveforms from response (handle both new format and legacy)
             const waveforms = waveformsData.waveforms || waveformsData;
             const trackCount = Object.keys(waveforms).length;
-            console.log(`Got waveforms for ${trackCount} tracks.`);
-            window.updateConsole(`✅ Waveforms extracted for ${trackCount} track(s)\n`);
-            // Now draw everything
-            timeline.draw(segments, currentVideoInfo.duration, waveforms);
-            statusLabel.textContent = `Found ${segments.length} segments!`;
+            console.log(`Got waveforms data. Track count: ${trackCount}`, waveforms);
+            
+            if (trackCount > 0) {
+                window.updateConsole(`✅ Waveforms extracted for ${trackCount} track(s)\n`);
+                // Now draw everything
+                timeline.draw(segments, currentVideoInfo.duration, waveforms);
+                statusLabel.textContent = `Found ${segments.length} segments!`;
+            } else {
+                // No tracks in waveforms
+                timeline.draw(segments, currentVideoInfo.duration, null);
+                statusLabel.textContent = "Segments found (no waveform data).";
+                window.updateConsole(`⚠️ Waveforms response empty (check Python console for errors)\n`);
+            }
         } else {
             // Still draw, but without waveform
             timeline.draw(segments, currentVideoInfo.duration, null);
-            statusLabel.textContent = "Segments found, but waveform extraction failed.";
-            window.updateConsole(`⚠️ Waveform extraction failed: ${waveformError || 'Unknown error'}\n`);
+            statusLabel.textContent = "Segments found (waveform unavailable).";
+            const reason = waveformError || waveformsData?.message || 'librosa not installed';
+            window.updateConsole(`ℹ️ Waveform visualization disabled: ${reason}\n`);
         }
         
         // Update statistics

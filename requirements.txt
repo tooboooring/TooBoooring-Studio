@@ -28,6 +28,10 @@ python-dotenv>=1.0.0  # For .env file support (see AI_ANALYSIS_IMPLEMENTATION_SU
 # torch>=2.1.0  # Required by Whisper (usually auto-installed)
 # torchaudio>=2.1.0  # Audio processing for Whisper
 
+# Optional: Waveform visualization
+# librosa>=0.10.0  # Audio analysis for waveform generation (optional - install for waveform visualization)
+# soundfile>=0.12.0  # Required by librosa for audio file I/O
+
 # Development/Testing (optional)
 # pytest>=7.4.0
 # pytest-asyncio>=0.21.0

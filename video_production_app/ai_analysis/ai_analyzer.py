@@ -266,6 +266,7 @@ def analyze_segment(
                 reasoning += f"\n[Points: {', '.join(key_points[:3])}]"
         
         log(f"   ✓ Decision: {decision.value} (confidence: {confidence:.2f})\n")
+        log(f"     📝 Reasoning: {reasoning}\n")
         
         return SegmentDecision(
             decision=decision,

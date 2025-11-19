@@ -65,6 +65,10 @@ def build_context(
     before_text_parts = []
     before_duration = 0.0
     
+    # Calculate the minimum end time for segments to be included
+    # A segment is included if its end_time >= (target_start - context_window_seconds)
+    context_start_time = target_start - context_window_seconds
+    
     # Look backward through segments
     for i in range(target_idx - 1, -1, -1):
         seg_id = f"segment_{i}"
@@ -73,10 +77,10 @@ def build_context(
         
         seg_transcript = transcripts[seg_id]
         
-        # Check if this segment is within the context window
-        time_gap = target_start - seg_transcript.end_time
-        if time_gap > context_window_seconds:
-            break  # Too far back
+        # Strict check: segment's end time must be >= context_start_time
+        # This ensures we only include segments that overlap with or are within the window
+        if seg_transcript.end_time < context_start_time:
+            break  # Segment ends before the context window starts
         
         # Add to before context (prepend since we're going backwards)
         before_text_parts.insert(0, seg_transcript.text)
@@ -88,6 +92,10 @@ def build_context(
     after_text_parts = []
     after_duration = 0.0
     
+    # Calculate the maximum start time for segments to be included
+    # A segment is included if its start_time <= (target_end + context_window_seconds)
+    context_end_time = target_end + context_window_seconds
+    
     # Look forward through segments
     for i in range(target_idx + 1, len(transcripts)):
         seg_id = f"segment_{i}"
@@ -96,10 +104,10 @@ def build_context(
         
         seg_transcript = transcripts[seg_id]
         
-        # Check if this segment is within the context window
-        time_gap = seg_transcript.start_time - target_end
-        if time_gap > context_window_seconds:
-            break  # Too far forward
+        # Strict check: segment's start time must be <= context_end_time
+        # This ensures we only include segments that start within the context window
+        if seg_transcript.start_time > context_end_time:
+            break  # Segment starts after the context window ends
         
         # Add to after context
         after_text_parts.append(seg_transcript.text)

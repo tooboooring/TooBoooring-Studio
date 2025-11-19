@@ -22,11 +22,13 @@ from typing import Optional, Dict, List, Any, Callable
 
 # Check for optional audio analysis packages
 try:
-    import librosa
+    import librosa  # type: ignore[import-untyped]
     import numpy as np
     AUDIO_ANALYSIS_AVAILABLE = True
 except ImportError:
     AUDIO_ANALYSIS_AVAILABLE = False
+    # Define np as None when not available, but type hints will use string literals
+    np = None  # type: ignore
     print("[WARNING] librosa/soundfile not installed. Waveform visualization disabled.")
 
 
@@ -93,6 +95,9 @@ class WaveformGenerator:
                 status_callback("⚠️ librosa not installed. Waveform unavailable.\n")
             return {}
         
+        if status_callback:
+            status_callback(f"🔍 Starting waveform extraction for {len(audio_tracks)} track(s)...\n")
+        
         waveforms = {}
         
         try:
@@ -150,6 +155,9 @@ class WaveformGenerator:
         except Exception as e:
             if status_callback:
                 status_callback(f"⚠️ Waveform extraction failed: {e}\n")
+                # Add detailed error info for debugging
+                import traceback
+                status_callback(f"   Error details: {traceback.format_exc()}\n")
             
             # Clean up any temporary files that might have been created
             for i in range(10):  # Check for potential temp files
@@ -161,7 +169,7 @@ class WaveformGenerator:
     
     @staticmethod
     def extract_audio_waveform(video_path: str, ffmpeg_path: str, 
-                              status_callback: Optional[Callable[[str], None]] = None) -> Optional[np.ndarray]:
+                              status_callback: Optional[Callable[[str], None]] = None) -> Optional["np.ndarray"]:
         """
         Extract mixed audio waveform from video (legacy method for single track).
         
@@ -241,7 +249,7 @@ class WaveformGenerator:
             return None
     
     @staticmethod
-    def downsample_waveform(waveform: np.ndarray, target_width: int) -> np.ndarray:
+    def downsample_waveform(waveform: "np.ndarray", target_width: int) -> "np.ndarray":
         """
         Downsample waveform to fit display width efficiently.
         
@@ -286,7 +294,7 @@ class WaveformGenerator:
         return downsampled
     
     @staticmethod
-    def normalize_waveform(waveform: np.ndarray, target_range: float = 1.0) -> np.ndarray:
+    def normalize_waveform(waveform: "np.ndarray", target_range: float = 1.0) -> "np.ndarray":
         """
         Normalize waveform to a specific range for consistent display.
         
@@ -325,7 +333,7 @@ class WaveformGenerator:
         return normalized
     
     @staticmethod
-    def get_waveform_statistics(waveform: np.ndarray) -> Dict[str, float]:
+    def get_waveform_statistics(waveform: "np.ndarray") -> Dict[str, float]:
         """
         Calculate statistics for a waveform.
         

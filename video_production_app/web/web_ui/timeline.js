@@ -217,9 +217,13 @@ export class Timeline {
         const trackColors = ["#4a9eff", "#ff6b6b", "#51cf66", "#ffd43b", "#ff8c00", "#ba68c8"];
         const trackColorsDim = ["#2d5f99", "#993f3f", "#307a3d", "#997a23", "#99540a", "#6d3e75"];
 
-        // Calculate how much height each track gets
+        // Calculate track height - use minimum height to keep waveforms visible
         const numTracks = Object.keys(this.waveforms).length;
-        const trackHeight = h / numTracks;
+        const minTrackHeight = 80; // Minimum height per track for good visibility
+        const calculatedHeight = h / numTracks;
+        
+        // Use the larger of calculated height or minimum height to ensure visibility
+        const trackHeight = Math.max(calculatedHeight, minTrackHeight);
 
         // Sort tracks by index for consistent display order
         const sortedTracks = Object.entries(this.waveforms).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
@@ -240,8 +244,13 @@ export class Timeline {
             }
 
             // Calculate vertical position for this track
-            const trackYStart = idx * trackHeight;
-            const trackCenterY = trackYStart + trackHeight / 2;
+            // If tracks would overflow canvas height, scale them proportionally
+            const totalRequiredHeight = numTracks * trackHeight;
+            const scaleFactor = totalRequiredHeight > h ? h / totalRequiredHeight : 1;
+            
+            const scaledTrackHeight = trackHeight * scaleFactor;
+            const trackYStart = idx * scaledTrackHeight;
+            const trackCenterY = trackYStart + scaledTrackHeight / 2;
 
             // Get colors for this track
             const colorIdx = idx % trackColors.length;
@@ -266,7 +275,7 @@ export class Timeline {
 
             // Draw the waveform
             ctx.lineWidth = 1.5; // Slightly thicker lines
-            const maxAmplitude = (trackHeight / 2 - 15) * 1.3; // 30% bigger amplitude
+            const maxAmplitude = (scaledTrackHeight / 2 - 10) * 1.2; // Leave some padding
 
             for (let i = 0; i < waveform.length; i++) {
                 const time = (i / waveform.length) * this.duration;
@@ -403,11 +412,8 @@ export class Timeline {
             return; // Can't draw playhead without duration
         }
         
-        const ctx = this.rulerCtx;
+        // Calculate X position using zoom/scroll (use ruler width as reference)
         const w = this.rulerCanvas.width;
-        const h = this.rulerCanvas.height;
-
-        // Calculate X position using zoom/scroll
         const x = this.timeToX(this.playhead, w, this.duration);
         
         // Only draw if visible
@@ -415,22 +421,24 @@ export class Timeline {
             return;
         }
 
-        // Draw red line
-        ctx.strokeStyle = '#ef4444'; // Red
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
+        // Draw on ruler canvas (called from drawRuler)
+        const rulerCtx = this.rulerCtx;
+        const rulerH = this.rulerCanvas.height;
+        rulerCtx.strokeStyle = '#ef4444'; // Bright red
+        rulerCtx.lineWidth = 3; // Thicker for better visibility
+        rulerCtx.beginPath();
+        rulerCtx.moveTo(x, 0);
+        rulerCtx.lineTo(x, rulerH);
+        rulerCtx.stroke();
     }
 
     updatePlayhead(timeSeconds) {
         this.playhead = timeSeconds;
         this.ensurePlayheadVisible();
 
-        // Redraw the ruler (which clears, draws ticks, and draws the playhead)
+        // Redraw everything to clear old playhead and draw new one
         if (this.duration > 0) {
-            this.drawRuler(this.duration);
+            this.redraw();
         }
     }
 
@@ -529,12 +537,52 @@ export class Timeline {
     
     redraw() {
         if (this.duration > 0) {
+            // Draw ruler (includes playhead on ruler canvas)
             this.drawRuler(this.duration);
+            
             // Use multi-track waveforms if available, otherwise fall back to single waveform
             const waveformData = Object.keys(this.waveforms).length > 0 ? this.waveforms : this.waveformData;
             this.drawWaveform(waveformData);
             this.drawSegments();
+            
+            // Draw playhead on waveform and segments canvases (after they've been cleared and redrawn)
+            this.drawPlayheadOnAllCanvases();
         }
+    }
+    
+    drawPlayheadOnAllCanvases() {
+        if (this.duration <= 0) {
+            return;
+        }
+        
+        // Calculate X position
+        const w = this.rulerCanvas.width;
+        const x = this.timeToX(this.playhead, w, this.duration);
+        
+        // Only draw if visible
+        if (x < 0 || x > w) {
+            return;
+        }
+        
+        // Draw on waveform canvas
+        const waveCtx = this.waveformCtx;
+        const waveH = this.waveformCanvas.height;
+        waveCtx.strokeStyle = '#ef4444';
+        waveCtx.lineWidth = 3;
+        waveCtx.beginPath();
+        waveCtx.moveTo(x, 0);
+        waveCtx.lineTo(x, waveH);
+        waveCtx.stroke();
+        
+        // Draw on segments canvas
+        const segCtx = this.segmentsCtx;
+        const segH = this.segmentsCanvas.height;
+        segCtx.strokeStyle = '#ef4444';
+        segCtx.lineWidth = 3;
+        segCtx.beginPath();
+        segCtx.moveTo(x, 0);
+        segCtx.lineTo(x, segH);
+        segCtx.stroke();
     }
     
     // Statistics
