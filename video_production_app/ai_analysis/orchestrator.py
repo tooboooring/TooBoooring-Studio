@@ -5,13 +5,49 @@ Coordinates the full workflow: transcription → context building → AI analysi
 """
 
 import time
+import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Callable
 from dataclasses import dataclass
 
 from .transcriber import transcribe_segments, check_whisper_available
 from .context_builder import build_all_contexts, get_segment_statistics
-from .ai_analyzer import analyze_segments_batch, Decision, export_decisions_to_json
+from .ai_analyzer import analyze_segments_batch, Decision, export_decisions_to_json, validate_api_connection
+
+
+# Global cache for transcriptions (in-memory, persists across analysis runs in same session)
+_TRANSCRIPT_CACHE: Dict[str, Dict[str, Any]] = {}
+
+
+def _generate_cache_key(video_path: str, segments: List[Dict[str, Any]], whisper_model: str) -> str:
+    """
+    Generate a unique cache key for transcription results.
+    
+    Cache key is based on:
+    - Video file path
+    - Segment timestamps (only audible segments)
+    - Whisper model size
+    
+    Returns:
+        MD5 hash string to use as cache key
+    """
+    # Extract audible segments only
+    audible_segments = [seg for seg in segments if seg.get('type') == 'audible']
+    
+    # Create a string representation of segments (start:end pairs)
+    segments_str = "|".join([f"{seg['start']:.2f}:{seg['end']:.2f}" for seg in audible_segments])
+    
+    # Combine video path, segments, and model
+    cache_input = f"{video_path}|{segments_str}|{whisper_model}"
+    
+    # Generate MD5 hash
+    return hashlib.md5(cache_input.encode('utf-8')).hexdigest()
+
+
+def clear_transcript_cache() -> None:
+    """Clear the global transcript cache."""
+    global _TRANSCRIPT_CACHE
+    _TRANSCRIPT_CACHE.clear()
 
 
 @dataclass
@@ -45,10 +81,19 @@ def analyze_content(
     Run the complete AI analysis pipeline on video segments.
     
     This is the main entry point for AI content analysis. It coordinates:
-    1. Transcription of audible segments using Whisper
+    1. Transcription of audible segments using Whisper (with caching)
     2. Context building (extracting before/after text)
     3. AI analysis using together.ai
     4. Aggregation of results
+    
+    Performance Optimization:
+        Transcriptions are cached in memory. If you run analysis multiple times
+        on the same video with the same segments and Whisper model, transcription
+        will be skipped and cached results will be used. This saves significant
+        time (typically 20-60 seconds per run).
+        
+        Cache is session-based (cleared when app restarts). Use clear_transcript_cache()
+        to manually clear the cache if needed.
     
     Args:
         video_path: Path to the video file
@@ -68,6 +113,14 @@ def analyze_content(
         
     Example:
         results = analyze_content(
+            video_path="video.mp4",
+            segments=detected_segments,
+            api_key="your_api_key",
+            status_callback=print
+        )
+        
+        # Second run on same video - transcription skipped (uses cache)
+        results2 = analyze_content(
             video_path="video.mp4",
             segments=detected_segments,
             api_key="your_api_key",
@@ -124,27 +177,19 @@ def analyze_content(
             errors=errors
         )
     
-    log("✅ Prerequisites check passed\n\n")
-    
-    # Step 1: Transcription
-    log("-" * 60 + "\n")
-    log("STEP 1: TRANSCRIPTION\n")
-    log("-" * 60 + "\n")
+    # Validate API connection BEFORE transcription (fail fast)
+    log(f"   ✓ Whisper model: {whisper_model}\n")
+    log(f"   ✓ Together.ai model: {together_model}\n")
+    log(f"   ✓ API key: {'*' * (len(api_key) - 4) + api_key[-4:] if len(api_key) > 4 else '***'}\n")
+    log(f"\n🔌 Validating API connection...\n")
     
     try:
-        transcripts = transcribe_segments(
-            video_path=video_path,
-            segments=segments,
-            model_size=whisper_model,
-            ffmpeg_path=ffmpeg_path,
-            status_callback=log,
-            progress_callback=lambda curr, total: progress("transcription", curr, total)
-        )
-        
-        log(f"\n✅ Transcription complete: {len(transcripts)} segments transcribed\n\n")
-    except Exception as e:
-        error_msg = f"Transcription failed: {str(e)}"
-        log(f"❌ {error_msg}\n")
+        validate_api_connection(api_key=api_key, model=together_model, timeout=60)
+        log(f"   ✅ API connection validated successfully\n")
+    except ValueError as e:
+        # Authentication error
+        error_msg = f"API Authentication Failed: {str(e)}"
+        log(f"   ❌ {error_msg}\n")
         errors.append(error_msg)
         return AnalysisResults(
             segments_analyzed=0,
@@ -157,6 +202,103 @@ def analyze_content(
             transcripts={},
             errors=errors
         )
+    except ConnectionError as e:
+        # Network error
+        error_msg = f"API Connection Failed: {str(e)}"
+        log(f"   ❌ {error_msg}\n")
+        errors.append(error_msg)
+        return AnalysisResults(
+            segments_analyzed=0,
+            keep_count=0,
+            flag_count=0,
+            uncertain_count=0,
+            avg_confidence=0.0,
+            processing_time=time.time() - start_time,
+            decisions={},
+            transcripts={},
+            errors=errors
+        )
+    except TimeoutError as e:
+        # Timeout error (60 seconds)
+        error_msg = f"API Validation Timeout: {str(e)}"
+        log(f"   ❌ {error_msg}\n")
+        errors.append(error_msg)
+        return AnalysisResults(
+            segments_analyzed=0,
+            keep_count=0,
+            flag_count=0,
+            uncertain_count=0,
+            avg_confidence=0.0,
+            processing_time=time.time() - start_time,
+            decisions={},
+            transcripts={},
+            errors=errors
+        )
+    except Exception as e:
+        # Unexpected error during validation
+        error_msg = f"API Validation Failed: {str(e)}"
+        log(f"   ❌ {error_msg}\n")
+        errors.append(error_msg)
+        return AnalysisResults(
+            segments_analyzed=0,
+            keep_count=0,
+            flag_count=0,
+            uncertain_count=0,
+            avg_confidence=0.0,
+            processing_time=time.time() - start_time,
+            decisions={},
+            transcripts={},
+            errors=errors
+        )
+    
+    log("✅ Prerequisites check passed\n\n")
+    
+    # Step 1: Transcription (with caching)
+    log("-" * 60 + "\n")
+    log("STEP 1: TRANSCRIPTION\n")
+    log("-" * 60 + "\n")
+    
+    # Check cache first
+    cache_key = _generate_cache_key(video_path, segments, whisper_model)
+    
+    if cache_key in _TRANSCRIPT_CACHE:
+        # Use cached transcripts
+        transcripts = _TRANSCRIPT_CACHE[cache_key]
+        log(f"💾 Using cached transcriptions ({len(transcripts)} segments)\n")
+        log(f"   ⚡ Skipping transcription - already processed\n")
+        log(f"\n✅ Transcription complete (from cache): {len(transcripts)} segments\n\n")
+    else:
+        # Transcribe and cache results
+        try:
+            transcripts = transcribe_segments(
+                video_path=video_path,
+                segments=segments,
+                model_size=whisper_model,
+                ffmpeg_path=ffmpeg_path,
+                status_callback=log,
+                progress_callback=lambda curr, total: progress("transcription", curr, total)
+            )
+            
+            # Store in cache for future runs
+            _TRANSCRIPT_CACHE[cache_key] = transcripts
+            log(f"💾 Cached transcriptions for future use\n")
+            
+            log(f"\n✅ Transcription complete: {len(transcripts)} segments transcribed\n\n")
+        except Exception as e:
+            error_msg = f"Transcription failed: {str(e)}"
+            log(f"❌ {error_msg}\n")
+            errors.append(error_msg)
+            return AnalysisResults(
+                segments_analyzed=0,
+                keep_count=0,
+                flag_count=0,
+                uncertain_count=0,
+                avg_confidence=0.0,
+                processing_time=time.time() - start_time,
+                decisions={},
+                transcripts={},
+                errors=errors
+            )
     
     # Step 2: Context Building
     log("-" * 60 + "\n")
@@ -199,6 +341,12 @@ def analyze_content(
         segments_with_context[seg_id] = (transcript.text, context)
     
     try:
+        # Import settings from config
+        from ..config import AI_ANALYSIS_SETTINGS
+        api_delay = AI_ANALYSIS_SETTINGS.get("api_delay_seconds", 0.5)
+        temperature = AI_ANALYSIS_SETTINGS.get("temperature", 0.7)
+        max_tokens = AI_ANALYSIS_SETTINGS.get("max_tokens", 500)
+        
         decisions = analyze_segments_batch(
             segments_with_context=segments_with_context,
             api_key=api_key,
@@ -206,7 +354,9 @@ def analyze_content(
             prompt_template=prompt_template,
             status_callback=log,
             progress_callback=lambda curr, total: progress("analysis", curr, total),
-            delay_between_requests=0.5  # Rate limiting
+            delay_between_requests=api_delay,  # Rate limiting (from config)
+            temperature=temperature,  # LLM temperature (from config)
+            max_tokens=max_tokens  # Max response tokens (from config)
         )
         
         log(f"\n✅ AI analysis complete: {len(decisions)} segments analyzed\n\n")

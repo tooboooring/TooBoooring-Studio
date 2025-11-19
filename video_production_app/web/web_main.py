@@ -135,6 +135,59 @@ class Api:
         self.logger.debug(f"Returning config with {len(encoders)} encoders")
         return result
     
+    def get_ai_settings(self) -> Dict[str, Any]:
+        """
+        Get AI analysis settings (whisper model and API key).
+        
+        Returns:
+            Dict with whisper_model and api_key
+        """
+        self.logger.debug("Getting AI settings")
+        import os
+        
+        # Priority: 1. Saved settings 2. Environment variable 3. Default
+        saved_api_key = self.settings.get("api_key", "")
+        env_api_key = os.getenv("TOGETHER_API_KEY", "")
+        
+        # Use env variable if available, otherwise use saved setting
+        api_key = env_api_key if env_api_key else saved_api_key
+        whisper_model = self.settings.get("whisper_model", "base")
+        
+        return {
+            "whisper_model": whisper_model,
+            "api_key": api_key,
+            "api_key_source": "environment" if env_api_key else ("saved" if saved_api_key else "none")
+        }
+    
+    def save_ai_settings(self, whisper_model: str, api_key: str = "") -> Dict[str, str]:
+        """
+        Save AI analysis settings.
+        
+        Args:
+            whisper_model: Whisper model to use (tiny/base/small/medium/large)
+            api_key: together.ai API key (optional, can be empty if using .env)
+            
+        Returns:
+            Success status dict
+        """
+        self.logger.info(f"Saving AI settings: whisper_model={whisper_model}, api_key={'***' if api_key else '(empty)'}")
+        
+        # Validate whisper model
+        valid_models = ["tiny", "base", "small", "medium", "large"]
+        if whisper_model not in valid_models:
+            self.logger.warning(f"Invalid whisper model: {whisper_model}, defaulting to 'base'")
+            whisper_model = "base"
+        
+        # Save settings
+        self.settings.set("whisper_model", whisper_model)
+        
+        # Only save API key if provided (don't overwrite with empty string if user is using .env)
+        if api_key:
+            self.settings.set("api_key", api_key)
+        
+        self.logger.debug("AI settings saved successfully")
+        return {"status": "success", "message": "AI settings saved"}
+    
     def load_video(self) -> Optional[Dict[str, Any]]:
         """
         Load a video file and return its information.

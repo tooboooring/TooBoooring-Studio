@@ -394,6 +394,55 @@ window.addEventListener('DOMContentLoaded', () => {
         const secs = (seconds % 60).toFixed(1);
         return `${mins}m ${secs}s`;
     }
+
+    // --- Save AI Settings when changed ---
+    const whisperModelSelect = document.getElementById('whisper-model-select');
+    const apiKeyInput = document.getElementById('ai-api-key');
+
+    // Save Whisper model when changed
+    if (whisperModelSelect) {
+        whisperModelSelect.addEventListener('change', async (e) => {
+            const newModel = e.target.value;
+            console.log(`Whisper model changed to: ${newModel}`);
+            
+            try {
+                // Wait for pywebview to be ready
+                if (window.pywebview && window.pywebview.api && window.pywebview.api.save_ai_settings) {
+                    const apiKey = apiKeyInput ? apiKeyInput.value : '';
+                    await window.pywebview.api.save_ai_settings(newModel, apiKey);
+                    console.log('✅ AI settings saved successfully');
+                } else {
+                    console.warn('⚠️ pywebview API not ready yet, settings will be applied but not saved');
+                }
+            } catch (error) {
+                console.error('❌ Error saving AI settings:', error);
+            }
+        });
+    }
+
+    // Save API key when it loses focus (blur event)
+    if (apiKeyInput) {
+        apiKeyInput.addEventListener('blur', async (e) => {
+            const newApiKey = e.target.value.trim();
+            
+            // Only save if the key has changed and is not empty
+            if (newApiKey) {
+                console.log('API key changed, saving...');
+                
+                try {
+                    if (window.pywebview && window.pywebview.api && window.pywebview.api.save_ai_settings) {
+                        const whisperModel = whisperModelSelect ? whisperModelSelect.value : 'base';
+                        await window.pywebview.api.save_ai_settings(whisperModel, newApiKey);
+                        console.log('✅ API key saved successfully');
+                    } else {
+                        console.warn('⚠️ pywebview API not ready yet, API key will be used but not saved');
+                    }
+                } catch (error) {
+                    console.error('❌ Error saving API key:', error);
+                }
+            }
+        });
+    }
 });
 
 // --- 4. pywebviewready (Python API is ready) ---
@@ -440,6 +489,41 @@ window.addEventListener('pywebviewready', async () => {
             encoderSelect.innerHTML = '<option value="CPU (x264)">CPU (x264)</option>';
         }
         window.app.addLog(`❌ Error loading encoder configuration: ${error.message}\n`);
+    }
+
+    // --- Load AI Settings from Python ---
+    try {
+        const aiSettings = await window.pywebview.api.get_ai_settings();
+        console.log("Got AI settings from Python:", aiSettings);
+        
+        const whisperModelSelect = document.getElementById('whisper-model-select');
+        const apiKeyInput = document.getElementById('ai-api-key');
+        
+        if (aiSettings) {
+            // Set Whisper model dropdown
+            if (whisperModelSelect && aiSettings.whisper_model) {
+                whisperModelSelect.value = aiSettings.whisper_model;
+                console.log(`✅ Loaded Whisper model: ${aiSettings.whisper_model}`);
+            }
+            
+            // Set API key if available
+            if (apiKeyInput && aiSettings.api_key) {
+                // Show indicator of where the key is loaded from
+                if (aiSettings.api_key_source === 'environment') {
+                    apiKeyInput.placeholder = '(Loaded from .env)';
+                    apiKeyInput.value = aiSettings.api_key;
+                    console.log('✅ API key loaded from .env file');
+                } else if (aiSettings.api_key_source === 'saved') {
+                    apiKeyInput.value = aiSettings.api_key;
+                    console.log('✅ API key loaded from saved settings');
+                } else {
+                    console.log('ℹ️ No API key configured (use .env or enter in UI)');
+                }
+            }
+        }
+    } catch (error) {
+        console.error("❌ Error loading AI settings:", error);
+        // Non-fatal error - continue with defaults
     }
 
     window.app.addLog("Welcome! Please select a video file to begin.\n");

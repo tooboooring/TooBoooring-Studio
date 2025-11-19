@@ -16,6 +16,7 @@ try:
     REQUESTS_AVAILABLE = True
 except ImportError:
     REQUESTS_AVAILABLE = False
+    print("[WARNING] requests library not available. AI analysis will not work.")
 
 try:
     from pydantic import BaseModel, Field
@@ -103,6 +104,102 @@ Respond ONLY with the JSON object, no additional text.
 """
 
 
+def validate_api_connection(
+    api_key: str,
+    model: str = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+    timeout: int = 60
+) -> bool:
+    """
+    Validate API connection and authentication before starting analysis.
+    
+    Makes a minimal API request to verify:
+    - API key is valid (not 401/403)
+    - Network connection is working
+    - API endpoint is reachable
+    
+    This is called BEFORE transcription to "fail fast" on invalid credentials.
+    
+    NOTE: Timeouts during validation are CRITICAL and abort the process.
+    Timeouts during actual analysis (analyze_segment) are treated as recoverable
+    and return UNCERTAIN to allow processing of remaining segments.
+    
+    Args:
+        api_key: together.ai API key to validate
+        model: Model ID to test (default: Llama 3.1 8B)
+        timeout: Request timeout in seconds (default: 60)
+        
+    Returns:
+        True if validation succeeds
+        
+    Raises:
+        ImportError: If requests library is not available
+        ValueError: If API key is invalid (401/403 response)
+        ConnectionError: If network is unavailable or cannot reach API
+        TimeoutError: If validation request times out
+        RuntimeError: For other unexpected errors
+    """
+    if not REQUESTS_AVAILABLE:
+        raise ImportError("requests library is required. Install with: pip install requests")
+    
+    if not api_key:
+        raise ValueError("together.ai API key is required")
+    
+    # Prepare minimal API request (just a ping)
+    api_url = "https://api.together.xyz/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "user",
+                "content": "ping"
+            }
+        ],
+        "max_tokens": 1,  # Minimal response to save costs
+        "temperature": 0.0
+    }
+    
+    try:
+        # Make validation request
+        response = requests.post(
+            api_url,
+            headers=headers,
+            json=payload,
+            timeout=timeout
+        )
+        
+        # Check for authentication errors
+        if response.status_code in [401, 403]:
+            raise ValueError("Authentication Failed: Invalid or expired together.ai API key")
+        
+        # Check for other errors
+        response.raise_for_status()
+        
+        # Validation successful
+        return True
+        
+    except requests.exceptions.ConnectionError as e:
+        raise ConnectionError(f"Network error: Cannot reach together.ai API - {str(e)}")
+    
+    except requests.exceptions.Timeout as e:
+        raise TimeoutError(f"API validation timeout: Request took longer than {timeout} seconds - {str(e)}")
+    
+    except requests.exceptions.HTTPError as e:
+        # Re-raise HTTP errors (already handled above for 401/403)
+        raise RuntimeError(f"API validation failed with HTTP error: {str(e)}")
+    
+    except ValueError:
+        # Re-raise ValueError (authentication errors)
+        raise
+    
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error during API validation: {str(e)}")
+
+
 def analyze_segment(
     segment_text: str,
     context: Optional[Any] = None,
@@ -128,11 +225,20 @@ def analyze_segment(
         
     Returns:
         SegmentDecision object with analysis results
+        OR SegmentDecision with UNCERTAIN for recoverable errors:
+        - 5xx server errors (API temporarily unavailable)
+        - Timeout errors (API slow or rate limited)
+        - JSON parse errors (malformed response)
         
     Raises:
         ImportError: If requests library is not available
-        ValueError: If API key is empty
-        Exception: For API errors
+        ValueError: If API key is invalid (401/403 response)
+        ConnectionError: If network is unavailable or cannot reach API
+        RuntimeError: For unexpected errors during analysis
+        
+    Note:
+        Timeouts during analysis are treated as recoverable and return UNCERTAIN.
+        This allows batch processing to continue even if some segments are slow.
     """
     if not REQUESTS_AVAILABLE:
         raise ImportError("requests library is required. Install with: pip install requests")
@@ -201,6 +307,11 @@ def analyze_segment(
             json=payload,
             timeout=60
         )
+        
+        # Check for authentication errors BEFORE raise_for_status
+        if response.status_code in [401, 403]:
+            log(f"   ❌ Authentication failed: Invalid API key\n")
+            raise ValueError("Authentication Failed: Invalid or expired together.ai API key")
         
         response.raise_for_status()
         
@@ -278,29 +389,69 @@ def analyze_segment(
             processing_time=processing_time
         )
         
+    except requests.exceptions.ConnectionError as e:
+        # Critical error: No internet connection - abort immediately
+        log(f"   ❌ Connection error: No internet or cannot reach API\n")
+        raise ConnectionError(f"Network error: Cannot reach together.ai API - {str(e)}")
+    
+    except requests.exceptions.Timeout as e:
+        # Timeout during analysis - treat as recoverable, return UNCERTAIN
+        # (This can happen due to rate limiting or slow API response)
+        log(f"   ⚠️ Request timeout: API took too long to respond (>60s)\n")
+        return SegmentDecision(
+            decision=Decision.UNCERTAIN,
+            confidence=0.0,
+            reasoning=f"API timeout: Request exceeded 60 seconds - {str(e)}",
+            raw_response="",
+            prompt_used=prompt,
+            model=model,
+            processing_time=time.time() - start_time
+        )
+    
+    except requests.exceptions.HTTPError as e:
+        # Check for server errors (5xx) - these are recoverable, return UNCERTAIN
+        if hasattr(e.response, 'status_code') and 500 <= e.response.status_code < 600:
+            log(f"   ⚠️ Server error {e.response.status_code}: API temporarily unavailable\n")
+            return SegmentDecision(
+                decision=Decision.UNCERTAIN,
+                confidence=0.0,
+                reasoning=f"Server error {e.response.status_code}: API temporarily unavailable",
+                raw_response="",
+                prompt_used=prompt,
+                model=model,
+                processing_time=time.time() - start_time
+            )
+        else:
+            # Other HTTP errors (4xx except 401/403) - abort
+            log(f"   ❌ HTTP error: {e}\n")
+            raise
+    
     except requests.exceptions.RequestException as e:
-        log(f"   ❌ API request failed: {e}\n")
-        # Return uncertain decision on error
+        # Other request errors - abort to be safe
+        log(f"   ❌ Request error: {e}\n")
+        raise
+    
+    except ValueError as e:
+        # ValueError is used for authentication errors - re-raise
+        raise
+    
+    except json.JSONDecodeError as e:
+        # Minor error: Malformed JSON response - return UNCERTAIN
+        log(f"   ⚠️ Failed to parse API response as JSON: {e}\n")
         return SegmentDecision(
             decision=Decision.UNCERTAIN,
             confidence=0.0,
-            reasoning=f"API error: {str(e)}",
+            reasoning=f"Failed to parse API response: {str(e)}",
             raw_response="",
             prompt_used=prompt,
             model=model,
             processing_time=time.time() - start_time
         )
+    
     except Exception as e:
-        log(f"   ❌ Analysis error: {e}\n")
-        return SegmentDecision(
-            decision=Decision.UNCERTAIN,
-            confidence=0.0,
-            reasoning=f"Error: {str(e)}",
-            raw_response="",
-            prompt_used=prompt,
-            model=model,
-            processing_time=time.time() - start_time
-        )
+        # Unexpected error - abort to be safe
+        log(f"   ❌ Unexpected error: {e}\n")
+        raise RuntimeError(f"Unexpected error during AI analysis: {str(e)}")
 
 
 def analyze_segments_batch(
@@ -310,7 +461,9 @@ def analyze_segments_batch(
     prompt_template: Optional[str] = None,
     status_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, int], None]] = None,
-    delay_between_requests: float = 0.5
+    delay_between_requests: float = 0.5,
+    temperature: float = 0.7,
+    max_tokens: int = 500
 ) -> Dict[str, SegmentDecision]:
     """
     Analyze multiple segments in batch.
@@ -323,6 +476,8 @@ def analyze_segments_batch(
         status_callback: Optional status message callback
         progress_callback: Optional progress callback (current, total)
         delay_between_requests: Delay in seconds between API calls (rate limiting)
+        temperature: LLM temperature (0.0=deterministic, 0.7=creative, 1.0=very random)
+        max_tokens: Maximum response tokens
         
     Returns:
         Dictionary mapping segment_id to SegmentDecision
@@ -348,7 +503,9 @@ def analyze_segments_batch(
             api_key=api_key,
             model=model,
             prompt_template=prompt_template,
-            status_callback=None  # Suppress per-segment logs
+            status_callback=None,  # Suppress per-segment logs
+            temperature=temperature,
+            max_tokens=max_tokens
         )
         
         decisions[segment_id] = decision

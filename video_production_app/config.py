@@ -41,7 +41,12 @@ DEFAULT_SETTINGS = {
     
     # Minimum length for audio segments to keep (in samples)
     # Very short segments are often artifacts and should be filtered out
-    "filter_length_threshold": 4096  # About 0.1 seconds at 44.1kHz
+    "filter_length_threshold": 4096,  # About 0.1 seconds at 44.1kHz
+    
+    # AI Analysis Settings (for Web UI persistence)
+    # Note: api_key is loaded from .env by default for security, but can be overridden in UI
+    "whisper_model": "base",  # Options: tiny, base, small, medium, large
+    "api_key": ""  # Empty by default - loads from .env or user input
 }
 
 # Available video encoders with their FFmpeg parameters
@@ -133,7 +138,7 @@ AI_ANALYSIS_SETTINGS = {
     # together.ai API configuration
     "api_key": os.getenv("TOGETHER_API_KEY", ""),  # Load from .env file or use empty string as fallback
     "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",  # Default model
-    "temperature": 0.7,  # LLM temperature (0.0-1.0)
+    "temperature": 0.7,  # LLM temperature (0.0=deterministic, 0.7=creative/balanced, 1.0=very random)
     "max_tokens": 500,  # Maximum response tokens
     
     # Whisper transcription settings
@@ -149,7 +154,7 @@ AI_ANALYSIS_SETTINGS = {
     "context_window_seconds": 30.0,  # How many seconds before/after to include
     
     # API rate limiting
-    "api_delay_seconds": 0.5,  # Delay between API calls to avoid rate limits
+    "api_delay_seconds": 1.0,  # Delay between API calls to avoid rate limits (increased from 0.5s)
     
     # Caching and performance
     "cache_transcriptions": True,  # Cache Whisper results
