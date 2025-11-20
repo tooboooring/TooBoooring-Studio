@@ -409,7 +409,9 @@ class Api:
                     "flag_count": results.flag_count,
                     "uncertain_count": results.uncertain_count,
                     "avg_confidence": results.avg_confidence,
-                    "processing_time": results.processing_time
+                    "processing_time": results.processing_time,
+                    "detected_language": results.detected_language,
+                    "language_probability": results.language_probability
                 }
             }
             

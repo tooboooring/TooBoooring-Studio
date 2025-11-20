@@ -286,10 +286,14 @@ export class Timeline {
             ctx.font = 'bold 8px sans-serif';
             ctx.fillText(labelText, 5, trackYStart + 10);
 
-            // Draw the waveform
-            ctx.lineWidth = 1.5; // Slightly thicker lines
+            // Draw the waveform as filled area (smoother rendering)
             const maxAmplitude = (scaledTrackHeight / 2 - 10) * 1.2; // Leave some padding
 
+            // Draw for audible segments (active color)
+            ctx.fillStyle = activeColor;
+            ctx.beginPath();
+            let pathStarted = false;
+            
             for (let i = 0; i < waveform.length; i++) {
                 const time = (i / waveform.length) * this.duration;
 
@@ -298,10 +302,7 @@ export class Timeline {
                     const x = this.timeToX(time, w, this.duration);
 
                     if (x >= 0 && x <= w) {
-                        // Normalize amplitude (waveform is already normalized from Python)
-                        const amplitude = Math.abs(waveform[i]) * maxAmplitude;
-
-                        // Determine color based on whether this time is in an audible segment
+                        // Check if in audible segment
                         let inAudibleSegment = false;
                         if (this.segments && this.segments.length > 0) {
                             inAudibleSegment = this.segments.some(seg =>
@@ -309,14 +310,91 @@ export class Timeline {
                             );
                         }
 
-                        ctx.strokeStyle = inAudibleSegment ? activeColor : dimColor;
-                        ctx.beginPath();
-                        ctx.moveTo(x, trackCenterY - amplitude);
-                        ctx.lineTo(x, trackCenterY + amplitude);
-                        ctx.stroke();
+                        if (inAudibleSegment) {
+                            const amplitude = Math.abs(waveform[i]) * maxAmplitude;
+                            
+                            if (!pathStarted) {
+                                ctx.moveTo(x, trackCenterY);
+                                pathStarted = true;
+                            }
+                            ctx.lineTo(x, trackCenterY - amplitude);
+                        }
                     }
                 }
             }
+            
+            // Complete the path (bottom half)
+            for (let i = waveform.length - 1; i >= 0; i--) {
+                const time = (i / waveform.length) * this.duration;
+                if (time >= startTime && time <= endTime) {
+                    const x = this.timeToX(time, w, this.duration);
+                    if (x >= 0 && x <= w) {
+                        let inAudibleSegment = false;
+                        if (this.segments && this.segments.length > 0) {
+                            inAudibleSegment = this.segments.some(seg =>
+                                seg.type === 'audible' && seg.start <= time && time <= seg.end
+                            );
+                        }
+                        if (inAudibleSegment) {
+                            const amplitude = Math.abs(waveform[i]) * maxAmplitude;
+                            ctx.lineTo(x, trackCenterY + amplitude);
+                        }
+                    }
+                }
+            }
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw dimmed waveform for silent parts
+            ctx.fillStyle = dimColor;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            pathStarted = false;
+            
+            for (let i = 0; i < waveform.length; i++) {
+                const time = (i / waveform.length) * this.duration;
+                if (time >= startTime && time <= endTime) {
+                    const x = this.timeToX(time, w, this.duration);
+                    if (x >= 0 && x <= w) {
+                        let inAudibleSegment = false;
+                        if (this.segments && this.segments.length > 0) {
+                            inAudibleSegment = this.segments.some(seg =>
+                                seg.type === 'audible' && seg.start <= time && time <= seg.end
+                            );
+                        }
+                        if (!inAudibleSegment) {
+                            const amplitude = Math.abs(waveform[i]) * maxAmplitude;
+                            if (!pathStarted) {
+                                ctx.moveTo(x, trackCenterY);
+                                pathStarted = true;
+                            }
+                            ctx.lineTo(x, trackCenterY - amplitude);
+                        }
+                    }
+                }
+            }
+            
+            for (let i = waveform.length - 1; i >= 0; i--) {
+                const time = (i / waveform.length) * this.duration;
+                if (time >= startTime && time <= endTime) {
+                    const x = this.timeToX(time, w, this.duration);
+                    if (x >= 0 && x <= w) {
+                        let inAudibleSegment = false;
+                        if (this.segments && this.segments.length > 0) {
+                            inAudibleSegment = this.segments.some(seg =>
+                                seg.type === 'audible' && seg.start <= time && time <= seg.end
+                            );
+                        }
+                        if (!inAudibleSegment) {
+                            const amplitude = Math.abs(waveform[i]) * maxAmplitude;
+                            ctx.lineTo(x, trackCenterY + amplitude);
+                        }
+                    }
+                }
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
         });
     }
 
@@ -335,6 +413,11 @@ export class Timeline {
             ctx.fillText("No segments detected.", 10, h / 2);
             return;
         }
+
+        // Segment display settings
+        const topPadding = 5;
+        const bottomPadding = 8; // Bottom padding as requested
+        const segmentHeight = h - topPadding - bottomPadding; // Reduced height with padding
 
         // Calculate visible time range
         const visibleDuration = this.duration / this.zoom;
@@ -380,8 +463,8 @@ export class Timeline {
                 ctx.fillStyle = segment.keep ? this.colors.silentKeep : this.colors.remove; // Gray: #4a4a4a or Red: #ef4444
             }
             
-            // Draw the segment rectangle
-            ctx.fillRect(x_start, 5, width, h - 10);
+            // Draw the segment rectangle (with padding)
+            ctx.fillRect(x_start, topPadding, width, segmentHeight);
         }
     }
 
