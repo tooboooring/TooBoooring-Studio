@@ -552,25 +552,36 @@ class InteractiveTimeline(ctk.CTkFrame):
             x1 = max(0, x1)
             x2 = min(width, x2)
             
-            # Choose color based on segment type and keep status
+            # Choose color based on segment type, keep status, and AI decision
             if seg_type == 'audible':
                 if keep:
                     # Audible segments that will be kept - green
                     fill_color = AppColors.SEGMENT_KEEP
                     border_color = AppColors.SEGMENT_BORDER
                 else:
-                    # Audible segments marked for removal - orange/yellow
-                    fill_color = "#ffa500"
-                    border_color = "#ff8c00"
+                    # Audible segments marked for removal - check AI decision
+                    ai_decision = seg.get('ai_decision')
+                    if ai_decision == 'FLAG':
+                        # AI flagged for removal - purple
+                        fill_color = AppColors.SEGMENT_AI_FLAG
+                        border_color = AppColors.SEGMENT_AI_FLAG
+                    elif ai_decision == 'UNCERTAIN':
+                        # Uncertain - default to flagged - orange
+                        fill_color = AppColors.SEGMENT_UNCERTAIN
+                        border_color = AppColors.SEGMENT_UNCERTAIN
+                    else:
+                        # Manual removal - orange
+                        fill_color = AppColors.SEGMENT_MANUAL_REMOVE
+                        border_color = AppColors.SEGMENT_MANUAL_REMOVE
             elif seg_type == 'silent':
                 if keep:
-                    # "Good" silence - will be kept - light gray
-                    fill_color = "#4a4a4a"
-                    border_color = "#5a5a5a"
+                    # Silent segments that are kept - gray
+                    fill_color = AppColors.SEGMENT_SILENT_KEEP
+                    border_color = AppColors.SEGMENT_SILENT_KEEP
                 else:
-                    # "Bad" silence - will be removed - red
-                    fill_color = AppColors.DANGER
-                    border_color = "#cc3333"
+                    # Silent segments that will be removed - red
+                    fill_color = AppColors.SEGMENT_REMOVE
+                    border_color = AppColors.SEGMENT_REMOVE
             else:
                 # Fallback (shouldn't happen)
                 fill_color = "#808080"

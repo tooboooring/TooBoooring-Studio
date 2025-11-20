@@ -13,9 +13,12 @@ export class Timeline {
             background: '#2B2B2B',
             text: '#CCC',
             line: '#444444',
-            keep: '#2fb344',   // Green - for audible segments
-            remove: '#ef4444',  // Red - for silent segments to remove
-            removeAudible: '#ff8c00'  // Orange - for audible segments marked for removal
+            keep: '#2fb344',           // Green - audible segments that will be kept
+            aiFlag: '#9333ea',          // Purple - segments the AI flagged for removal
+            uncertain: '#f59e0b',       // Orange - uncertain segments (default to flagged)
+            manualRemove: '#f59e0b',    // Orange - manually removed segments
+            remove: '#ef4444',          // Red - silence segments that will be removed
+            silentKeep: '#4a4a4a'        // Gray - silent segments that are kept
         };
         
         this.segments = [];
@@ -53,11 +56,12 @@ export class Timeline {
     draw(segments, duration, waveformData) {
         console.log("Timeline.draw() called with", segments ? segments.length : 0, "segments");
         if (segments && segments.length > 0) {
-            const audibleSegs = segments.filter(s => s.type === 'audible').slice(0, 3);
-            console.log("  First 3 audible segments in draw():", audibleSegs.map(s => ({ 
+            const audibleSegs = segments.filter(s => s.type === 'audible').slice(0, 5);
+            console.log("  First 5 audible segments in draw():", audibleSegs.map(s => ({ 
                 start: s.start.toFixed(1), 
                 keep: s.keep, 
-                ai_decision: s.ai_decision 
+                ai_decision: s.ai_decision,
+                type: s.type
             })));
         }
         this.segments = segments || [];
@@ -349,18 +353,31 @@ export class Timeline {
             const x_end = this.timeToX(Math.min(segment.end, endTime), w, this.duration);
             const width = Math.max(1, x_end - x_start); // Ensure at least 1px width
 
-            // Determine color based on segment type and keep status
+            // Determine color based on segment type, keep status, and AI decision
             // Initialize keep property if it doesn't exist
             if (segment.keep === undefined) {
                 segment.keep = (segment.type === 'audible'); // Audible defaults to true, silent defaults to false
             }
             
             if (segment.type === 'audible') {
-                // Audible segments: green if kept, orange if removed
-                ctx.fillStyle = segment.keep ? this.colors.keep : this.colors.removeAudible; // Green: #2fb344 or Orange: #ff8c00
+                // Audible segments: green if kept, otherwise check AI decision
+                if (segment.keep) {
+                    ctx.fillStyle = this.colors.keep; // Green: #2fb344
+                } else {
+                    // Determine color based on why it's being removed
+                    // Backend uses lowercase: 'flag', 'uncertain', 'keep'
+                    const aiDecision = (segment.ai_decision || '').toLowerCase();
+                    if (aiDecision === 'flag') {
+                        ctx.fillStyle = this.colors.aiFlag; // Purple: #9333ea - AI flagged
+                    } else if (aiDecision === 'uncertain') {
+                        ctx.fillStyle = this.colors.uncertain; // Orange: #f59e0b - Uncertain
+                    } else {
+                        ctx.fillStyle = this.colors.manualRemove; // Orange: #f59e0b - Manual removal
+                    }
+                }
             } else {
                 // Silent segments: gray if kept, red if removed
-                ctx.fillStyle = segment.keep ? '#666666' : this.colors.remove; // Gray or Red: #ef4444
+                ctx.fillStyle = segment.keep ? this.colors.silentKeep : this.colors.remove; // Gray: #4a4a4a or Red: #ef4444
             }
             
             // Draw the segment rectangle

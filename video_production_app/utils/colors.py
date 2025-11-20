@@ -77,8 +77,13 @@ class AppColors:
     
     # === TIMELINE SEGMENT COLORS ===
     # Colors for the interactive timeline visualization
-    SEGMENT_KEEP = "#2fb344"  # Green - segments that will be kept in final video
-    SEGMENT_REMOVE = "#2b2b2b"  # Dark gray - segments that will be removed (silence)
+    # These colors distinguish between different types of segments for clear visual feedback
+    SEGMENT_KEEP = "#2fb344"  # Green - audible segments that will be kept in final video
+    SEGMENT_AI_FLAG = "#9333ea"  # Purple - segments the AI flagged for removal
+    SEGMENT_UNCERTAIN = "#f59e0b"  # Orange - uncertain segments (default to flagged for manual review)
+    SEGMENT_MANUAL_REMOVE = "#f59e0b"  # Orange - manually removed segments
+    SEGMENT_REMOVE = "#ef4444"  # Red - silence segments that will be removed
+    SEGMENT_SILENT_KEEP = "#4a4a4a"  # Gray - silent segments that are kept
     SEGMENT_BORDER = "#25a339"  # Darker green - borders around kept segments
     
     # === WAVEFORM COLORS ===
