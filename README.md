@@ -32,9 +32,10 @@
 - **🎯 Silence Detection & Removal**: Advanced silence detection with customizable thresholds and duration settings
 - **✂️ Video Trimming**: Frame-accurate video cutting with multi-segment support
 - **🎨 GPU-Accelerated Encoding**: Hardware acceleration support for NVIDIA (NVENC), AMD (AMF), Intel (Quick Sync), and CPU encoding
-- **📊 Interactive Timeline**: Visual timeline with waveform visualization for precise editing
+- **📊 Enhanced Timeline**: Smooth waveform visualization with color-coded segments for precise editing
 - **🎥 Frame-Accurate Preview**: Preview video frames at exact timestamps with FFplay integration
-- **🔊 Multi-Track Audio Support**: Process multiple audio tracks with independent silence detection
+- **🎵 Multi-Track Audio Mixer**: Listen to all audio tracks simultaneously with toggle controls - works with any language (Hindi, English, etc.)
+- **📤 Drag & Drop**: Simple drag and drop interface for quick video loading
 
 ### AI-Powered Content Analysis
 - **🤖 AI Content Analysis**: Intelligent content evaluation using OpenAI Whisper and together.ai
@@ -47,10 +48,15 @@
 - **🎯 Multiple AI Models**: Choose from 4 specialized models optimized for different content types
 
 ### User Interface
-- **🌐 Web UI**: Modern browser-based interface using PyWebView for cross-platform compatibility
+- **🌐 Modern Web UI**: Professional three-panel layout with PyWebView for cross-platform compatibility
+- **📑 Tabbed Navigation**: Organized workspace with Media, AI Tools, and Export tabs
+- **🎨 Dark Theme**: Sleek, modern zinc/slate dark theme with indigo accents optimized for video editing
+- **🎵 Audio Track Mixer**: Listen to all audio tracks simultaneously with toggle controls
+- **📤 Drag & Drop**: Simple drag and drop video loading for quick workflow
 - **⌨️ Keyboard Shortcuts**: Efficient workflow with keyboard navigation
-- **🎨 Professional Design**: Clean, modern interface optimized for video editing workflows
+- **📊 Enhanced Timeline**: Smooth waveform rendering with improved visual feedback
 - **💰 Cost Estimation**: Real-time cost and token count estimates before running AI analysis
+- **🎯 Advanced Tooltips**: Hover over AI models to see detailed personality, use cases, and cut rates
 
 ### Advanced Features
 - **⚙️ Advanced Settings**: Fine-tune silence detection, padding, and encoding parameters
@@ -64,10 +70,20 @@
 
 ### Latest Updates
 
+**UI Redesign:**
+- ✅ **Modern Three-Panel Layout**: Professional workspace with left sidebar, center video player, and bottom timeline
+- ✅ **Tabbed Navigation**: Organized tabs for Media, AI Tools, and Export
+- ✅ **TB Studio Branding**: Updated branding with modern logo and color scheme
+- ✅ **Dark Theme**: Beautiful zinc/slate dark theme with indigo accents
+- ✅ **Drag & Drop**: Simply drag video files into the app to load them
+- ✅ **Audio Track Mixer**: Multi-track audio support - listen to all tracks simultaneously with toggle controls
+- ✅ **Enhanced Timeline**: Smooth waveform rendering with better visual clarity
+- ✅ **Streamlined UI**: Removed non-functional components for a cleaner, more focused interface
+- ✅ **Advanced Tooltips**: Rich tooltips showing AI model personality, best use cases, and cut rates
+
 **AI Analysis Improvements:**
 - ✅ **DeepSeek R1 Support**: Fixed token starvation issues - DeepSeek R1 now works correctly with proper reasoning
 - ✅ **Analysis History**: Compare different AI runs instantly - toggle between models without re-analyzing
-- ✅ **Model Tooltips**: Hover over AI models to see personality, best use cases, and expected cut rates
 - ✅ **Enhanced Model Selection**: 4 specialized models optimized for different content types:
   - **Llama 3.3 70B (Recommended)**: The Storyteller - Low cut rate (~5%), best for vlogs and tutorials
   - **DeepSeek R1 (Ruthless)**: The Viral Editor - High cut rate (~75%), perfect for TikToks and reels
@@ -79,10 +95,6 @@
 - ✅ **Fail-Fast Validation**: API key and connection validation before starting analysis (saves time)
 - ✅ **Improved Timeouts**: Increased timeouts for verbose models like DeepSeek R1 (120s)
 - ✅ **Better Logging**: Comprehensive debug logging for troubleshooting
-
-**UI Simplification:**
-- ✅ **Web UI Only**: Removed Tkinter UI - streamlined to single, professional Web UI interface
-- ✅ **Simplified Launch**: One command to run the app
 
 ---
 
@@ -184,12 +196,13 @@ python -m video_production_app.launcher
 
 ### Basic Workflow
 
-1. **Load Video**: Click "Load Video" and select your video file
-2. **Select Audio Track**: Choose the audio track to analyze
-3. **Detect Silence**: Click "Detect Silence" to identify silent segments
-4. **Review Timeline**: Check the waveform and segments on the timeline
-5. **Optional - AI Analysis**: Run AI analysis to get content recommendations
-6. **Process Video**: Click "Process Video" to export the edited video
+1. **Load Video**: Click "Load Video" or drag & drop a video file into the upload zone
+2. **Audio Mixer**: Toggle audio tracks on/off to hear multiple tracks simultaneously (if applicable)
+3. **Select Audio Track**: Navigate to the AI Tools tab and choose the audio track to analyze
+4. **Detect Silence**: Click "Detect Silence" to identify silent segments
+5. **Review Timeline**: Check the smooth waveform visualization and color-coded segments
+6. **Optional - AI Analysis**: Run AI analysis to get intelligent content recommendations
+7. **Export Video**: Navigate to the Export tab and click "Export Video" to render the final video
 
 ---
 
@@ -235,39 +248,75 @@ Configure AI analysis in the settings:
 
 ## 📖 Usage Guide
 
+### Understanding the Interface
+
+The **TB Studio** interface is organized into a modern three-panel layout:
+
+**Top Section:**
+- **Header Bar**: Shows app branding, system status, and quick export button
+- **Left Sidebar (480px)**: Tabbed navigation with three main sections:
+  - **Media Tab**: Video loading, drag & drop zone
+  - **AI Tools Tab**: Silence detection, AI analysis, transcription settings
+  - **Export Tab**: Encoding options, format selection, render queue
+- **Center Panel**: Video player with audio track mixer (when applicable)
+- **Bottom Panel**: Interactive timeline with:
+  - Time ruler
+  - Multi-track waveform visualization
+  - Color-coded segments (green/red/orange)
+  - Zoom and scroll controls
+
 ### Main Workflow
 
 1. **Load Video**
-   - Click "Load Video" button
-   - Select your video file (supports: .mp4, .avi, .mov, .mkv, .wmv, .flv, .webm, .m4v)
-   - Video information will be displayed
+   - **Method A**: Click "Load Video" button in the Media tab
+   - **Method B**: Drag & drop a video file into the upload zone
+   - Supported formats: .mp4, .avi, .mov, .mkv, .wmv, .flv, .webm, .m4v
+   - Video information will be displayed in the header
 
-2. **Detect Silence**
-   - Select the audio track to analyze
+2. **Multi-Track Audio** (If applicable)
+   - Audio track mixer appears above the video player
+   - Toggle checkboxes to enable/disable tracks
+   - Listen to all enabled tracks mixed in real-time
+   - Works with any language (Hindi, English, etc.)
+
+3. **Detect Silence**
+   - Navigate to the **AI Tools** tab
+   - Select the audio track to analyze from the dropdown
    - Adjust silence detection parameters if needed
    - Click "Detect Silence"
-   - Review segments on the timeline (green=audible, gray=silent)
+   - Review segments on the enhanced timeline:
+     - Green = audible segments
+     - Gray = silent segments
+     - Smooth waveform visualization
 
-3. **AI Analysis** (Optional)
-   - Enter your together.ai API key in settings
-   - Select AI model (hover for tooltip with model details and cut rates)
-   - Select Whisper model for transcription
-   - View cost estimate before running
-   - Click "🤖 AI Analysis"
+4. **AI Analysis** (Optional)
+   - Stay in the **AI Tools** tab
+   - Enter your together.ai API key (saved securely in browser)
+   - Select AI model (hover for detailed tooltip showing personality and cut rates)
+   - Select Whisper model for transcription quality
+   - View real-time cost estimate
+   - Click "🤖 Run AI Analysis"
    - Wait for transcription and analysis
-   - Review AI recommendations (green=keep, orange=flag)
+   - Review AI recommendations:
+     - Green = keep segments
+     - Red = remove segments (silence)
+     - Orange/Purple = AI flagged segments
    - **Toggle History**: Use the History dropdown to compare different AI runs instantly
 
-4. **Manual Editing**
-   - Click segments on timeline to toggle keep/remove
+5. **Manual Editing**
+   - Click segments on timeline to toggle keep/remove status
+   - Zoom in/out using timeline controls
+   - Scroll through long videos
    - Use frame preview to check exact timestamps
-   - Adjust segment boundaries if needed
 
-5. **Process Video**
-   - Select output directory
-   - Choose encoder and quality settings
-   - Click "Process Video"
-   - Monitor progress in the status area
+6. **Export Video**
+   - Navigate to the **Export** tab
+   - Choose encoder (GPU or CPU)
+   - Select output format (MP4, MOV)
+   - Set trim points if needed
+   - Click "Export Video"
+   - Monitor progress in real-time
+   - Additional exports: Cuts list, EDL, XML
 
 ### Keyboard Shortcuts
 
@@ -417,11 +466,12 @@ Copyright 2024 Shankargouda Hanchinal
 #### Video Processing
 - [ ] **Batch Processing**: Process multiple videos in a queue with progress tracking
 - [ ] **Subtitle Support**: Import and export SRT subtitle files
-- [ ] **Audio Mixing**: Mix multiple audio tracks with volume control
+- [x] **Audio Mixing**: Mix multiple audio tracks with toggle controls ✅ *Implemented*
 - [ ] **Multi-format Export**: Support for additional video formats and codecs
 
 #### User Interface
-- [ ] **Dark/Light Theme Toggle**: Switch between themes
+- [x] **Dark Theme**: Professional zinc/slate dark theme ✅ *Implemented*
+- [ ] **Light Theme**: Optional light theme for daytime use
 - [ ] **Customizable Layout**: Resizable and rearrangeable UI panels
 - [ ] **Undo/Redo System**: Full undo/redo functionality for edits
 
