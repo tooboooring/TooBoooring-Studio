@@ -10,6 +10,8 @@ let saveDestination = null;
 let player = null;
 let timeline = null;
 let analysisHistory = []; // Store AI analysis runs for history toggle
+let loadedMedia = []; // Store all loaded media files
+let recentFiles = []; // Store recent files (persistent)
 
 // AI Models configuration (must match config.py)
 const AI_MODELS = {
@@ -112,6 +114,213 @@ function saveAnalysisResult(result) {
 }
 
 /**
+ * Add media to the loaded media list
+ */
+function addMediaToLibrary(videoInfo) {
+    // Check if already in list
+    const exists = loadedMedia.find(m => m.filePath === videoInfo.filePath);
+    if (exists) {
+        // Update existing
+        Object.assign(exists, videoInfo);
+    } else {
+        // Add new
+        loadedMedia.push({
+            ...videoInfo,
+            loadedAt: new Date().toISOString(),
+            id: Date.now().toString()
+        });
+    }
+    
+    // Update recent files
+    addToRecentFiles(videoInfo);
+    
+    // Refresh UI
+    renderMediaLibrary();
+}
+
+/**
+ * Add to recent files list
+ */
+function addToRecentFiles(videoInfo) {
+    // Remove if already exists
+    recentFiles = recentFiles.filter(f => f.filePath !== videoInfo.filePath);
+    
+    // Add to beginning
+    recentFiles.unshift({
+        ...videoInfo,
+        accessedAt: new Date().toISOString()
+    });
+    
+    // Keep only last 10
+    if (recentFiles.length > 10) {
+        recentFiles = recentFiles.slice(0, 10);
+    }
+    
+    // Save to localStorage
+    try {
+        localStorage.setItem('tb_studio_recent_files', JSON.stringify(recentFiles));
+    } catch (e) {
+        console.warn('Could not save recent files:', e);
+    }
+}
+
+/**
+ * Load recent files from localStorage
+ */
+function loadRecentFiles() {
+    try {
+        const saved = localStorage.getItem('tb_studio_recent_files');
+        if (saved) {
+            recentFiles = JSON.parse(saved);
+            renderMediaLibrary();
+        }
+    } catch (e) {
+        console.warn('Could not load recent files:', e);
+    }
+}
+
+/**
+ * Render the media library UI
+ */
+function renderMediaLibrary() {
+    // Render loaded media
+    const loadedMediaSection = document.getElementById('loaded-media-section');
+    const loadedMediaList = document.getElementById('loaded-media-list');
+    
+    if (loadedMedia.length > 0) {
+        loadedMediaSection.style.display = 'block';
+        loadedMediaList.innerHTML = loadedMedia.map(media => createMediaItem(media, true)).join('');
+    } else {
+        loadedMediaSection.style.display = 'none';
+    }
+    
+    // Render recent files
+    const recentFilesSection = document.getElementById('recent-files-section');
+    const recentFilesList = document.getElementById('recent-files-list');
+    
+    if (recentFiles.length > 0) {
+        recentFilesSection.style.display = 'block';
+        recentFilesList.innerHTML = recentFiles.slice(0, 5).map(media => createMediaItem(media, false)).join('');
+    } else {
+        recentFilesSection.style.display = 'none';
+    }
+    
+    // Bind click handlers
+    setTimeout(() => {
+        document.querySelectorAll('.media-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.target.closest('.media-item-btn')) {
+                    const filePath = item.dataset.filepath;
+                    loadMediaFromLibrary(filePath);
+                }
+            });
+        });
+        
+        document.querySelectorAll('.media-item-btn.remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const filePath = btn.closest('.media-item').dataset.filepath;
+                removeMediaFromLibrary(filePath);
+            });
+        });
+    }, 0);
+}
+
+/**
+ * Create HTML for a media item
+ */
+function createMediaItem(media, showRemoveButton) {
+    const isActive = currentVideoInfo && currentVideoInfo.filePath === media.filePath;
+    const duration = media.duration ? formatTime(media.duration) : '--:--';
+    const tracks = media.audioTracks ? media.audioTracks.length : 0;
+    
+    return `
+        <div class="media-item ${isActive ? 'active' : ''}" data-filepath="${media.filePath}">
+            <div class="media-item-thumbnail">
+                <i class="fas fa-film"></i>
+            </div>
+            <div class="media-item-info">
+                <div class="media-item-name" title="${media.fileName}">${media.fileName}</div>
+                <div class="media-item-meta">
+                    <span><i class="fas fa-clock"></i> ${duration}</span>
+                    <span><i class="fas fa-music"></i> ${tracks} track${tracks !== 1 ? 's' : ''}</span>
+                </div>
+            </div>
+            <div class="media-item-actions">
+                ${showRemoveButton ? `<button class="media-item-btn danger remove" title="Remove"><i class="fas fa-trash"></i></button>` : ''}
+                <button class="media-item-btn" title="Load"><i class="fas fa-play"></i></button>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Load media from library
+ */
+async function loadMediaFromLibrary(filePath) {
+    console.log(`Loading media from library: ${filePath}`);
+    
+    const statusLabel = document.getElementById('status-label');
+    if (statusLabel) {
+        statusLabel.textContent = 'Loading media...';
+    }
+    
+    try {
+        // Get info from Python
+        const duration = await window.pywebview.api.get_video_duration(filePath, "", (msg) => console.log(msg));
+        const audioTracks = await window.pywebview.api.get_audio_tracks(filePath, "", (msg) => console.log(msg));
+        
+        const videoInfo = {
+            filePath: filePath,
+            fileName: filePath.split(/[\\/]/).pop(),
+            duration: duration,
+            audioTracks: audioTracks
+        };
+        
+        currentVideoInfo = videoInfo;
+        
+        // Update UI
+        if (statusLabel) {
+            statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
+        }
+        
+        // Update player
+        player.loadVideo(videoInfo.filePath, videoInfo.audioTracks);
+        timeline.draw([], 0, null);
+        
+        // Update library UI
+        renderMediaLibrary();
+        
+        // Update cost estimate
+        updateCostDisplay();
+        
+    } catch (error) {
+        console.error('Error loading media from library:', error);
+        if (statusLabel) {
+            statusLabel.textContent = 'Error loading media';
+        }
+    }
+}
+
+/**
+ * Remove media from library
+ */
+function removeMediaFromLibrary(filePath) {
+    loadedMedia = loadedMedia.filter(m => m.filePath !== filePath);
+    renderMediaLibrary();
+}
+
+/**
+ * Format time helper
+ */
+function formatTime(seconds) {
+    if (!seconds || seconds < 0) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
  * Load and restore a previous analysis result from history
  */
 function loadHistoryItem(selectedLabel) {
@@ -184,31 +393,24 @@ function loadHistoryItem(selectedLabel) {
  */
 function updateCostDisplay() {
     const costLabel = document.getElementById('ai-cost-estimate');
-    const modelSelect = document.getElementById('ai-model-select');
+    const selectedModelRadio = document.querySelector('input[name="ai_model"]:checked');
     
-    if (!costLabel || !modelSelect) {
+    if (!costLabel || !selectedModelRadio) {
         return;
     }
     
-    const selectedModel = modelSelect.value;
+    const selectedModel = selectedModelRadio.value;
     const duration = currentVideoInfo ? currentVideoInfo.duration : 0;
     
     const result = calculateCost(duration, selectedModel);
     const modelInfo = AI_MODELS[selectedModel];
     
-    // Update tooltip dynamically
-    if (modelInfo && modelInfo.tooltip) {
-        modelSelect.title = modelInfo.tooltip;
-    } else {
-        modelSelect.title = '';
-    }
-    
     if (duration > 0 && modelInfo) {
-        costLabel.textContent = `Est. Cost: ${result.cost} (~${result.tokens} tokens) - ${modelInfo.desc}`;
-        costLabel.style.color = '#888';
+        costLabel.textContent = `Est. Cost: ${result.cost} (~${result.tokens} tokens)`;
+        costLabel.style.color = 'var(--text-muted)';
     } else {
         costLabel.textContent = 'Est. Cost: $0.0000 (Load a video first)';
-        costLabel.style.color = '#666';
+        costLabel.style.color = 'var(--text-muted)';
     }
 }
 
@@ -250,6 +452,29 @@ window.clearConsole = function() {
 window.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Loaded. Finding elements...");
 
+    // --- Tab Switching Functionality ---
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+            
+            // Update active tab button
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update active tab pane
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            const targetPane = document.getElementById(`tab-${targetTab}`);
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
+            
+            console.log(`Switched to tab: ${targetTab}`);
+        });
+    });
+
     // --- Initialize UI components (Player and Timeline) ---
     player = new Player(document.getElementById('video-player'));
     timeline = new Timeline(
@@ -258,11 +483,10 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('segments-canvas')
     );
 
-    // Ensure timeline content is visible
-    const timelinePanel = document.querySelector('.timeline.panel');
-    const timelineContent = timelinePanel?.querySelector('.panel-content');
-    if (timelineContent) {
-        timelineContent.style.display = 'flex';
+    // Ensure timeline is properly initialized
+    const timelinePanel = document.querySelector('.timeline-panel');
+    if (timelinePanel) {
+        console.log("Timeline panel found and initialized");
     }
 
     // --- Bind all UI event listeners ---
@@ -320,12 +544,58 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("Cannot attach event listener: btn-load-video not found");
     }
+    
+    // Upload zone click
+    const uploadZone = document.getElementById('upload-zone');
+    if (uploadZone) {
+        uploadZone.addEventListener('click', () => {
+            loadVideoButton.click();
+        });
+    }
+    
+    // Media search
+    const mediaSearch = document.getElementById('media-search');
+    if (mediaSearch) {
+        mediaSearch.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.media-item').forEach(item => {
+                const name = item.querySelector('.media-item-name').textContent.toLowerCase();
+                item.style.display = name.includes(query) ? 'flex' : 'none';
+            });
+        });
+    }
+    
+    // Load recent files on startup
+    loadRecentFiles();
     detectSilenceButton.addEventListener('click', detectSilence);
     aiAnalysisButton.addEventListener('click', runAIAnalysis);
     exportButton.addEventListener('click', exportVideo);
     exportCutsButton.addEventListener('click', exportCuts);
     exportEdlButton.addEventListener('click', exportEdl);
     exportXmlButton.addEventListener('click', exportXml);
+
+    // Header export button
+    const exportHeaderButton = document.getElementById('btn-export-video-header');
+    if (exportHeaderButton) {
+        exportHeaderButton.addEventListener('click', exportVideo);
+    }
+
+    // Play/Pause button in overlay
+    const playPauseBtn = document.getElementById('btn-play-pause');
+    if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', () => {
+            const video = document.getElementById('video-player');
+            if (video) {
+                if (video.paused) {
+                    video.play();
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                } else {
+                    video.pause();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            }
+        });
+    }
 
     // --- Bind Listeners for local JS ---
     skipSilenceCheckbox.addEventListener('change', () => {
@@ -357,10 +627,21 @@ window.addEventListener('DOMContentLoaded', () => {
     timeline.bindKeyEvents();
 
     // Timeline zoom controls
+    const zoomSlider = document.getElementById('zoom-slider');
+    if (zoomSlider) {
+        zoomSlider.addEventListener('input', (e) => {
+            const zoomValue = parseFloat(e.target.value) / 10; // Scale to 0.1 - 10.0
+            timeline.setZoom(zoomValue);
+            if (zoomLevelSpan) zoomLevelSpan.textContent = `${zoomValue.toFixed(1)}x`;
+            updateTimelineStats();
+        });
+    }
+
     if (zoomInBtn) {
         zoomInBtn.addEventListener('click', () => {
             timeline.zoomIn();
             if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            if (zoomSlider) zoomSlider.value = timeline.zoom * 10;
             updateTimelineStats();
         });
     }
@@ -369,6 +650,7 @@ window.addEventListener('DOMContentLoaded', () => {
         zoomOutBtn.addEventListener('click', () => {
             timeline.zoomOut();
             if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            if (zoomSlider) zoomSlider.value = timeline.zoom * 10;
             updateTimelineStats();
         });
     }
@@ -377,6 +659,7 @@ window.addEventListener('DOMContentLoaded', () => {
         zoomResetBtn.addEventListener('click', () => {
             timeline.setZoom(1.0);
             if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            if (zoomSlider) zoomSlider.value = 10; // Reset to 1.0x
             updateTimelineStats();
         });
     }
@@ -812,16 +1095,18 @@ window.addEventListener('pywebviewready', async () => {
         // Non-fatal error - continue with defaults
     }
 
-    // --- Add event listener for AI model selector ---
-    const aiModelSelect = document.getElementById('ai-model-select');
-    if (aiModelSelect) {
-        aiModelSelect.addEventListener('change', () => {
-            console.log(`AI model changed to: ${aiModelSelect.value}`);
-            updateCostDisplay();
+    // --- Add event listener for AI model selector (radio buttons) ---
+    const aiModelRadios = document.querySelectorAll('input[name="ai_model"]');
+    aiModelRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                console.log(`AI model changed to: ${e.target.value}`);
+                updateCostDisplay();
+            }
         });
-        // Initial cost display update
-        updateCostDisplay();
-    }
+    });
+    // Initial cost display update
+    updateCostDisplay();
 
     // --- Add event listener for AI history selector ---
     const aiHistorySelect = document.getElementById('ai-history-select');
@@ -919,6 +1204,9 @@ async function loadVideo() {
         }
         
         currentVideoInfo = videoInfo;
+        
+        // Add to media library
+        addMediaToLibrary(videoInfo);
         
         // Clear analysis history when loading a new video
         analysisHistory = [];
@@ -1137,9 +1425,10 @@ async function runAIAnalysis() {
 
     const whisperModel = whisperModelSelect.value;
     
-    // Get selected AI model ID
-    const selectedModelName = aiModelSelect.value;
-    const togetherModel = AI_MODELS[selectedModelName]?.id || "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo";
+    // Get selected AI model ID from radio buttons
+    const selectedModelRadio = document.querySelector('input[name="ai_model"]:checked');
+    const selectedModelName = selectedModelRadio ? selectedModelRadio.value : "Llama 3.3 70B (Recommended)";
+    const togetherModel = AI_MODELS[selectedModelName]?.id || "meta-llama/Llama-3.3-70B-Instruct-Turbo";
 
     aiAnalysisButton.disabled = true;
     statusLabel.textContent = "Running AI analysis...";

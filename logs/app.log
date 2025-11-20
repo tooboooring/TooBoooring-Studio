@@ -27254,3 +27254,876 @@ Key Points: The phrase transitions to a practical step in the tutorial, and the 
 2025-11-20 22:50:45 - video_production_app.Api - INFO -   Downsampled to 1707 points
 2025-11-20 22:50:45 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
 2025-11-20 22:50:45 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 23:41:04 - video_production_app.Api - INFO - API initialized
+2025-11-20 23:41:09 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 23:41:09 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 23:41:09 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 23:41:09 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 23:41:09 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 23:41:09 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 23:41:09 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 23:41:09 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 23:41:09 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 23:41:16 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 23:41:16 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 23:41:16 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 23:41:16 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-20 23:41:48 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/1.mkv on track 1
+2025-11-20 23:41:48 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 23:41:48 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 23:41:48 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+
+2025-11-20 23:41:48 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
+
+2025-11-20 23:41:48 - video_production_app.Api - INFO - Found 50 segments
+2025-11-20 23:41:48 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/1.mkv...
+2025-11-20 23:41:48 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-20 23:41:48 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-20 23:41:48 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-20 23:41:48 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-20 23:41:54 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-20 23:41:54 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-20 23:41:54 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-20 23:41:54 - video_production_app.Api - INFO -   Downsampled to 1515 points
+2025-11-20 23:41:54 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-20 23:41:54 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 23:42:29 - video_production_app.Api - INFO - Analyzing all tracks for E:/PDF TOOl/test pdfs/1.mkv...
+2025-11-20 23:42:29 - video_production_app.Api - DEBUG - CORE: 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 23:42:29 - video_production_app.Api - DEBUG - CORE: ✅ Found 1 audio track(s).
+
+2025-11-20 23:42:29 - video_production_app.Api - INFO - Analyzed 1 tracks
+2025-11-20 23:45:35 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-20 23:45:35 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-20 23:45:35 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-20 23:45:35 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 18-17-15.mp4 (1340.85s, 2 tracks)
+2025-11-20 23:53:35 - video_production_app.Api - INFO - API initialized
+2025-11-20 23:53:37 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 23:53:37 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 23:53:37 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 23:53:37 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 23:53:37 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 23:53:37 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 23:53:37 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 23:53:37 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 23:53:37 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 23:53:43 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 23:53:43 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 23:53:43 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 23:53:43 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-20 23:53:51 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 17-46-45.mp4
+2025-11-20 23:53:51 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 17-46-45.mp4...
+
+2025-11-20 23:53:51 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-20 23:53:51 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 17-46-45.mp4 (26.67s, 2 tracks)
+2025-11-20 23:54:27 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 23:54:27 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 23:54:27 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 23:54:27 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-20 23:54:37 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/1.mkv on track 1
+2025-11-20 23:54:37 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 23:54:37 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 23:54:37 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+
+2025-11-20 23:54:37 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
+
+2025-11-20 23:54:37 - video_production_app.Api - INFO - Found 50 segments
+2025-11-20 23:54:37 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/1.mkv...
+2025-11-20 23:54:37 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-20 23:54:37 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-20 23:54:37 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-20 23:54:37 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-20 23:54:39 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-20 23:54:39 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-20 23:54:39 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-20 23:54:39 - video_production_app.Api - INFO -   Downsampled to 1515 points
+2025-11-20 23:54:39 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-20 23:54:39 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 23:55:14 - video_production_app.Api - INFO - Starting AI analysis for E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 23:55:14 - video_production_app.Api - INFO - 🤖 Starting AI Content Analysis...
+
+2025-11-20 23:55:18 - video_production_app.Api - INFO - ============================================================
+
+2025-11-20 23:55:18 - video_production_app.Api - INFO - 🚀 Starting AI Content Analysis Pipeline
+
+2025-11-20 23:55:18 - video_production_app.Api - INFO - ============================================================
+
+
+2025-11-20 23:55:18 - video_production_app.Api - INFO - 🔍 Checking prerequisites...
+
+2025-11-20 23:55:18 - video_production_app.Api - INFO -    ✓ Whisper model: tiny
+
+2025-11-20 23:55:18 - video_production_app.Api - INFO -    ✓ Together.ai model: meta-llama/Llama-3.3-70B-Instruct-Turbo
+
+2025-11-20 23:55:18 - video_production_app.Api - INFO -    ✓ API key: **********************************************qZnk
+
+2025-11-20 23:55:18 - video_production_app.Api - INFO - 
+🔌 Validating API connection...
+
+2025-11-20 23:55:20 - video_production_app.Api - INFO -    ✅ API connection validated successfully
+
+2025-11-20 23:55:20 - video_production_app.Api - INFO - ✅ Prerequisites check passed
+
+
+2025-11-20 23:55:20 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 23:55:20 - video_production_app.Api - INFO - STEP 1: TRANSCRIPTION
+
+2025-11-20 23:55:20 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 23:55:20 - video_production_app.Api - INFO - 🎤 Starting transcription with Whisper...
+
+2025-11-20 23:55:20 - video_production_app.Api - INFO -    Model: tiny
+
+2025-11-20 23:55:20 - video_production_app.Api - INFO - 📥 Loading Whisper model 'tiny'...
+
+2025-11-20 23:55:29 - video_production_app.Api - INFO - ✅ Model loaded successfully
+
+2025-11-20 23:55:29 - video_production_app.Api - INFO - 🔍 Found 25 audible segments to transcribe
+
+2025-11-20 23:55:29 - video_production_app.Api - INFO - 📝 [1/25] Transcribing segment 5.0s - 7.8s (2.8s)...
+
+2025-11-20 23:55:29 - video_production_app.Api - INFO -    [transcription] 1/25
+
+2025-11-20 23:55:31 - video_production_app.Api - INFO -    ✓ 'I'm gonna say something that sounds very scary.'
+
+2025-11-20 23:55:31 - video_production_app.Api - INFO - 📝 [2/25] Transcribing segment 8.9s - 12.8s (3.9s)...
+
+2025-11-20 23:55:31 - video_production_app.Api - INFO -    [transcription] 2/25
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO -    ✓ 'But after I say it, I'm gonna make you feel warm and fuzzy o...'
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO - 📝 [3/25] Transcribing segment 15.9s - 29.5s (13.7s)...
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO -    [transcription] 3/25
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO -    ✓ 'artists should learn to code. And hear me out. Okay, because...'
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO - 📝 [4/25] Transcribing segment 30.4s - 38.8s (8.4s)...
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO -    [transcription] 4/25
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO -    ✓ 'a problem and given that you are a person, presumably watchi...'
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO - 📝 [5/25] Transcribing segment 41.4s - 43.2s (1.8s)...
+
+2025-11-20 23:55:32 - video_production_app.Api - INFO -    [transcription] 5/25
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO -    ✓ 'And again, the good news is that there's...'
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO - 📝 [6/25] Transcribing segment 44.0s - 52.2s (8.2s)...
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO -    [transcription] 6/25
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO -    ✓ 'These days, they're just tons of tutorials and communities a...'
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO - 📝 [7/25] Transcribing segment 53.4s - 59.9s (6.5s)...
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO -    [transcription] 7/25
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO -    ✓ 'through what used to be and admittedly terrifying and very p...'
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO - 📝 [8/25] Transcribing segment 63.0s - 72.5s (9.4s)...
+
+2025-11-20 23:55:33 - video_production_app.Api - INFO -    [transcription] 8/25
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO -    ✓ 'Now as far as why artists should learn to code, right? Becau...'
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO - 📝 [9/25] Transcribing segment 74.3s - 91.0s (16.7s)...
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO -    [transcription] 9/25
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO -    ✓ 'The reality is that big-time artists have help. You've manag...'
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO - 📝 [10/25] Transcribing segment 96.5s - 103.9s (7.4s)...
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO -    [transcription] 10/25
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO -    ✓ 'So today we're gonna work on one such problem. It's my probl...'
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO - 📝 [11/25] Transcribing segment 106.7s - 112.2s (5.5s)...
+
+2025-11-20 23:55:34 - video_production_app.Api - INFO -    [transcription] 11/25
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO -    ✓ 'So even if my problem that I'm having isn't something that i...'
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO - 📝 [12/25] Transcribing segment 113.6s - 121.1s (7.6s)...
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO -    [transcription] 12/25
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO -    ✓ 'The process that I use to solve my problems are things that ...'
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO - 📝 [13/25] Transcribing segment 123.8s - 137.1s (13.3s)...
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO -    [transcription] 13/25
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO -    ✓ 'Also, if at any point, this video becomes dense as I go thro...'
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO - 📝 [14/25] Transcribing segment 141.0s - 143.1s (2.1s)...
+
+2025-11-20 23:55:35 - video_production_app.Api - INFO -    [transcription] 14/25
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO -    ✓ 'It should be mostly approachable.'
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO - 📝 [15/25] Transcribing segment 144.9s - 146.4s (1.5s)...
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO -    [transcription] 15/25
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO -    ✓ 'even if you have no technical background.'
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO - 📝 [16/25] Transcribing segment 150.9s - 153.6s (2.6s)...
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO -    [transcription] 16/25
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO -    ✓ 'So we're going to be talking about a few things. One is desi...'
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO - 📝 [17/25] Transcribing segment 155.6s - 164.9s (9.2s)...
+
+2025-11-20 23:55:36 - video_production_app.Api - INFO -    [transcription] 17/25
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO -    ✓ 'then I'm going to walk you through creating a plan to implem...'
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO - 📝 [18/25] Transcribing segment 167.5s - 170.0s (2.4s)...
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO -    [transcription] 18/25
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO -    ✓ 'And then we're going to use some AI tools.'
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO - 📝 [19/25] Transcribing segment 170.9s - 173.0s (2.1s)...
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO -    [transcription] 19/25
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO -    ✓ 'to do a lot of the heavy lifting.'
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO - 📝 [20/25] Transcribing segment 173.7s - 176.4s (2.7s)...
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO -    [transcription] 20/25
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO -    ✓ 'of the actual coding for us.'
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO - 📝 [21/25] Transcribing segment 177.7s - 187.4s (9.7s)...
+
+2025-11-20 23:55:37 - video_production_app.Api - INFO -    [transcription] 21/25
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    ✓ 'inevitably the AI is going to mess up. And when that happens...'
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO - 📝 [22/25] Transcribing segment 190.0s - 197.2s (7.2s)...
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    [transcription] 22/25
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    ✓ 'even in their professional life, even when they're not using...'
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO - 📝 [23/25] Transcribing segment 205.8s - 207.9s (2.2s)...
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    [transcription] 23/25
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    ✓ 'So, let's start with design.'
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO - 📝 [24/25] Transcribing segment 210.3s - 210.3s (0.0s)...
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    [transcription] 24/25
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    ✓ ''
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO - 📝 [25/25] Transcribing segment 211.4s - 211.4s (0.0s)...
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    [transcription] 25/25
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO -    ✓ ''
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO - ✅ Transcription complete: 25 segments processed
+
+2025-11-20 23:55:38 - video_production_app.Api - INFO - 💾 Cached transcriptions for future use
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - 
+✅ Transcription complete: 25 segments transcribed
+
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - STEP 2: CONTEXT BUILDING
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - 📊 Context Statistics:
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO -    Total segments: 25
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO -    Segments with before context: 24
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO -    Segments with after context: 23
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO -    Avg before duration: 28.5s
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO -    Avg after duration: 26.5s
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - 
+✅ Context building complete
+
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - STEP 3: AI ANALYSIS
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - Model: meta-llama/Llama-3.3-70B-Instruct-Turbo
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - Segments to analyze: 25
+
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - 🤖 Starting batch analysis of 25 segments...
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO -    [1/25] Analyzing segment_0...
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO -    [analysis] 1/25
+
+2025-11-20 23:55:39 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:55:43 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this content could be seen as an attempt to create intrigue and engage the audience with a provocative statement, followed by a promise to provide a comforting explanation. This might be an effective storytelling technique to capture viewers' attentio...
+
+2025-11-20 23:55:43 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:55:43 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:55:43 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this content could be seen as an attempt to create intrigue and engage the audience with a provocative statement, followed by a promise to provide a comforting explanation. This might be an effective storytelling technique to capture viewers' attention. From the SKEPTIC PERSPECTIVE, the phrase 'I'm gonna say something that sounds very scary' could be perceived as a filler sentence or a clickbait-style introduction that doesn't contribute significant value on its own. From the JUDGE PERSPECTIVE, considering the context that follows, which seems to lead into a valuable discussion about artists learning to code, the initial statement appears to be a narrative device to introduce a potentially controversial topic in an engaging way.
+[Type: aside]
+[Points: engaging narrative, provocative statement, potential for valuable discussion]
+
+2025-11-20 23:55:45 - video_production_app.Api - INFO -    [2/25] Analyzing segment_1...
+
+2025-11-20 23:55:45 - video_production_app.Api - INFO -    [analysis] 2/25
+
+2025-11-20 23:55:45 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:55:49 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this content could be seen as a way to connect with the audience and prepare them for a potentially scary topic, making them feel more at ease. The SKEPTIC PERSPECTIVE might view this as a filler sentence without much substance. The JUDGE PERSPECTIVE ...
+
+2025-11-20 23:55:49 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:55:49 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:55:49 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this content could be seen as a way to connect with the audience and prepare them for a potentially scary topic, making them feel more at ease. The SKEPTIC PERSPECTIVE might view this as a filler sentence without much substance. The JUDGE PERSPECTIVE weighs both sides and concludes that the sentence serves as a transition and an attempt to create a personal connection with the viewers, which can be valuable in storytelling and narrative flow.
+[Type: aside]
+[Points: attempts to create a personal connection, serves as a transition]
+
+2025-11-20 23:55:51 - video_production_app.Api - INFO -    [3/25] Analyzing segment_2...
+
+2025-11-20 23:55:51 - video_production_app.Api - INFO -    [analysis] 3/25
+
+2025-11-20 23:55:51 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:55:59 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this content could be valuable because it introduces a potentially intimidating topic, coding, in a gentle and approachable manner, which might help artists feel more comfortable with the idea of learning to code. The SKEPTIC PERSPECTIVE might argue t...
+
+2025-11-20 23:55:59 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:55:59 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:55:59 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this content could be valuable because it introduces a potentially intimidating topic, coding, in a gentle and approachable manner, which might help artists feel more comfortable with the idea of learning to code. The SKEPTIC PERSPECTIVE might argue that the statement 'artists should learn to code' without immediate explanation or context could be seen as abrupt or lacking in substance. However, from the JUDGE PERSPECTIVE, considering the context provided, the speaker is about to explain and justify this statement, making it a introductory remark rather than a standalone, low-value statement. The content seems to be setting up for a narrative or explanatory flow that could provide valuable insights or information to the audience.
+[Type: insight]
+[Points: introduction to coding for artists, promise of explanation, potential for valuable insight]
+
+2025-11-20 23:56:01 - video_production_app.Api - INFO -    [4/25] Analyzing segment_3...
+
+2025-11-20 23:56:01 - video_production_app.Api - INFO -    [analysis] 4/25
+
+2025-11-20 23:56:01 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:56:05 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the steelman perspective, this content could be seen as an attempt to connect with the audience by acknowledging that everyone has problems, which might help create a sense of relatability. The skeptic perspective might argue that this segment is too vague and doesn't contribu...
+
+2025-11-20 23:56:05 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.7
+
+2025-11-20 23:56:05 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.70)
+
+2025-11-20 23:56:05 - video_production_app.Api - INFO -      📝 Reasoning: From the steelman perspective, this content could be seen as an attempt to connect with the audience by acknowledging that everyone has problems, which might help create a sense of relatability. The skeptic perspective might argue that this segment is too vague and doesn't contribute significantly to the main discussion about artists learning to code. The judge perspective weighs these views and notes that while the statement about problems is relatable, it doesn't directly add to the educational or informative value of the video. However, it does serve as a transitional phrase to make the audience more receptive to the upcoming message.
+[Type: aside]
+[Points: relatability, transitional phrase, lacks direct informative value]
+
+2025-11-20 23:56:07 - video_production_app.Api - INFO -    [5/25] Analyzing segment_4...
+
+2025-11-20 23:56:07 - video_production_app.Api - INFO -    [analysis] 5/25
+
+2025-11-20 23:56:07 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:56:12 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this segment could be seen as a transition phrase that sets up positive news, which might be valuable for the narrative flow and audience engagement. The SKEPTIC PERSPECTIVE might argue that the phrase 'And again, the good news is that there's...' cou...
+
+2025-11-20 23:56:12 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.7
+
+2025-11-20 23:56:12 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.70)
+
+2025-11-20 23:56:12 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this segment could be seen as a transition phrase that sets up positive news, which might be valuable for the narrative flow and audience engagement. The SKEPTIC PERSPECTIVE might argue that the phrase 'And again, the good news is that there's...' could be considered a filler sentence or a meaningless introduction without the context of what the good news actually is. The JUDGE PERSPECTIVE, weighing both, recognizes that while the phrase itself is somewhat generic and doesn't contribute significant information, it serves as a connector to more substantial content that follows, suggesting it has a role in the narrative flow.
+[Type: other]
+[Points: narrative flow, transition phrase, potential filler]
+
+2025-11-20 23:56:14 - video_production_app.Api - INFO -    [6/25] Analyzing segment_5...
+
+2025-11-20 23:56:14 - video_production_app.Api - INFO -    [analysis] 6/25
+
+2025-11-20 23:56:14 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:56:20 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the steelman perspective, this content provides a transitional phrase that sets up the main argument by acknowledging the resources available for learning to code, making it easier for beginners to get started. From the skeptic perspective, the phrase 'and, yeah' could be seen...
+
+2025-11-20 23:56:20 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:56:20 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:56:20 - video_production_app.Api - INFO -      📝 Reasoning: From the steelman perspective, this content provides a transitional phrase that sets up the main argument by acknowledging the resources available for learning to code, making it easier for beginners to get started. From the skeptic perspective, the phrase 'and, yeah' could be seen as a filler word, and the sentence might be considered somewhat generic or lacking specific details. However, from the judge perspective, weighing both sides, the content contributes to the narrative flow by bridging the previous discussion on learning to code with the upcoming reasons why artists should learn to code, providing a smooth transition.
+[Type: insight]
+[Points: transitional phrase, sets up main argument, acknowledges resources for beginners]
+
+2025-11-20 23:56:22 - video_production_app.Api - INFO -    [7/25] Analyzing segment_6...
+
+2025-11-20 23:56:22 - video_production_app.Api - INFO -    [analysis] 7/25
+
+2025-11-20 23:56:22 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:56:28 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From a steelman perspective, this content could be seen as a transitional phrase that sets the stage for the upcoming discussion on why artists should learn to code, making it a narrative flow element. The skeptic perspective might view this as a filler sentence with little value s...
+
+2025-11-20 23:56:28 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:56:28 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:56:29 - video_production_app.Api - INFO -      📝 Reasoning: From a steelman perspective, this content could be seen as a transitional phrase that sets the stage for the upcoming discussion on why artists should learn to code, making it a narrative flow element. The skeptic perspective might view this as a filler sentence with little value since it doesn't directly contribute to the main argument. However, from a judge perspective, considering the context that the speaker is about to explain why coding is not as scary as it used to be and how it can benefit artists, this sentence acts as a bridge, acknowledging the past difficulties and paving the way for the positive spin on learning to code. It invites the audience to consider their preconceptions about coding and makes the subsequent information more relatable.
+[Type: narrative flow]
+[Points: narrative flow, transitional phrase, sets context for upcoming discussion]
+
+2025-11-20 23:56:31 - video_production_app.Api - INFO -    [8/25] Analyzing segment_7...
+
+2025-11-20 23:56:31 - video_production_app.Api - INFO -    [analysis] 8/25
+
+2025-11-20 23:56:31 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:56:35 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this content provides a valuable insight into why artists should learn to code, highlighting its potential to help them focus on their craft. The SKEPTIC PERSPECTIVE might argue that the statement is somewhat vague and doesn't directly contribute to t...
+
+2025-11-20 23:56:35 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:56:35 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:56:35 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this content provides a valuable insight into why artists should learn to code, highlighting its potential to help them focus on their craft. The SKEPTIC PERSPECTIVE might argue that the statement is somewhat vague and doesn't directly contribute to the main narrative flow. However, from the JUDGE PERSPECTIVE, considering the context that follows about big-time artists having help, this segment sets a premise for why learning to code could be beneficial for artists to maintain focus and independence in their work.
+[Type: insight]
+[Points: valuable insight, potential for independence]
+
+2025-11-20 23:56:37 - video_production_app.Api - INFO -    [9/25] Analyzing segment_8...
+
+2025-11-20 23:56:37 - video_production_app.Api - INFO -    [analysis] 9/25
+
+2025-11-20 23:56:37 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:56:44 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the steelman perspective, this content provides valuable context about the music industry, highlighting the role of various professionals in supporting big-time artists. It sets the stage for discussing the limitations and potential of automation and AI tools. The skeptic pers...
+
+2025-11-20 23:56:44 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:56:44 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:56:44 - video_production_app.Api - INFO -      📝 Reasoning: From the steelman perspective, this content provides valuable context about the music industry, highlighting the role of various professionals in supporting big-time artists. It sets the stage for discussing the limitations and potential of automation and AI tools. The skeptic perspective might argue that this information, while true, is somewhat generic and doesn't directly contribute to the main problem-solving or tutorial aspect of the content. However, from the judge perspective, this segment serves as a bridge between the introduction of AI tools and the specific problem the speaker is about to address, making it relevant and somewhat insightful. It helps in understanding why certain tasks cannot be automated and prepares the audience for a more nuanced discussion.
+[Type: insight]
+[Points: Provides context on the music industry, Sets the stage for discussing automation and AI tools, Serves as a bridge to the main problem]
+
+2025-11-20 23:56:46 - video_production_app.Api - INFO -    [10/25] Analyzing segment_9...
+
+2025-11-20 23:56:46 - video_production_app.Api - INFO -    [analysis] 10/25
+
+2025-11-20 23:56:46 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:56:50 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this segment serves as an introduction to a problem the speaker is about to tackle, which could engage the audience and provide valuable context. The SKEPTIC PERSPECTIVE might argue that it's a simple statement without much substance, potentially bein...
+
+2025-11-20 23:56:50 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:56:50 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:56:50 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this segment serves as an introduction to a problem the speaker is about to tackle, which could engage the audience and provide valuable context. The SKEPTIC PERSPECTIVE might argue that it's a simple statement without much substance, potentially being filler. However, from the JUDGE PERSPECTIVE, considering the context that the speaker is about to walk the audience through a problem-solving process, this introduction is likely setting the stage for valuable insights or information, making it more than just filler.
+[Type: insight]
+[Points: Introduction to a problem, Potential for valuable insights]
+
+2025-11-20 23:56:52 - video_production_app.Api - INFO -    [11/25] Analyzing segment_10...
+
+2025-11-20 23:56:52 - video_production_app.Api - INFO -    [analysis] 11/25
+
+2025-11-20 23:56:52 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:56:58 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From a steelman perspective, this content could be seen as a considerate aside, where the speaker is acknowledging that their problem may not be universally relevant, which can help build a connection with the audience. From a skeptic perspective, this sentence could be viewed as a...
+
+2025-11-20 23:56:58 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:56:58 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:56:58 - video_production_app.Api - INFO -      📝 Reasoning: From a steelman perspective, this content could be seen as a considerate aside, where the speaker is acknowledging that their problem may not be universally relevant, which can help build a connection with the audience. From a skeptic perspective, this sentence could be viewed as a filler or an unnecessary apology that doesn't add significant value to the main content. The judge perspective weighs these views and notes that while the sentence is brief and doesn't stand alone as particularly insightful, it does serve to personalize the narrative and prepare the audience for the relevance of the upcoming content.
+[Type: aside]
+[Points: personalizing the narrative, preparing the audience for relevance]
+
+2025-11-20 23:57:00 - video_production_app.Api - INFO -    [12/25] Analyzing segment_11...
+
+2025-11-20 23:57:00 - video_production_app.Api - INFO -    [analysis] 12/25
+
+2025-11-20 23:57:00 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:57:04 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From a steelman perspective, this content is a valuable insight as it directly relates to the main topic of solving problems and implies that the speaker's methods can be applied by the audience, creating a sense of inclusivity and usefulness. From a skeptic perspective, one might ...
+
+2025-11-20 23:57:04 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:57:04 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:57:04 - video_production_app.Api - INFO -      📝 Reasoning: From a steelman perspective, this content is a valuable insight as it directly relates to the main topic of solving problems and implies that the speaker's methods can be applied by the audience, creating a sense of inclusivity and usefulness. From a skeptic perspective, one might argue that the statement is somewhat generic and lacks specific details or examples that would make it more substantial. However, from a judge perspective, weighing both sides, the content seems to serve as an introduction or a transition to more detailed explanations of problem-solving methods, which would be valuable to the audience. It sets a premise for what is to come and invites the audience to engage with the content on a personal level.
+[Type: insight]
+[Points: Introduction to problem-solving methods, Implied applicability to the audience]
+
+2025-11-20 23:57:06 - video_production_app.Api - INFO -    [13/25] Analyzing segment_12...
+
+2025-11-20 23:57:06 - video_production_app.Api - INFO -    [analysis] 13/25
+
+2025-11-20 23:57:06 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:57:10 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this content sets expectations and provides a roadmap for viewers who might find the upcoming content dense, offering additional resources. From the SKEPTIC PERSPECTIVE, the segment could be seen as somewhat abrupt or unnecessary, potentially being a ...
+
+2025-11-20 23:57:10 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:57:10 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:57:10 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this content sets expectations and provides a roadmap for viewers who might find the upcoming content dense, offering additional resources. From the SKEPTIC PERSPECTIVE, the segment could be seen as somewhat abrupt or unnecessary, potentially being a filler. From the JUDGE PERSPECTIVE, weighing both, the content seems to offer a useful heads-up about the structure and potential complexity of the video, contributing to viewer engagement and understanding.
+[Type: aside]
+[Points: sets expectations, offers additional resources, potentially abrupt]
+
+2025-11-20 23:57:12 - video_production_app.Api - INFO -    [14/25] Analyzing segment_13...
+
+2025-11-20 23:57:12 - video_production_app.Api - INFO -    [analysis] 14/25
+
+2025-11-20 23:57:12 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:57:17 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From a steelman perspective, the phrase 'It should be mostly approachable' could be seen as a valuable insight or a setup for making the content more accessible to the audience, especially considering the context that follows about having no technical background. From a skeptic per...
+
+2025-11-20 23:57:17 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:57:17 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:57:17 - video_production_app.Api - INFO -      📝 Reasoning: From a steelman perspective, the phrase 'It should be mostly approachable' could be seen as a valuable insight or a setup for making the content more accessible to the audience, especially considering the context that follows about having no technical background. From a skeptic perspective, this phrase might seem like a filler or a vague statement without much substance. However, the judge perspective weighs in favor of keeping it because it appears to be a transitional phrase leading into a more detailed explanation of how the content will be approachable, suggesting a narrative flow that aims to include a broad audience.
+[Type: insight]
+[Points: transitional phrase, narrative flow, inclusive language]
+
+2025-11-20 23:57:19 - video_production_app.Api - INFO -    [15/25] Analyzing segment_14...
+
+2025-11-20 23:57:19 - video_production_app.Api - INFO -    [analysis] 15/25
+
+2025-11-20 23:57:19 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:57:29 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this content could be seen as an inclusive aside, making the audience feel more at ease by mentioning that no technical background is required. From the SKEPTIC PERSPECTIVE, it might seem like a filler sentence since it doesn't directly contribute to ...
+
+2025-11-20 23:57:29 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:57:29 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:57:29 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this content could be seen as an inclusive aside, making the audience feel more at ease by mentioning that no technical background is required. From the SKEPTIC PERSPECTIVE, it might seem like a filler sentence since it doesn't directly contribute to the main value of the video, which appears to be about problem-solving and design. From the JUDGE PERSPECTIVE, considering the context that the speaker is about to delve into potentially dense material, this sentence serves as a reassuring note to the audience, enhancing the narrative flow and authenticity of the connection with viewers.
+[Type: aside]
+[Points: inclusive aside, narrative flow, authentic connection]
+
+2025-11-20 23:57:31 - video_production_app.Api - INFO -    [16/25] Analyzing segment_15...
+
+2025-11-20 23:57:31 - video_production_app.Api - INFO -    [analysis] 16/25
+
+2025-11-20 23:57:31 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:57:37 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the steelman perspective, this content serves as an introduction to the topics that will be covered, providing a roadmap for the audience. The skeptic perspective notes that the segment is brief and lacks substantial information, potentially being a filler. The judge perspecti...
+
+2025-11-20 23:57:37 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:57:37 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:57:37 - video_production_app.Api - INFO -      📝 Reasoning: From the steelman perspective, this content serves as an introduction to the topics that will be covered, providing a roadmap for the audience. The skeptic perspective notes that the segment is brief and lacks substantial information, potentially being a filler. The judge perspective weighs these points, concluding that while the segment is introductory, it sets the stage for the valuable content that follows, making it a necessary part of the narrative flow.
+[Type: insight]
+[Points: introduction to topics, sets the stage for valuable content, part of narrative flow]
+
+2025-11-20 23:57:39 - video_production_app.Api - INFO -    [17/25] Analyzing segment_16...
+
+2025-11-20 23:57:39 - video_production_app.Api - INFO -    [analysis] 17/25
+
+2025-11-20 23:57:39 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:57:42 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the steelman perspective, this content is valuable because it previews the next steps in the process, which can help the audience understand the flow of the video and what to expect. From the skeptic perspective, the sentence seems a bit fragmented and could be seen as a trans...
+
+2025-11-20 23:57:42 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:57:42 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:57:42 - video_production_app.Api - INFO -      📝 Reasoning: From the steelman perspective, this content is valuable because it previews the next steps in the process, which can help the audience understand the flow of the video and what to expect. From the skeptic perspective, the sentence seems a bit fragmented and could be seen as a transition sentence rather than substantial content. However, from the judge perspective, considering the context and the purpose of the sentence, it appears to be setting up the next part of the tutorial, making it a necessary part of the narrative flow.
+[Type: insight]
+[Points: narrative flow, previewing next steps, fragmented sentence]
+
+2025-11-20 23:57:44 - video_production_app.Api - INFO -    [18/25] Analyzing segment_17...
+
+2025-11-20 23:57:44 - video_production_app.Api - INFO -    [analysis] 18/25
+
+2025-11-20 23:57:44 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:57:49 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the steelman perspective, this content is a valuable insight into the tools that will be used, providing the audience with an understanding of the approach. From the skeptic perspective, the sentence is brief and lacks detail, potentially being seen as a filler sentence. Howev...
+
+2025-11-20 23:57:49 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:57:49 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:57:49 - video_production_app.Api - INFO -      📝 Reasoning: From the steelman perspective, this content is a valuable insight into the tools that will be used, providing the audience with an understanding of the approach. From the skeptic perspective, the sentence is brief and lacks detail, potentially being seen as a filler sentence. However, from the judge perspective, considering the context that follows, this sentence serves as a transition into explaining how AI tools will be utilized, indicating it contributes to the narrative flow and sets up valuable information to come.
+[Type: insight]
+[Points: transitional sentence, sets up valuable information, contributes to narrative flow]
+
+2025-11-20 23:57:51 - video_production_app.Api - INFO -    [19/25] Analyzing segment_18...
+
+2025-11-20 23:57:51 - video_production_app.Api - INFO -    [analysis] 19/25
+
+2025-11-20 23:57:51 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:57:55 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this segment could be seen as a valuable insight or a setup for further explanation, as it mentions doing 'a lot of the heavy lifting,' which might imply that the speaker is about to delve into a complex topic that requires significant effort or expla...
+
+2025-11-20 23:57:55 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:57:55 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:57:55 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this segment could be seen as a valuable insight or a setup for further explanation, as it mentions doing 'a lot of the heavy lifting,' which might imply that the speaker is about to delve into a complex topic that requires significant effort or explanation. From the SKEPTIC PERSPECTIVE, the phrase itself is quite vague and doesn't contribute much on its own without additional context, potentially making it seem like filler. However, considering the context provided, it seems to be part of an introduction or a transitional phrase leading into more substantial content. The JUDGE PERSPECTIVE would weigh these considerations and note that while the phrase is brief and somewhat vague, its position within the transcript suggests it is likely part of a larger narrative or explanatory flow, rather than mere filler.
+[Type: insight]
+[Points: transitional phrase, part of a larger narrative]
+
+2025-11-20 23:57:57 - video_production_app.Api - INFO -    [20/25] Analyzing segment_19...
+
+2025-11-20 23:57:57 - video_production_app.Api - INFO -    [analysis] 20/25
+
+2025-11-20 23:57:57 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:58:00 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, this segment could be seen as a transitional phrase that sets up the next part of the discussion, potentially providing context for the coding aspect. From the SKEPTIC PERSPECTIVE, the phrase 'of the actual coding for us' seems incomplete and lacks cl...
+
+2025-11-20 23:58:00 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=FLAG, confidence=0.7
+
+2025-11-20 23:58:00 - video_production_app.Api - INFO -    ✓ Decision: FLAG (confidence: 0.70)
+
+2025-11-20 23:58:00 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, this segment could be seen as a transitional phrase that sets up the next part of the discussion, potentially providing context for the coding aspect. From the SKEPTIC PERSPECTIVE, the phrase 'of the actual coding for us' seems incomplete and lacks clear value on its own, potentially being a filler or a technical difficulty. From the JUDGE PERSPECTIVE, considering the brevity and lack of explicit value in the segment, it leans more towards being a filler or incomplete thought rather than a valuable insight or storytelling element.
+[Type: filler]
+[Points: incomplete thought, lack of clear value]
+
+2025-11-20 23:58:02 - video_production_app.Api - INFO -    [21/25] Analyzing segment_20...
+
+2025-11-20 23:58:02 - video_production_app.Api - INFO -    [analysis] 21/25
+
+2025-11-20 23:58:02 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:58:09 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From a steelman perspective, this content sets the stage for problem-solving methods that are applicable in real-world scenarios, which could be valuable for the audience. The skeptic perspective might argue that the phrase 'inevitably the AI is going to mess up' could be seen as s...
+
+2025-11-20 23:58:09 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.8
+
+2025-11-20 23:58:09 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.80)
+
+2025-11-20 23:58:09 - video_production_app.Api - INFO -      📝 Reasoning: From a steelman perspective, this content sets the stage for problem-solving methods that are applicable in real-world scenarios, which could be valuable for the audience. The skeptic perspective might argue that the phrase 'inevitably the AI is going to mess up' could be seen as somewhat negative or introducing a potential problem without immediate solution, which might not be directly contributing to the main value of the content. However, from a judge perspective, considering the context that follows, this introduction seems to lead into a discussion about design and planning, implying that the mention of AI messing up is a precursor to a valuable lesson or tool. Therefore, it seems to contribute to the narrative flow and prepares the audience for the subsequent content.
+[Type: insight]
+[Points: Introduction to problem-solving methods, Sets stage for subsequent content, Contributes to narrative flow]
+
+2025-11-20 23:58:11 - video_production_app.Api - INFO -    [22/25] Analyzing segment_21...
+
+2025-11-20 23:58:11 - video_production_app.Api - INFO -    [analysis] 22/25
+
+2025-11-20 23:58:11 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:58:20 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the steelman perspective, this content could be valuable as it hints at the broader applicability of tools beyond just AI, suggesting a holistic approach to problem-solving. The skeptic perspective might argue that the statement is too vague and doesn't contribute significantl...
+
+2025-11-20 23:58:20 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=FLAG, confidence=0.6
+
+2025-11-20 23:58:20 - video_production_app.Api - INFO -    ✓ Decision: FLAG (confidence: 0.60)
+
+2025-11-20 23:58:20 - video_production_app.Api - INFO -      📝 Reasoning: From the steelman perspective, this content could be valuable as it hints at the broader applicability of tools beyond just AI, suggesting a holistic approach to problem-solving. The skeptic perspective might argue that the statement is too vague and doesn't contribute significantly to the main discussion about designing and implementing a plan with AI tools. The judge perspective weighs these and notes that while the statement is brief and somewhat vague, it does attempt to connect the use of AI tools with broader professional life, potentially offering a glimpse into the usefulness of such tools beyond the immediate context. However, its brevity and lack of specific insight might lean more towards it being filler or less valuable content.
+[Type: filler|insight]
+[Points: brief and vague statement, potential for broader applicability, lack of specific insight]
+
+2025-11-20 23:58:22 - video_production_app.Api - INFO -    [23/25] Analyzing segment_22...
+
+2025-11-20 23:58:22 - video_production_app.Api - INFO -    [analysis] 23/25
+
+2025-11-20 23:58:22 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:58:28 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From a steelman perspective, this content could be the start of a valuable discussion on design, potentially providing insights or information to the audience. However, from a skeptic perspective, the phrase 'So, let's start with design' could be seen as a filler sentence or an int...
+
+2025-11-20 23:58:28 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=FLAG, confidence=0.6
+
+2025-11-20 23:58:28 - video_production_app.Api - INFO -    ✓ Decision: FLAG (confidence: 0.60)
+
+2025-11-20 23:58:28 - video_production_app.Api - INFO -      📝 Reasoning: From a steelman perspective, this content could be the start of a valuable discussion on design, potentially providing insights or information to the audience. However, from a skeptic perspective, the phrase 'So, let's start with design' could be seen as a filler sentence or an introduction that doesn't contribute much to the main value. From a judge perspective, weighing both sides, it seems that without more context, this sentence alone doesn't provide enough value to be considered a valuable insight or a good storytelling element, but it also doesn't seem to be a technical difficulty, excessive filler, or a self-aggrandizing rant.
+[Type: filler]
+[Points: lack of context, potential introduction to valuable content]
+
+2025-11-20 23:58:30 - video_production_app.Api - INFO -    [24/25] Analyzing segment_23...
+
+2025-11-20 23:58:30 - video_production_app.Api - INFO -    [analysis] 24/25
+
+2025-11-20 23:58:30 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:58:36 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the STEELMAN PERSPECTIVE, the best case for keeping this content is that it appears to be a transition or introduction to a valuable topic, specifically problem-solving methods used in real-world professional life, which could provide valuable insights or information to the au...
+
+2025-11-20 23:58:36 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.6
+
+2025-11-20 23:58:36 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.60)
+
+2025-11-20 23:58:36 - video_production_app.Api - INFO -      📝 Reasoning: From the STEELMAN PERSPECTIVE, the best case for keeping this content is that it appears to be a transition or introduction to a valuable topic, specifically problem-solving methods used in real-world professional life, which could provide valuable insights or information to the audience. From the SKEPTIC PERSPECTIVE, the reasons this might be filler or low-value are that the transcript segment is incomplete and lacks specific details about the problem-solving methods, making it difficult to assess its value. From the JUDGE PERSPECTIVE, weighing both sides, the content seems to be setting up for a potentially valuable discussion, but without more context, it's hard to definitively say it contributes to the main value.
+[Type: insight]
+[Points: transition to problem-solving methods, potential for valuable insights]
+
+2025-11-20 23:58:38 - video_production_app.Api - INFO -    [25/25] Analyzing segment_24...
+
+2025-11-20 23:58:38 - video_production_app.Api - INFO -    [analysis] 25/25
+
+2025-11-20 23:58:38 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Llama-3.3-70B-Instruct-Turbo...
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    📝 API Response (first 300 chars): {
+  "reasoning": "From the steelman perspective, this content could be valuable as it seems to be setting up a transition to problem-solving methods that are used in real-world professional life, which could provide valuable insights to the audience. From the skeptic perspective, the transcript prov...
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    ✓ Parsed JSON: decision=KEEP, confidence=0.7
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    ✓ Decision: KEEP (confidence: 0.70)
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -      📝 Reasoning: From the steelman perspective, this content could be valuable as it seems to be setting up a transition to problem-solving methods that are used in real-world professional life, which could provide valuable insights to the audience. From the skeptic perspective, the transcript provided is very short and lacks specific details, making it difficult to assess its value. However, the skeptic might argue that without more context or substance, this could be considered filler. From the judge perspective, weighing both sides, it appears that the content is introductory and sets the stage for potentially valuable information, suggesting it has a purpose in the narrative flow.
+[Type: insight]
+[Points: transitional content, potential for valuable insights, lack of detailed context]
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - ✅ Batch analysis complete: 25 segments analyzed
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - 
+✅ AI analysis complete: 25 segments analyzed
+
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - STEP 4: RESULTS AGGREGATION
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - 📊 Analysis Summary:
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    Total segments analyzed: 25
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    ✅ KEEP: 22 (88.0%)
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    ⚠️  FLAG: 3 (12.0%)
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    ❓ UNCERTAIN: 0 (0.0%)
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    Average confidence: 0.76
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO -    Total processing time: 204.7s
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - 
+============================================================
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - ✅ AI CONTENT ANALYSIS COMPLETE
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - ============================================================
+
+2025-11-20 23:58:43 - video_production_app.Api - INFO - First 5 updated audible segments:
+2025-11-20 23:58:43 - video_production_app.Api - INFO -   Segment 0: start=5.0, keep=True, ai_decision=keep, confidence=0.8
+2025-11-20 23:58:43 - video_production_app.Api - INFO -   Segment 1: start=8.9, keep=True, ai_decision=keep, confidence=0.8
+2025-11-20 23:58:43 - video_production_app.Api - INFO -   Segment 2: start=15.9, keep=True, ai_decision=keep, confidence=0.8
+2025-11-20 23:58:43 - video_production_app.Api - INFO -   Segment 3: start=30.4, keep=True, ai_decision=keep, confidence=0.7
+2025-11-20 23:58:43 - video_production_app.Api - INFO -   Segment 4: start=41.4, keep=True, ai_decision=keep, confidence=0.7
+2025-11-20 23:58:43 - video_production_app.Api - INFO - AI analysis complete: 22 keep, 3 flag
+2025-11-20 23:58:43 - video_production_app.Api - DEBUG - Using cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv at width 1515
+2025-11-21 00:05:33 - video_production_app.Api - INFO - API initialized
+2025-11-21 00:05:35 - video_production_app.Api - INFO - Getting app configuration
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-21 00:05:35 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-21 00:05:35 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-21 00:05:35 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-21 00:05:35 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-21 00:05:35 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-21 00:05:35 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-21 00:05:35 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-21 00:05:35 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-21 00:05:44 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-21 00:05:44 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-21 00:05:44 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-21 00:05:44 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-21 00:06:11 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4
+2025-11-21 00:06:11 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-21 00:06:11 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-21 00:06:11 - video_production_app.Api - INFO - Successfully loaded video: 2024-10-19 18-17-15.mp4 (1340.85s, 2 tracks)
+2025-11-21 00:06:16 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4 on track 2
+2025-11-21 00:06:16 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 2024-10-19 18-17-15.mp4...
+
+2025-11-21 00:06:16 - video_production_app.Api - INFO - ✅ Found 2 audio track(s).
+
+2025-11-21 00:06:16 - video_production_app.Api - INFO - 🤫 Detecting silence in track 2...
+
+2025-11-21 00:06:19 - video_production_app.Api - INFO - 🔍 Found 183 audible segments and 183 silent segments.
+
+2025-11-21 00:06:19 - video_production_app.Api - INFO - Found 366 segments
+2025-11-21 00:06:19 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4...
+2025-11-21 00:06:19 - video_production_app.Api - INFO - Preparing to extract waveforms for 2 track(s)
+2025-11-21 00:06:19 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (aac)
+2025-11-21 00:06:19 - video_production_app.Api - INFO -   Track 1: stream_index=2, name=Track 2 (aac)
+2025-11-21 00:06:19 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 2 track(s)...
+2025-11-21 00:06:19 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-21 00:06:22 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 2...
+2025-11-21 00:06:23 - video_production_app.Api - INFO - Waveform: ✅ Extracted 2 waveforms!
+2025-11-21 00:06:23 - video_production_app.Api - INFO - Waveform extraction returned 2 waveforms
+2025-11-21 00:06:23 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (29565111,)
+2025-11-21 00:06:23 - video_production_app.Api - INFO -   Downsampled to 1707 points
+2025-11-21 00:06:23 - video_production_app.Api - INFO - Processing waveform for track 1, shape: (29565111,)
+2025-11-21 00:06:23 - video_production_app.Api - INFO -   Downsampled to 1707 points
+2025-11-21 00:06:23 - video_production_app.Api - INFO - Successfully processed 2 waveforms for frontend
+2025-11-21 00:06:23 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/2024-10-19 18-17-15.mp4

@@ -1,148 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Video Production Suite</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Production Suite</title>
 
-    <!-- Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+  <!-- Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    <!-- Icons: FontAwesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+  <!-- Icons: FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="app-container">
-      <div class="toolbar">
-        <div class="toolbar-group">
-          <button
-            id="btn-load-video"
-            class="btn btn-primary"
-            aria-label="Load video file from disk"
-            title="Load Video (Ctrl+O)"
-          >
-            <i class="fas fa-folder-open"></i> Load Video
-          </button>
-          <div class="divider-vertical"></div>
-          <button
-            id="btn-detect-silence"
-            class="btn btn-secondary"
-            aria-label="Detect silence segments in the selected audio track"
-            title="Detect Silence"
-          >
-            <i class="fas fa-wave-square"></i> Detect Silence
-          </button>
-          <div class="select-wrapper">
-            <select
-              id="audio-track-selector"
-              class="audio-track-selector"
-              aria-label="Select audio track for silence detection"
-              title="Audio Track"
-            ></select>
-          </div>
-        </div>
-
-        <div class="toolbar-group">
-          <button
-            id="btn-ai-analysis"
-            class="btn btn-accent"
-            aria-label="Run AI content analysis on audible segments"
-            title="AI Analysis (requires together.ai API key)"
-          >
-            <i class="fas fa-robot"></i> AI Analysis
-          </button>
-        </div>
-
-        <span
-          id="status-label"
-          class="status-label"
-          role="status"
-          aria-live="polite"
-          >No video loaded.</span
-        >
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- HEADER BAR -->
+    <header class="header">
+      <div class="header-left">
+        <span class="app-title">TB Studio</span>
       </div>
 
-      <div class="main-content">
-        <!-- Player Panel -->
-        <div id="player-panel" class="panel player-panel">
-          <div class="panel-header"><i class="fas fa-film"></i> Preview</div>
-          <div class="panel-content player-content">
-            <div class="video-wrapper">
-              <video
-                id="video-player"
-                controls
-                aria-label="Video preview player"
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            <div class="player-controls-bar" role="toolbar" aria-label="Video playback controls">
-              <div class="playback-controls">
-                <button id="btn-previous-frame" class="btn-icon" title="Previous Frame" aria-label="Go to previous frame">
-                  <i class="fas fa-step-backward"></i>
-                </button>
-                <button id="btn-play-pause" class="btn-icon" title="Play/Pause" aria-label="Play or pause video">
-                  <i class="fas fa-play"></i>
-                </button>
-                <button id="btn-next-frame" class="btn-icon" title="Next Frame" aria-label="Go to next frame">
-                  <i class="fas fa-step-forward"></i>
-                </button>
-                <button id="btn-stop" class="btn-icon" title="Stop" aria-label="Stop playback">
-                  <i class="fas fa-stop"></i>
-                </button>
-              </div>
-              <div class="time-display" id="time-display">00:00:00</div>
-            </div>
+      <div class="header-center">
+        <div class="status-indicator"></div>
+        <span id="status-label" class="status-text">System Ready: PyWebView bridge connected.</span>
+      </div>
+
+      <div class="header-right">
+        <button id="btn-export-video-header" class="btn-export-header">
+          <i class="fas fa-download"></i> Export
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="main-workspace">
+      
+      <!-- TOP SECTION: Left Panel + Video Player -->
+      <div class="workspace-top">
+        
+        <!-- LEFT PANEL: Tabbed Sidebar -->
+        <aside class="left-panel">
+          
+          <!-- Tabs Header -->
+          <div class="tabs-header">
+            <button class="tab-button active" data-tab="media">
+              <i class="fas fa-layer-group"></i> Media
+            </button>
+            <button class="tab-button" data-tab="ai">
+              <i class="fas fa-wand-magic-sparkles"></i> AI Tools
+            </button>
+            <button class="tab-button" data-tab="export">
+              <i class="fas fa-file-video"></i> Export
+            </button>
           </div>
-        </div>
 
-        <!-- Vertical Splitter -->
-        <div id="splitter-vertical" class="splitter-vertical"></div>
-
-        <!-- Controls Panel -->
-        <div id="controls-panel" class="panel controls-panel">
-          <div class="panel-header"><i class="fas fa-sliders-h"></i> Controls</div>
-          <div class="panel-content scrollable-content">
+          <!-- Tabs Content -->
+          <div class="tab-content">
             
-            <!-- AI Settings -->
-            <div class="control-section">
-              <label class="section-label">AI Settings</label>
-              <div class="form-group">
-                <label>AI Model</label>
-                <div class="select-wrapper">
-                  <select id="ai-model-select">
-                    <option value="Llama 3.3 70B (Recommended)" selected>Llama 3.3 70B (Recommended)</option>
-                    <option value="DeepSeek R1 (Ruthless)">DeepSeek R1 (Ruthless)</option>
-                    <option value="Qwen 2.5 72B (Balanced)">Qwen 2.5 72B (Balanced)</option>
-                    <option value="Llama 3.1 8B (Speed)">Llama 3.1 8B (Speed)</option>
-                  </select>
+            <!-- TAB: MEDIA LIBRARY -->
+            <div id="tab-media" class="tab-pane active">
+              
+              <div class="tab-section">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input id="media-search" type="text" placeholder="Search assets..." />
                 </div>
-                <div id="ai-cost-estimate" class="helper-text">Est. Cost: $0.0000</div>
+
+                <button id="btn-load-video" class="btn btn-primary btn-block" style="margin-bottom: 16px;">
+                  <i class="fas fa-folder-open"></i> Load Video
+                </button>
+
+                <!-- Loaded Media Section -->
+                <div id="loaded-media-section" style="display: none;">
+                  <h3 class="section-title">
+                    <i class="fas fa-video"></i> Loaded Media
+                  </h3>
+                  <div id="loaded-media-list" class="media-list">
+                    <!-- Loaded videos will appear here -->
+                  </div>
+                  <div class="section-divider"></div>
+                </div>
+
+                <!-- Recent Files Section -->
+                <div id="recent-files-section" style="display: none;">
+                  <h3 class="section-title">
+                    <i class="fas fa-clock-rotate-left"></i> Recent Files
+                  </h3>
+                  <div id="recent-files-list" class="media-list">
+                    <!-- Recent files will appear here -->
+                  </div>
+                  <div class="section-divider"></div>
+                </div>
+
+                <div class="upload-zone" id="upload-zone">
+                  <i class="fas fa-upload"></i>
+                  <p>Click to load video</p>
+                </div>
               </div>
 
-              <div class="form-group">
-                <label>History</label>
-                <div class="select-wrapper">
-                  <select id="ai-history-select" disabled>
-                    <option value="">No runs yet</option>
-                  </select>
+            </div>
+
+            <!-- TAB: AI TOOLS -->
+            <div id="tab-ai" class="tab-pane">
+              
+              <!-- Audio Analysis Section -->
+              <div class="tab-section">
+                <h3 class="section-title">
+                  <i class="fas fa-volume-up"></i> Audio Analysis
+                </h3>
+
+                <div class="control-box">
+                  <div class="form-group">
+                    <label class="form-label">Target Track</label>
+                    <select id="audio-track-selector" class="form-select">
+                      <option value="">No tracks loaded</option>
+                    </select>
+                  </div>
+
+                  <button id="btn-detect-silence" class="btn btn-secondary btn-block">
+                    <i class="fas fa-bolt"></i> Detect Silence
+                  </button>
                 </div>
+
+                <div class="form-group mt-2">
+                  <label class="form-label">Track Details</label>
+                  <textarea id="audio-details-textbox" class="audio-details-box" readonly></textarea>
+                </div>
+
+                <button id="btn-analyze-tracks" class="btn btn-outline btn-block mt-1">
+                  Analyze All Tracks
+                </button>
               </div>
 
-              <div class="form-group">
-                <label>Whisper Model</label>
-                <div class="select-wrapper">
-                  <select id="whisper-model-select">
+              <div class="section-divider"></div>
+
+              <!-- AI Content Analysis Section -->
+              <div class="tab-section">
+                <h3 class="section-title">
+                  <i class="fas fa-wand-magic-sparkles"></i> Content AI
+                </h3>
+
+                <div class="form-group">
+                  <label class="form-label">LLM Model</label>
+                  
+                  <label class="model-option">
+                    <input type="radio" name="ai_model" value="Llama 3.3 70B (Recommended)" checked />
+                    <div class="model-info">
+                      <div class="model-header">
+                        <span class="model-name">Llama 3.3 70B</span>
+                        <span class="model-badge">Balanced</span>
+                      </div>
+                      <p class="model-desc">The Storyteller (Recommended)</p>
+                    </div>
+                  </label>
+
+                  <label class="model-option">
+                    <input type="radio" name="ai_model" value="DeepSeek R1 (Ruthless)" />
+                    <div class="model-info">
+                      <div class="model-header">
+                        <span class="model-name">DeepSeek R1</span>
+                        <span class="model-badge">Ruthless</span>
+                      </div>
+                      <p class="model-desc">The Viral Editor</p>
+                    </div>
+                  </label>
+
+                  <label class="model-option">
+                    <input type="radio" name="ai_model" value="Qwen 2.5 72B (Balanced)" />
+                    <div class="model-info">
+                      <div class="model-header">
+                        <span class="model-name">Qwen 2.5 72B</span>
+                        <span class="model-badge">Logical</span>
+                      </div>
+                      <p class="model-desc">The Professional</p>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Whisper Model</label>
+                  <select id="whisper-model-select" class="form-select">
                     <option value="tiny">Tiny (fastest)</option>
                     <option value="base" selected>Base (recommended)</option>
                     <option value="small">Small (better accuracy)</option>
@@ -150,181 +191,210 @@
                     <option value="large">Large (best accuracy)</option>
                   </select>
                 </div>
+
+                <div class="form-group">
+                  <label class="form-label">API Key</label>
+                  <input type="password" id="ai-api-key" class="form-input" placeholder="Enter together.ai API key" />
+                </div>
+
+                <button id="btn-ai-analysis" class="btn btn-primary btn-block">
+                  <i class="fas fa-wand-magic-sparkles"></i> Run AI Analysis
+                </button>
+
+                <p id="ai-cost-estimate" class="cost-estimate">Est. Cost: $0.0000</p>
+
+                <!-- AI Analysis Results -->
+                <div id="ai-analysis-status" class="ai-status-box" style="display: none;">
+                  <div id="ai-analysis-summary"></div>
+                </div>
+
+                <!-- AI History Selector -->
+                <div class="form-group mt-2">
+                  <label class="form-label">History</label>
+                  <select id="ai-history-select" class="form-select" disabled>
+                    <option value="">No runs yet</option>
+                  </select>
+                </div>
               </div>
 
-              <div class="form-group">
-                 <label>API Key</label>
-                 <input type="password" id="ai-api-key" class="form-input" placeholder="Enter API Key">
+              <div class="section-divider"></div>
+
+              <!-- Progress Section -->
+              <div class="tab-section progress-section">
+                <h3 class="section-title">
+                  <i class="fas fa-chart-line"></i> Progress
+                </h3>
+
+                <div id="progress-percentage" class="progress-percentage">0%</div>
+                <div class="progress-container">
+                  <div id="progress-bar" class="progress-fill"></div>
+                </div>
+                <div id="progress-details" class="progress-details">Ready</div>
               </div>
 
-              <div id="ai-analysis-status" class="status-box" style="display: none">
-                <div id="ai-analysis-summary"></div>
+              <div class="section-divider"></div>
+
+              <!-- Console Output -->
+              <div class="tab-section">
+                <h3 class="section-title">
+                  <i class="fas fa-terminal"></i> Console Output
+                </h3>
+                <textarea id="console-output" class="console-area" readonly></textarea>
               </div>
+
             </div>
 
-            <div class="divider-horizontal"></div>
+            <!-- TAB: EXPORT -->
+            <div id="tab-export" class="tab-pane">
+              
+              <div class="tab-section">
+                <h3 class="section-title">Output Settings</h3>
 
-            <!-- Audio Analysis -->
-            <div class="control-section">
-              <label class="section-label">Audio Analysis</label>
-              <button id="btn-analyze-tracks" class="btn btn-secondary btn-full mb-2">
-                Analyze All Tracks
+                <div class="control-box">
+                  <div class="form-group">
+                    <label class="form-label">Encoder</label>
+                    <select id="encoder-select" class="form-select">
+                      <option>NVIDIA NVENC H.264 (GPU)</option>
+                      <option>CPU (x264)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Format</label>
+                    <select id="format-select" class="form-select">
+                      <option value="mp4">MP4 (H.264)</option>
+                      <option value="mov">MOV (ProRes)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Trim Start (seconds)</label>
+                    <input type="number" id="trim-start" class="form-input" placeholder="0" step="0.1" />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Trim End (seconds)</label>
+                    <input type="number" id="trim-end" class="form-input" placeholder="Auto" step="0.1" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-divider"></div>
+
+              <div class="tab-section">
+                <h3 class="section-title">Render Queue</h3>
+
+                <button id="btn-export-video" class="btn btn-primary btn-block btn-lg">
+                  <i class="fas fa-download"></i> Export Video
+                </button>
+
+                <div class="button-grid mt-2">
+                  <button id="btn-export-cuts" class="btn btn-outline">
+                    Export Cuts
+                  </button>
+                  <button id="btn-export-xml" class="btn btn-outline">
+                    XML (FCP)
+                  </button>
+                  <button id="btn-export-edl" class="btn btn-outline">
+                    EDL
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </aside>
+
+        <!-- CENTER PANEL: Video Player -->
+        <main class="center-panel">
+          
+          <div class="player-wrapper">
+            <!-- Video Element -->
+            <video id="video-player" controls>
+              Your browser does not support the video tag.
+            </video>
+
+            <!-- Player Controls Overlay (Bottom) -->
+            <div class="player-overlay">
+              <button id="btn-previous-frame" class="btn-icon" title="Previous Frame">
+                <i class="fas fa-step-backward"></i>
               </button>
-              <label class="sub-label">Track Details:</label>
-              <textarea id="audio-details-textbox" readonly class="code-area"></textarea>
-            </div>
-
-            <div class="divider-horizontal"></div>
-
-            <!-- Progress Panel -->
-            <div class="control-section">
-              <label class="section-label">Progress</label>
-              <div id="progress-percentage" class="progress-text">0%</div>
-              <div class="progress-container">
-                <div id="progress-bar" class="progress-fill"></div>
-              </div>
-              <div id="progress-details" class="helper-text">Ready</div>
-            </div>
-
-            <div class="divider-horizontal"></div>
-
-            <!-- Console Output -->
-            <div class="control-section">
-              <label class="section-label">Console Output</label>
-              <textarea id="console-output" readonly class="console-area"></textarea>
-            </div>
-
-            <div class="divider-horizontal"></div>
-
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-              <button id="btn-export-video" class="btn btn-primary btn-lg btn-block" aria-label="Export processed video" title="Export Video (Ctrl+S)">
-                <i class="fas fa-file-export"></i> Export Video
+              <button id="btn-play-pause" class="play-button" title="Play/Pause">
+                <i class="fas fa-play"></i>
               </button>
-              <div style="height: 8px;"></div>
-              <button id="btn-export-cuts" class="btn btn-secondary btn-block" aria-label="Export cuts" title="Export in Cuts">
-                <i class="fas fa-cut"></i> Export in Cuts
+              <button id="btn-next-frame" class="btn-icon" title="Next Frame">
+                <i class="fas fa-step-forward"></i>
               </button>
-              <div style="height: 8px;"></div>
-              <div class="row gap-sm">
-                <button id="btn-export-edl" class="btn btn-outline col" title="Export EDL">EDL</button>
-                <button id="btn-export-xml" class="btn btn-outline col" title="Export XML">XML</button>
-              </div>
+              <button id="btn-stop" class="btn-icon" title="Stop">
+                <i class="fas fa-stop"></i>
+              </button>
             </div>
           </div>
-        </div>
+
+        </main>
+
       </div>
 
-      <!-- Horizontal Splitter -->
-      <div id="splitter-horizontal" class="splitter-horizontal"></div>
+      <!-- BOTTOM SECTION: Timeline (Full Width) -->
+      <section class="timeline-panel">
+        
+        <!-- Timeline Toolbar -->
+        <div class="timeline-toolbar">
+          <div class="timeline-toolbar-left">
+            <label class="checkbox-label">
+              <input type="checkbox" id="skip-silence-check" />
+              <span>Skip Silence</span>
+            </label>
+          </div>
 
-      <div id="timeline-panel" class="timeline panel">
-        <div class="panel-header">
-          <span><i class="fas fa-stream"></i> Interactive Timeline</span>
-          <div class="timeline-controls">
-            <button
-              id="btn-toggle-timeline"
-              title="Collapse/Expand Timeline Panel"
-              class="btn-icon-small"
-              aria-label="Toggle timeline panel visibility"
-            >
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <!-- Statistics -->
+          <div class="timeline-toolbar-right">
             <span id="timeline-stats" class="stats-label">No data</span>
 
-            <div class="divider-vertical-small"></div>
+            <div class="tool-divider"></div>
 
-            <!-- Zoom Controls -->
-            <div class="btn-group">
-              <button
-                id="btn-zoom-out"
-                title="Zoom Out"
-                class="btn-icon-small"
-                aria-label="Zoom out timeline"
-              >
-                <i class="fas fa-search-minus"></i>
-              </button>
-              <span
-                id="zoom-level"
-                class="zoom-label"
-                aria-label="Current zoom level"
-                >1.0x</span
-              >
-              <button
-                id="btn-zoom-in"
-                title="Zoom In"
-                class="btn-icon-small"
-                aria-label="Zoom in timeline"
-              >
-                <i class="fas fa-search-plus"></i>
-              </button>
-              <button
-                id="btn-zoom-reset"
-                title="Reset Zoom"
-                class="btn-text-small"
-                aria-label="Reset zoom to 100%"
-              >
-                100%
-              </button>
+            <div class="zoom-controls">
+              <i class="fas fa-search-minus"></i>
+              <input id="zoom-slider" type="range" min="1" max="100" value="10" class="zoom-slider" />
+              <i class="fas fa-search-plus"></i>
+              <span id="zoom-level" class="stats-label">1.0x</span>
             </div>
 
-            <div class="divider-vertical-small"></div>
+            <button id="btn-zoom-reset" class="tool-btn" title="Reset Zoom">100%</button>
 
-            <!-- Scroll Controls -->
-            <div class="btn-group">
-              <button
-                id="btn-scroll-start"
-                title="Scroll to Start"
-                class="btn-icon-small"
-                aria-label="Scroll timeline to start"
-              >
-                <i class="fas fa-fast-backward"></i>
-              </button>
-              <button
-                id="btn-scroll-left"
-                title="Scroll Left"
-                class="btn-icon-small"
-                aria-label="Scroll timeline left"
-              >
-                <i class="fas fa-backward"></i>
-              </button>
-              <button
-                id="btn-scroll-right"
-                title="Scroll Right"
-                class="btn-icon-small"
-                aria-label="Scroll timeline right"
-              >
-                <i class="fas fa-forward"></i>
-              </button>
-              <button
-                id="btn-scroll-end"
-                title="Scroll to End"
-                class="btn-icon-small"
-                aria-label="Scroll timeline to end"
-              >
-                <i class="fas fa-fast-forward"></i>
-              </button>
-            </div>
+            <div class="tool-divider"></div>
+
+            <button id="btn-scroll-start" class="tool-btn" title="Scroll to Start">
+              <i class="fas fa-fast-backward"></i>
+            </button>
+            <button id="btn-scroll-left" class="tool-btn" title="Scroll Left">
+              <i class="fas fa-backward"></i>
+            </button>
+            <button id="btn-scroll-right" class="tool-btn" title="Scroll Right">
+              <i class="fas fa-forward"></i>
+            </button>
+            <button id="btn-scroll-end" class="tool-btn" title="Scroll to End">
+              <i class="fas fa-fast-forward"></i>
+            </button>
           </div>
         </div>
-        <div
-          class="panel-content timeline-content"
-          role="region"
-          aria-label="Interactive timeline"
-        >
-          <canvas id="ruler-canvas" class="timeline-canvas ruler"></canvas>
-          <canvas
-            id="waveform-canvas"
-            class="timeline-canvas waveform"
-          ></canvas>
-          <canvas
-            id="segments-canvas"
-            class="timeline-canvas segments"
-          ></canvas>
+
+        <!-- Timeline Body -->
+        <div class="timeline-body">
+          <!-- Timeline Canvas Area (Full Width) -->
+          <div class="timeline-canvas-wrapper">
+            <canvas id="ruler-canvas" class="ruler-canvas"></canvas>
+            <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+            <canvas id="segments-canvas" class="segments-canvas"></canvas>
+          </div>
         </div>
-      </div>
+
+      </section>
+
     </div>
-    <script src="main.js" type="module"></script>
-  </body>
+
+  </div>
+
+  <script src="main.js" type="module"></script>
+</body>
 </html>
