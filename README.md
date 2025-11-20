@@ -38,22 +38,51 @@
 
 ### AI-Powered Content Analysis
 - **🤖 AI Content Analysis**: Intelligent content evaluation using OpenAI Whisper and together.ai
-- **📝 Automatic Transcription**: Local audio transcription with word-level timestamps
+- **📝 Automatic Transcription**: Local audio transcription with word-level timestamps (cached for performance)
 - **🧠 Context-Aware Analysis**: AI analyzes content with surrounding context for better decisions
 - **🎨 Visual Feedback**: Color-coded segments (green=keep, orange=flag) based on AI recommendations
 - **💾 Export Analysis**: Save AI decisions and reasoning to JSON for review
+- **📚 Analysis History**: Toggle between different AI analysis runs without re-analyzing
+- **💡 Model Tooltips**: Hover over AI models to see detailed information (personality, use cases, cut rates)
+- **🎯 Multiple AI Models**: Choose from 4 specialized models optimized for different content types
 
 ### User Interface
 - **🌐 Web UI**: Modern browser-based interface using PyWebView for cross-platform compatibility
 - **⌨️ Keyboard Shortcuts**: Efficient workflow with keyboard navigation
 - **🎨 Professional Design**: Clean, modern interface optimized for video editing workflows
+- **💰 Cost Estimation**: Real-time cost and token count estimates before running AI analysis
 
 ### Advanced Features
-- **📦 Batch Processing**: Process multiple videos in a queue with progress tracking
 - **⚙️ Advanced Settings**: Fine-tune silence detection, padding, and encoding parameters
 - **💾 Settings Persistence**: Save and restore your preferred settings
 - **📈 Progress Tracking**: Real-time progress updates during video processing
 - **🔍 Audio Analysis**: Detailed audio track analysis and visualization
+
+---
+
+## 🆕 What's New
+
+### Latest Updates
+
+**AI Analysis Improvements:**
+- ✅ **DeepSeek R1 Support**: Fixed token starvation issues - DeepSeek R1 now works correctly with proper reasoning
+- ✅ **Analysis History**: Compare different AI runs instantly - toggle between models without re-analyzing
+- ✅ **Model Tooltips**: Hover over AI models to see personality, best use cases, and expected cut rates
+- ✅ **Enhanced Model Selection**: 4 specialized models optimized for different content types:
+  - **Llama 3.3 70B (Recommended)**: The Storyteller - Low cut rate (~5%), best for vlogs and tutorials
+  - **DeepSeek R1 (Ruthless)**: The Viral Editor - High cut rate (~75%), perfect for TikToks and reels
+  - **Qwen 2.5 72B (Balanced)**: The Professional - Medium cut rate (~15%), ideal for corporate/educational content
+  - **Llama 3.1 8B (Speed)**: The Draftsman - Fast and cheap, great for quick tests
+
+**Reliability Improvements:**
+- ✅ **Robust Error Handling**: Enhanced retry logic with exponential backoff for rate limits (429 errors)
+- ✅ **Fail-Fast Validation**: API key and connection validation before starting analysis (saves time)
+- ✅ **Improved Timeouts**: Increased timeouts for verbose models like DeepSeek R1 (120s)
+- ✅ **Better Logging**: Comprehensive debug logging for troubleshooting
+
+**UI Simplification:**
+- ✅ **Web UI Only**: Removed Tkinter UI - streamlined to single, professional Web UI interface
+- ✅ **Simplified Launch**: One command to run the app
 
 ---
 
@@ -196,7 +225,11 @@ Configure AI analysis in the settings:
   - `medium`: Very good accuracy (~5GB VRAM)
   - `large`: Best accuracy, slowest (~10GB VRAM)
 - **Context Window**: Seconds before/after each segment to include (default: 30s)
-- **API Model**: together.ai model to use (default: Meta-Llama-3.1-8B-Instruct-Turbo)
+- **AI Model**: Choose from 4 specialized models (hover for tooltip):
+  - **Llama 3.3 70B (Recommended)**: Default, best overall balance
+  - **DeepSeek R1 (Ruthless)**: High-density cuts, perfect for short-form content
+  - **Qwen 2.5 72B (Balanced)**: Professional, logical analysis
+  - **Llama 3.1 8B (Speed)**: Fast and cheap for quick tests
 
 ---
 
@@ -217,10 +250,13 @@ Configure AI analysis in the settings:
 
 3. **AI Analysis** (Optional)
    - Enter your together.ai API key in settings
-   - Select Whisper model
+   - Select AI model (hover for tooltip with model details and cut rates)
+   - Select Whisper model for transcription
+   - View cost estimate before running
    - Click "🤖 AI Analysis"
    - Wait for transcription and analysis
    - Review AI recommendations (green=keep, orange=flag)
+   - **Toggle History**: Use the History dropdown to compare different AI runs instantly
 
 4. **Manual Editing**
    - Click segments on timeline to toggle keep/remove
@@ -232,13 +268,6 @@ Configure AI analysis in the settings:
    - Choose encoder and quality settings
    - Click "Process Video"
    - Monitor progress in the status area
-
-### Batch Processing
-
-1. **Add to Queue**: Click "Add to Batch" after configuring settings
-2. **Review Queue**: Check the batch tab to see queued videos
-3. **Process All**: Click "Process All" to start batch processing
-4. **Monitor Progress**: Track progress for each video in the queue
 
 ### Keyboard Shortcuts
 
@@ -269,17 +298,9 @@ video_production_app/
 │   └── web_ui/                 # Frontend files
 │       ├── index.html          # Main HTML
 │       ├── main.js             # Main JavaScript logic
-│       ├── timeline.js          # Timeline visualization
-│       └── style.css            # Stylesheet
-│
-├── web/                        # Web UI package
-│   ├── web_main.py             # PyWebView backend API
-│   └── web_ui/                 # Frontend files
-│       ├── index.html
-│       ├── main.js
-│       ├── player.js
-│       ├── timeline.js
-│       └── style.css
+│       ├── player.js           # Video player controls
+│       ├── timeline.js         # Timeline visualization
+│       └── style.css           # Stylesheet
 │
 ├── ai_analysis/                # AI content analysis
 │   ├── transcriber.py          # Whisper transcription
@@ -387,49 +408,27 @@ Copyright 2024 Shankargouda Hanchinal
 
 ### Planned Enhancements
 
-#### Video Processing
-- [ ] **Multi-format Export**: Support for additional video formats and codecs
-- [ ] **Audio Mixing**: Mix multiple audio tracks with volume control
-- [ ] **Subtitle Support**: Import and export SRT subtitle files
-- [ ] **Video Stabilization**: Automatic video stabilization for shaky footage
-
 #### AI Analysis
 - [ ] **Custom Prompt Templates**: User-defined AI analysis prompts
+- [ ] **Persistent History**: Save analysis history to disk (currently session-only)
+- [ ] **Model Comparison**: Side-by-side comparison of different model results
 - [ ] **Ensemble Analysis**: Combine decisions from multiple AI models
-- [ ] **Sentiment Analysis**: Analyze emotional tone of content segments
-- [ ] **Keyword Extraction**: Automatic extraction of important keywords and topics
-- [ ] **AI Confidence Visualization**: Visual representation of AI confidence levels
+
+#### Video Processing
+- [ ] **Batch Processing**: Process multiple videos in a queue with progress tracking
+- [ ] **Subtitle Support**: Import and export SRT subtitle files
+- [ ] **Audio Mixing**: Mix multiple audio tracks with volume control
+- [ ] **Multi-format Export**: Support for additional video formats and codecs
 
 #### User Interface
 - [ ] **Dark/Light Theme Toggle**: Switch between themes
 - [ ] **Customizable Layout**: Resizable and rearrangeable UI panels
-- [ ] **Keyboard Shortcut Customization**: User-defined keyboard shortcuts
-- [ ] **Multi-language Support**: Internationalization (i18n) support
-- [ ] **Tutorial Mode**: Interactive tutorial for new users
 - [ ] **Undo/Redo System**: Full undo/redo functionality for edits
 
 #### Performance & Optimization
 - [ ] **GPU Acceleration for Whisper**: CUDA support for faster transcription
 - [ ] **Parallel Processing**: Process multiple videos simultaneously
-- [ ] **Smart Caching**: Intelligent caching of analysis results
 - [ ] **Progress Resume**: Resume interrupted processing tasks
-- [ ] **Cloud Processing**: Optional cloud-based processing for heavy tasks
-
-#### Collaboration & Sharing
-- [ ] **Project Files**: Save and load project configurations
-- [ ] **Export Presets**: Save and share processing presets
-- [ ] **Collaborative Editing**: Multiple users working on same project
-- [ ] **Version Control**: Track changes to video edits
-- [ ] **Cloud Storage Integration**: Direct integration with cloud storage services
-
-#### Advanced Features
-- [ ] **Audio Ducking**: Automatic background music ducking during speech
-- [ ] **Scene Detection**: Automatic scene change detection
-- [ ] **Face Detection**: Identify and track faces in video
-- [ ] **Object Tracking**: Track objects across frames
-- [ ] **Green Screen Support**: Chroma key compositing
-- [ ] **Picture-in-Picture**: PIP overlay support
-- [ ] **Video Speed Control**: Variable speed playback and export
 
 ### Feature Requests
 
@@ -440,14 +439,6 @@ We welcome feature requests from the community! If you have an idea for a featur
 3. **Provide details**: Describe the feature, use cases, and potential implementation
 4. **Community feedback**: Engage with other users' suggestions
 
-### Roadmap Timeline
-
-- **Q1 2025**: Multi-format export, subtitle support, theme toggle
-- **Q2 2025**: Custom prompt templates, GPU Whisper acceleration, project files
-- **Q3 2025**: Scene detection, audio ducking, 
-
-*Note: Timeline is subject to change based on community feedback and development priorities.*
-
 ---
 
 ## 🙏 Acknowledgments
@@ -455,7 +446,6 @@ We welcome feature requests from the community! If you have an idea for a featur
 - **FFmpeg**: Video processing capabilities
 - **OpenAI Whisper**: Speech recognition and transcription
 - **together.ai**: AI content analysis
-- **PyWebView**: Web UI framework
 - **PyWebView**: Web UI framework
 
 ---

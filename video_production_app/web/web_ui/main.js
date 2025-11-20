@@ -9,6 +9,7 @@ let currentVideoInfo = null;
 let saveDestination = null;
 let player = null;
 let timeline = null;
+let analysisHistory = []; // Store AI analysis runs for history toggle
 
 // AI Models configuration (must match config.py)
 const AI_MODELS = {
@@ -70,6 +71,112 @@ function calculateCost(durationSec, modelKey) {
     }
     
     return { cost: `$${cost.toFixed(4)}`, tokens: tokensStr };
+}
+
+/**
+ * Save AI analysis result to history
+ */
+function saveAnalysisResult(result) {
+    if (!result || !result.summary) {
+        return;
+    }
+    
+    const total = result.summary.segments_analyzed;
+    const keepPct = total > 0 ? Math.round((result.summary.keep_count / total) * 100) : 0;
+    
+    // Create label with timestamp and summary
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const label = `${timestamp} - ${result.modelName} (${keepPct}% Keep)`;
+    
+    // Store in history
+    const historyItem = {
+        label: label,
+        result: result,
+        modelName: result.modelName,
+        timestamp: now
+    };
+    
+    analysisHistory.push(historyItem);
+    
+    // Update dropdown
+    const historySelect = document.getElementById('ai-history-select');
+    if (historySelect) {
+        const values = analysisHistory.map(item => item.label);
+        historySelect.innerHTML = values.map(label => `<option value="${label}">${label}</option>`).join('');
+        historySelect.value = label; // Select newest
+        historySelect.disabled = false;
+    }
+    
+    console.log(`💾 Saved analysis to history: ${label}`);
+}
+
+/**
+ * Load and restore a previous analysis result from history
+ */
+function loadHistoryItem(selectedLabel) {
+    if (!selectedLabel || selectedLabel === "No runs yet" || !analysisHistory.length) {
+        return;
+    }
+    
+    // Find matching history item
+    const historyItem = analysisHistory.find(item => item.label === selectedLabel);
+    if (!historyItem) {
+        console.warn("⚠️ Could not find history item:", selectedLabel);
+        return;
+    }
+    
+    const result = historyItem.result;
+    
+    // Restore segments to timeline
+    if (result.segments && timeline) {
+        // Get waveforms if available
+        const canvasWidth = document.getElementById('waveform-canvas').offsetWidth;
+        
+        window.pywebview.api.get_waveforms_all_tracks(
+            currentVideoInfo.filePath,
+            currentVideoInfo.audioTracks,
+            canvasWidth
+        ).then(waveformsResult => {
+            const { hasError, data: waveformsData } = checkError(waveformsResult);
+            const waveforms = (!hasError && waveformsData) ? (waveformsData.waveforms || waveformsData) : null;
+            
+            // Redraw timeline with restored segments
+            timeline.draw(result.segments, currentVideoInfo.duration, waveforms);
+            
+            // Update player
+            if (player) {
+                player.setSegments(result.segments);
+            }
+            
+            // Update status
+            const statusLabel = document.getElementById('status-label');
+            if (statusLabel) {
+                statusLabel.textContent = `Restored: ${historyItem.modelName} (${result.summary.keep_count} Keep, ${result.summary.flag_count} Flag)`;
+            }
+            
+            // Update analysis summary display
+            const aiAnalysisStatus = document.getElementById('ai-analysis-status');
+            const aiAnalysisSummary = document.getElementById('ai-analysis-summary');
+            if (aiAnalysisStatus && aiAnalysisSummary) {
+                aiAnalysisStatus.style.display = 'block';
+                aiAnalysisSummary.innerHTML = `
+                    <strong>Restored Analysis:</strong><br>
+                    ✅ Keep: ${result.summary.keep_count} | ⚠️ Flag: ${result.summary.flag_count} | ❓ Uncertain: ${result.summary.uncertain_count}<br>
+                    Confidence: ${(result.summary.avg_confidence * 100).toFixed(1)}%
+                `;
+            }
+            
+            console.log(`✅ Restored analysis: ${selectedLabel}`);
+        }).catch(error => {
+            console.error("Error loading waveforms for history:", error);
+            // Still restore segments without waveforms
+            timeline.draw(result.segments, currentVideoInfo.duration, null);
+            if (player) {
+                player.setSegments(result.segments);
+            }
+        });
+    }
 }
 
 /**
@@ -632,6 +739,17 @@ window.addEventListener('pywebviewready', async () => {
         updateCostDisplay();
     }
 
+    // --- Add event listener for AI history selector ---
+    const aiHistorySelect = document.getElementById('ai-history-select');
+    if (aiHistorySelect) {
+        aiHistorySelect.addEventListener('change', (e) => {
+            const selectedLabel = e.target.value;
+            if (selectedLabel) {
+                loadHistoryItem(selectedLabel);
+            }
+        });
+    }
+
     window.app.addLog("Welcome! Please select a video file to begin.\n");
 });
 
@@ -717,6 +835,15 @@ async function loadVideo() {
         }
         
         currentVideoInfo = videoInfo;
+        
+        // Clear analysis history when loading a new video
+        analysisHistory = [];
+        const historySelect = document.getElementById('ai-history-select');
+        if (historySelect) {
+            historySelect.innerHTML = '<option value="">No runs yet</option>';
+            historySelect.disabled = true;
+        }
+        
         statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
         window.updateConsole(`✅ Video loaded: ${videoInfo.fileName}\n`);
         window.updateConsole(`Duration: ${videoInfo.duration.toFixed(2)}s\n`);
@@ -1006,6 +1133,13 @@ async function runAIAnalysis() {
 
         // Update player with new segments
         player.setSegments(updatedSegments);
+
+        // Save to analysis history
+        saveAnalysisResult({
+            segments: updatedSegments,
+            summary: summary,
+            modelName: selectedModelName
+        });
 
     } catch (error) {
         aiAnalysisButton.disabled = false;
