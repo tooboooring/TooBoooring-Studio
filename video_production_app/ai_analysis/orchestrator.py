@@ -62,6 +62,8 @@ class AnalysisResults:
     decisions: Dict[str, Any]  # segment_id -> decision data
     transcripts: Dict[str, Any]  # segment_id -> transcript
     errors: List[str]
+    detected_language: Optional[str] = None  # Language code (e.g., 'en', 'hi')
+    language_probability: float = 0.0  # Confidence score for detected language
 
 
 def analyze_content(
@@ -129,6 +131,8 @@ def analyze_content(
     """
     start_time = time.time()
     errors = []
+    detected_language = None
+    language_probability = 0.0
     
     def log(msg: str):
         if status_callback:
@@ -270,7 +274,7 @@ def analyze_content(
     else:
         # Transcribe and cache results
         try:
-            transcripts = transcribe_segments(
+            transcription_result = transcribe_segments(
                 video_path=video_path,
                 segments=segments,
                 model_size=whisper_model,
@@ -279,7 +283,12 @@ def analyze_content(
                 progress_callback=lambda curr, total: progress("transcription", curr, total)
             )
             
-            # Store in cache for future runs
+            # Extract transcripts and language info from result
+            transcripts = transcription_result.get('transcripts', {})
+            detected_language = transcription_result.get('detected_language', None)
+            language_probability = transcription_result.get('language_probability', 0.0)
+            
+            # Store transcripts in cache for future runs
             _TRANSCRIPT_CACHE[cache_key] = transcripts
             log(f"💾 Cached transcriptions for future use\n")
             
@@ -441,7 +450,9 @@ def analyze_content(
         processing_time=total_time,
         decisions=decisions_dict,
         transcripts={seg_id: t.__dict__ for seg_id, t in transcripts.items()},
-        errors=errors
+        errors=errors,
+        detected_language=detected_language,
+        language_probability=language_probability
     )
 
 

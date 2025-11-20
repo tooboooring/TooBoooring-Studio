@@ -10,8 +10,6 @@ let saveDestination = null;
 let player = null;
 let timeline = null;
 let analysisHistory = []; // Store AI analysis runs for history toggle
-let loadedMedia = []; // Store all loaded media files
-let recentFiles = []; // Store recent files (persistent)
 
 // AI Models configuration (must match config.py)
 const AI_MODELS = {
@@ -113,202 +111,6 @@ function saveAnalysisResult(result) {
     console.log(`💾 Saved analysis to history: ${label}`);
 }
 
-/**
- * Add media to the loaded media list
- */
-function addMediaToLibrary(videoInfo) {
-    // Check if already in list
-    const exists = loadedMedia.find(m => m.filePath === videoInfo.filePath);
-    if (exists) {
-        // Update existing
-        Object.assign(exists, videoInfo);
-    } else {
-        // Add new
-        loadedMedia.push({
-            ...videoInfo,
-            loadedAt: new Date().toISOString(),
-            id: Date.now().toString()
-        });
-    }
-    
-    // Update recent files
-    addToRecentFiles(videoInfo);
-    
-    // Refresh UI
-    renderMediaLibrary();
-}
-
-/**
- * Add to recent files list
- */
-function addToRecentFiles(videoInfo) {
-    // Remove if already exists
-    recentFiles = recentFiles.filter(f => f.filePath !== videoInfo.filePath);
-    
-    // Add to beginning
-    recentFiles.unshift({
-        ...videoInfo,
-        accessedAt: new Date().toISOString()
-    });
-    
-    // Keep only last 10
-    if (recentFiles.length > 10) {
-        recentFiles = recentFiles.slice(0, 10);
-    }
-    
-    // Save to localStorage
-    try {
-        localStorage.setItem('tb_studio_recent_files', JSON.stringify(recentFiles));
-    } catch (e) {
-        console.warn('Could not save recent files:', e);
-    }
-}
-
-/**
- * Load recent files from localStorage
- */
-function loadRecentFiles() {
-    try {
-        const saved = localStorage.getItem('tb_studio_recent_files');
-        if (saved) {
-            recentFiles = JSON.parse(saved);
-            renderMediaLibrary();
-        }
-    } catch (e) {
-        console.warn('Could not load recent files:', e);
-    }
-}
-
-/**
- * Render the media library UI
- */
-function renderMediaLibrary() {
-    // Render loaded media
-    const loadedMediaSection = document.getElementById('loaded-media-section');
-    const loadedMediaList = document.getElementById('loaded-media-list');
-    
-    if (loadedMedia.length > 0) {
-        loadedMediaSection.style.display = 'block';
-        loadedMediaList.innerHTML = loadedMedia.map(media => createMediaItem(media, true)).join('');
-    } else {
-        loadedMediaSection.style.display = 'none';
-    }
-    
-    // Render recent files
-    const recentFilesSection = document.getElementById('recent-files-section');
-    const recentFilesList = document.getElementById('recent-files-list');
-    
-    if (recentFiles.length > 0) {
-        recentFilesSection.style.display = 'block';
-        recentFilesList.innerHTML = recentFiles.slice(0, 5).map(media => createMediaItem(media, false)).join('');
-    } else {
-        recentFilesSection.style.display = 'none';
-    }
-    
-    // Bind click handlers
-    setTimeout(() => {
-        document.querySelectorAll('.media-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                if (!e.target.closest('.media-item-btn')) {
-                    const filePath = item.dataset.filepath;
-                    loadMediaFromLibrary(filePath);
-                }
-            });
-        });
-        
-        document.querySelectorAll('.media-item-btn.remove').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const filePath = btn.closest('.media-item').dataset.filepath;
-                removeMediaFromLibrary(filePath);
-            });
-        });
-    }, 0);
-}
-
-/**
- * Create HTML for a media item
- */
-function createMediaItem(media, showRemoveButton) {
-    const isActive = currentVideoInfo && currentVideoInfo.filePath === media.filePath;
-    const duration = media.duration ? formatTime(media.duration) : '--:--';
-    const tracks = media.audioTracks ? media.audioTracks.length : 0;
-    
-    return `
-        <div class="media-item ${isActive ? 'active' : ''}" data-filepath="${media.filePath}">
-            <div class="media-item-thumbnail">
-                <i class="fas fa-film"></i>
-            </div>
-            <div class="media-item-info">
-                <div class="media-item-name" title="${media.fileName}">${media.fileName}</div>
-                <div class="media-item-meta">
-                    <span><i class="fas fa-clock"></i> ${duration}</span>
-                    <span><i class="fas fa-music"></i> ${tracks} track${tracks !== 1 ? 's' : ''}</span>
-                </div>
-            </div>
-            <div class="media-item-actions">
-                ${showRemoveButton ? `<button class="media-item-btn danger remove" title="Remove"><i class="fas fa-trash"></i></button>` : ''}
-                <button class="media-item-btn" title="Load"><i class="fas fa-play"></i></button>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * Load media from library
- */
-async function loadMediaFromLibrary(filePath) {
-    console.log(`Loading media from library: ${filePath}`);
-    
-    const statusLabel = document.getElementById('status-label');
-    if (statusLabel) {
-        statusLabel.textContent = 'Loading media...';
-    }
-    
-    try {
-        // Get info from Python
-        const duration = await window.pywebview.api.get_video_duration(filePath, "", (msg) => console.log(msg));
-        const audioTracks = await window.pywebview.api.get_audio_tracks(filePath, "", (msg) => console.log(msg));
-        
-        const videoInfo = {
-            filePath: filePath,
-            fileName: filePath.split(/[\\/]/).pop(),
-            duration: duration,
-            audioTracks: audioTracks
-        };
-        
-        currentVideoInfo = videoInfo;
-        
-        // Update UI
-        if (statusLabel) {
-            statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
-        }
-        
-        // Update player
-        player.loadVideo(videoInfo.filePath, videoInfo.audioTracks);
-        timeline.draw([], 0, null);
-        
-        // Update library UI
-        renderMediaLibrary();
-        
-        // Update cost estimate
-        updateCostDisplay();
-        
-    } catch (error) {
-        console.error('Error loading media from library:', error);
-        if (statusLabel) {
-            statusLabel.textContent = 'Error loading media';
-        }
-    }
-}
-
-/**
- * Remove media from library
- */
-function removeMediaFromLibrary(filePath) {
-    loadedMedia = loadedMedia.filter(m => m.filePath !== filePath);
-    renderMediaLibrary();
-}
 
 /**
  * Format time helper
@@ -318,6 +120,84 @@ function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Populate audio track mixer UI
+ */
+function populateAudioTrackMixer(audioTracks) {
+    const mixer = document.getElementById('audio-track-mixer');
+    const trackList = document.getElementById('audio-track-list');
+    
+    if (!mixer || !trackList) {
+        console.warn('Audio track mixer elements not found');
+        return;
+    }
+    
+    // Clear existing tracks
+    trackList.innerHTML = '';
+    
+    // Show mixer only if there are multiple tracks
+    if (audioTracks && audioTracks.length > 0) {
+        mixer.style.display = 'flex';
+        
+        // Initialize all tracks as enabled
+        if (!player.enabledTrackIndices || player.enabledTrackIndices.length === 0) {
+            player.enabledTrackIndices = audioTracks.map(track => track.index);
+        }
+        
+        // Create checkbox for each track
+        audioTracks.forEach(track => {
+            const trackItem = document.createElement('label');
+            trackItem.className = 'audio-track-item active';
+            trackItem.dataset.trackIndex = track.index;
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = true;
+            checkbox.dataset.trackIndex = track.index;
+            
+            const label = document.createElement('span');
+            label.className = 'track-label';
+            label.textContent = track.name;
+            
+            trackItem.appendChild(checkbox);
+            trackItem.appendChild(label);
+            trackList.appendChild(trackItem);
+            
+            // Add change handler
+            checkbox.addEventListener('change', async (e) => {
+                const trackIndex = parseInt(e.target.dataset.trackIndex);
+                const isChecked = e.target.checked;
+                
+                if (isChecked) {
+                    // Enable track
+                    if (!player.enabledTrackIndices.includes(trackIndex)) {
+                        player.enabledTrackIndices.push(trackIndex);
+                    }
+                    trackItem.classList.add('active');
+                } else {
+                    // Disable track
+                    player.enabledTrackIndices = player.enabledTrackIndices.filter(idx => idx !== trackIndex);
+                    trackItem.classList.remove('active');
+                }
+                
+                // Update video with new track selection
+                const statusLabel = document.getElementById('status-label');
+                if (statusLabel) {
+                    statusLabel.textContent = 'Mixing audio tracks...';
+                }
+                
+                await player.updateAudioTracks(player.enabledTrackIndices);
+                
+                if (statusLabel) {
+                    statusLabel.textContent = `Audio updated: ${player.enabledTrackIndices.length} track(s) enabled`;
+                }
+            });
+        });
+    } else {
+        mixer.style.display = 'none';
+    }
 }
 
 /**
@@ -475,6 +355,18 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- AI Model Tooltips Positioning ---
+    const modelOptions = document.querySelectorAll('.model-option');
+    modelOptions.forEach(option => {
+        option.addEventListener('mouseenter', function(e) {
+            const rect = this.getBoundingClientRect();
+            const tooltip = window.getComputedStyle(this, '::after');
+            
+            // Set CSS custom property for dynamic positioning
+            this.style.setProperty('--tooltip-top', `${rect.top}px`);
+        });
+    });
+
     // --- Initialize UI components (Player and Timeline) ---
     player = new Player(document.getElementById('video-player'));
     timeline = new Timeline(
@@ -545,28 +437,54 @@ window.addEventListener('DOMContentLoaded', () => {
         console.error("Cannot attach event listener: btn-load-video not found");
     }
     
-    // Upload zone click
+    // Upload zone click and drag/drop
     const uploadZone = document.getElementById('upload-zone');
     if (uploadZone) {
+        // Click to browse
         uploadZone.addEventListener('click', () => {
             loadVideoButton.click();
         });
-    }
-    
-    // Media search
-    const mediaSearch = document.getElementById('media-search');
-    if (mediaSearch) {
-        mediaSearch.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            document.querySelectorAll('.media-item').forEach(item => {
-                const name = item.querySelector('.media-item-name').textContent.toLowerCase();
-                item.style.display = name.includes(query) ? 'flex' : 'none';
-            });
+        
+        // Drag and drop functionality
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.add('drag-over');
+        });
+        
+        uploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.remove('drag-over');
+        });
+        
+        uploadZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const filePath = file.path || file.name;
+                
+                // Check if it's a video file
+                const videoExtensions = ['.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv', '.m4v'];
+                const hasVideoExt = videoExtensions.some(ext => filePath.toLowerCase().endsWith(ext));
+                
+                if (hasVideoExt) {
+                    console.log('📁 Dropped video file:', filePath);
+                    // Call loadVideo with the file path
+                    await loadVideo(filePath);
+                } else {
+                    const statusLabel = document.getElementById('status-label');
+                    if (statusLabel) {
+                        statusLabel.textContent = 'Please drop a video file';
+                    }
+                }
+            }
         });
     }
-    
-    // Load recent files on startup
-    loadRecentFiles();
     detectSilenceButton.addEventListener('click', detectSilence);
     aiAnalysisButton.addEventListener('click', runAIAnalysis);
     exportButton.addEventListener('click', exportVideo);
@@ -1205,9 +1123,6 @@ async function loadVideo() {
         
         currentVideoInfo = videoInfo;
         
-        // Add to media library
-        addMediaToLibrary(videoInfo);
-        
         // Clear analysis history when loading a new video
         analysisHistory = [];
         const historySelect = document.getElementById('ai-history-select');
@@ -1232,49 +1147,8 @@ async function loadVideo() {
         // Update cost estimate with new video duration
         updateCostDisplay();
 
-        // Populate audio track mute buttons (Premiere Pro style)
-        const audioTracksButtons = document.getElementById('audio-tracks-buttons');
-        if (audioTracksButtons) {
-            audioTracksButtons.innerHTML = ""; // Clear existing buttons
-            
-            // Initialize all tracks as enabled
-            player.enabledTrackIndices = videoInfo.audioTracks.map(track => track.index);
-            
-            // Create a mute button for each track
-            videoInfo.audioTracks.forEach(track => {
-                const button = document.createElement('button');
-                button.className = 'audio-track-button';
-                button.dataset.trackIndex = track.index;
-                button.innerHTML = `<span class="track-icon">🔊</span> <span>${track.name}</span>`;
-                button.title = `Click to mute/unmute ${track.name}`;
-                button.setAttribute('aria-label', `Toggle ${track.name}`);
-                
-                // Add click handler
-                button.addEventListener('click', async () => {
-                    const trackIndex = parseInt(button.dataset.trackIndex);
-                    const isMuted = button.classList.contains('muted');
-                    
-                    if (isMuted) {
-                        // Unmute: add track to enabled list
-                        if (!player.enabledTrackIndices.includes(trackIndex)) {
-                            player.enabledTrackIndices.push(trackIndex);
-                        }
-                        button.classList.remove('muted');
-                        button.querySelector('.track-icon').textContent = '🔊';
-                    } else {
-                        // Mute: remove track from enabled list
-                        player.enabledTrackIndices = player.enabledTrackIndices.filter(idx => idx !== trackIndex);
-                        button.classList.add('muted');
-                        button.querySelector('.track-icon').textContent = '🔇';
-                    }
-                    
-                    // Update video with new track selection
-                    await player.updateAudioTracks(player.enabledTrackIndices);
-                });
-                
-                audioTracksButtons.appendChild(button);
-            });
-        }
+        // Populate audio track mixer
+        populateAudioTrackMixer(videoInfo.audioTracks);
 
         player.loadVideo(videoInfo.filePath, videoInfo.audioTracks);
         timeline.draw([], 0, null); // Clear timeline
@@ -1470,7 +1344,46 @@ async function runAIAnalysis() {
                 console.log(`  Segment ${idx}: keep=${seg.keep}, ai_decision=${seg.ai_decision}, confidence=${seg.ai_confidence}`);
             });
         }
+        // Language name mapping
+        const languageNames = {
+            'en': 'English',
+            'hi': 'Hindi',
+            'es': 'Spanish',
+            'fr': 'French',
+            'de': 'German',
+            'zh': 'Chinese',
+            'ja': 'Japanese',
+            'ko': 'Korean',
+            'ar': 'Arabic',
+            'ru': 'Russian',
+            'pt': 'Portuguese',
+            'it': 'Italian',
+            'nl': 'Dutch',
+            'pl': 'Polish',
+            'tr': 'Turkish',
+            'vi': 'Vietnamese',
+            'id': 'Indonesian',
+            'th': 'Thai',
+            'ur': 'Urdu',
+            'bn': 'Bengali',
+            'ta': 'Tamil',
+            'te': 'Telugu',
+            'mr': 'Marathi',
+            'gu': 'Gujarati',
+            'kn': 'Kannada',
+            'ml': 'Malayalam',
+            'pa': 'Punjabi'
+        };
+        
+        const detectedLang = summary.detected_language;
+        const langProb = summary.language_probability;
+        const langDisplay = detectedLang ? languageNames[detectedLang] || detectedLang.toUpperCase() : 'Unknown';
+        const langConfidence = langProb ? `${(langProb * 100).toFixed(0)}%` : 'N/A';
+        
         window.updateConsole(`\n✅ AI Analysis Complete!\n`);
+        if (detectedLang) {
+            window.updateConsole(`   🌐 Language: ${langDisplay} (${detectedLang}) - Confidence: ${langConfidence}\n`);
+        }
         window.updateConsole(`   Analyzed: ${summary.segments_analyzed} segments\n`);
         window.updateConsole(`   ✅ KEEP: ${summary.keep_count}\n`);
         window.updateConsole(`   ⚠️  FLAG: ${summary.flag_count}\n`);
@@ -1496,9 +1409,10 @@ async function runAIAnalysis() {
         
         // Update status display
         aiAnalysisStatus.style.display = 'block';
+        const languageInfo = detectedLang ? `🌐 ${langDisplay} (${langConfidence})<br>` : '';
         aiAnalysisSummary.innerHTML = `
             <strong>Analysis Summary:</strong><br>
-            ✅ Keep: ${summary.keep_count} | ⚠️ Flag: ${summary.flag_count} | ❓ Uncertain: ${summary.uncertain_count}<br>
+            ${languageInfo}✅ Keep: ${summary.keep_count} | ⚠️ Flag: ${summary.flag_count} | ❓ Uncertain: ${summary.uncertain_count}<br>
             Confidence: ${(summary.avg_confidence * 100).toFixed(1)}%
         `;
         
