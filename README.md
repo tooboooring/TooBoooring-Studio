@@ -44,10 +44,9 @@
 - **💾 Export Analysis**: Save AI decisions and reasoning to JSON for review
 
 ### User Interface
-- **🖥️ Desktop UI**: Modern CustomTkinter-based interface with tabbed layout
-- **🌐 Web UI**: Browser-based interface using PyWebView for cross-platform compatibility
+- **🌐 Web UI**: Modern browser-based interface using PyWebView for cross-platform compatibility
 - **⌨️ Keyboard Shortcuts**: Efficient workflow with keyboard navigation
-- **🎨 Customizable Themes**: Professional color schemes and UI customization
+- **🎨 Professional Design**: Clean, modern interface optimized for video editing workflows
 
 ### Advanced Features
 - **📦 Batch Processing**: Process multiple videos in a queue with progress tracking
@@ -144,20 +143,14 @@ python -m video_production_app.launcher
 
 **Option 2: Direct Launch**
 ```bash
-# Web UI
+# Launch Web UI directly
 python -m video_production_app.main_web_ui
-
-# Desktop UI (Tkinter)
-python -m video_production_app.main_tkinter
 ```
 
-**Option 3: Command-Line Arguments**
+**Option 3: Using Launcher**
 ```bash
-# Launch Web UI directly
-python -m video_production_app.launcher web
-
-# Launch Tkinter UI directly
-python -m video_production_app.launcher tkinter
+# Launch via launcher (same as Option 1)
+python -m video_production_app.launcher
 ```
 
 ### Basic Workflow
@@ -262,8 +255,7 @@ Configure AI analysis in the settings:
 video_production_app/
 ├── __init__.py                 # Package initialization
 ├── config.py                   # Configuration constants
-├── launcher.py                 # Main launcher
-├── main_tkinter.py             # Tkinter UI entry point
+├── launcher.py                 # Main launcher (launches Web UI)
 ├── main_web_ui.py              # Web UI entry point
 │
 ├── core/                       # Core business logic
@@ -272,17 +264,13 @@ video_production_app/
 │   ├── video_processor.py      # Video processing logic
 │   └── settings_manager.py     # Settings persistence
 │
-├── ui/                         # Tkinter UI package
-│   ├── app.py                  # Main application window
-│   ├── main_tab.py             # Main processing tab
-│   ├── preview_tab.py          # Preview & Analysis tab
-│   ├── advanced_tab.py         # Advanced settings tab
-│   ├── batch_tab.py            # Batch queue tab
-│   └── widgets/                # Reusable UI components
-│       ├── frame_preview.py    # Frame preview widget
-│       ├── timeline.py          # Interactive timeline
-│       ├── vlc_player.py        # VLC player integration
-│       └── waveform.py         # Waveform generator
+├── web/                        # Web UI package
+│   ├── web_main.py             # PyWebView backend API
+│   └── web_ui/                 # Frontend files
+│       ├── index.html          # Main HTML
+│       ├── main.js             # Main JavaScript logic
+│       ├── timeline.js          # Timeline visualization
+│       └── style.css            # Stylesheet
 │
 ├── web/                        # Web UI package
 │   ├── web_main.py             # PyWebView backend API
@@ -321,9 +309,7 @@ video_production_app/
 
 ### Core Dependencies
 
-- **customtkinter** >= 5.2.0 - Modern Tkinter UI framework
 - **pywebview** >= 4.0.0 - Web UI framework
-- **Pillow** >= 10.0.0 - Image processing
 - **numpy** >= 1.24.0 - Numerical operations
 
 ### AI Analysis Dependencies (Optional)
@@ -469,7 +455,7 @@ We welcome feature requests from the community! If you have an idea for a featur
 - **FFmpeg**: Video processing capabilities
 - **OpenAI Whisper**: Speech recognition and transcription
 - **together.ai**: AI content analysis
-- **CustomTkinter**: Modern UI framework
+- **PyWebView**: Web UI framework
 - **PyWebView**: Web UI framework
 
 ---

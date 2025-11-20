@@ -1,11 +1,7 @@
 # Video Production Suite - Python Dependencies
 
-# Core UI Frameworks
-customtkinter>=5.2.0
+# Core UI Framework
 pywebview>=4.0.0
-
-# Image Processing (for UI)
-Pillow>=10.0.0
 
 # Audio/Video Processing
 numpy>=1.24.0
