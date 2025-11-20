@@ -111,6 +111,95 @@ function saveAnalysisResult(result) {
     console.log(`💾 Saved analysis to history: ${label}`);
 }
 
+
+/**
+ * Format time helper
+ */
+function formatTime(seconds) {
+    if (!seconds || seconds < 0) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Populate audio track mixer UI
+ */
+function populateAudioTrackMixer(audioTracks) {
+    const mixer = document.getElementById('audio-track-mixer');
+    const trackList = document.getElementById('audio-track-list');
+    
+    if (!mixer || !trackList) {
+        console.warn('Audio track mixer elements not found');
+        return;
+    }
+    
+    // Clear existing tracks
+    trackList.innerHTML = '';
+    
+    // Show mixer only if there are multiple tracks
+    if (audioTracks && audioTracks.length > 0) {
+        mixer.style.display = 'flex';
+        
+        // Initialize all tracks as enabled
+        if (!player.enabledTrackIndices || player.enabledTrackIndices.length === 0) {
+            player.enabledTrackIndices = audioTracks.map(track => track.index);
+        }
+        
+        // Create checkbox for each track
+        audioTracks.forEach(track => {
+            const trackItem = document.createElement('label');
+            trackItem.className = 'audio-track-item active';
+            trackItem.dataset.trackIndex = track.index;
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = true;
+            checkbox.dataset.trackIndex = track.index;
+            
+            const label = document.createElement('span');
+            label.className = 'track-label';
+            label.textContent = track.name;
+            
+            trackItem.appendChild(checkbox);
+            trackItem.appendChild(label);
+            trackList.appendChild(trackItem);
+            
+            // Add change handler
+            checkbox.addEventListener('change', async (e) => {
+                const trackIndex = parseInt(e.target.dataset.trackIndex);
+                const isChecked = e.target.checked;
+                
+                if (isChecked) {
+                    // Enable track
+                    if (!player.enabledTrackIndices.includes(trackIndex)) {
+                        player.enabledTrackIndices.push(trackIndex);
+                    }
+                    trackItem.classList.add('active');
+                } else {
+                    // Disable track
+                    player.enabledTrackIndices = player.enabledTrackIndices.filter(idx => idx !== trackIndex);
+                    trackItem.classList.remove('active');
+                }
+                
+                // Update video with new track selection
+                const statusLabel = document.getElementById('status-label');
+                if (statusLabel) {
+                    statusLabel.textContent = 'Mixing audio tracks...';
+                }
+                
+                await player.updateAudioTracks(player.enabledTrackIndices);
+                
+                if (statusLabel) {
+                    statusLabel.textContent = `Audio updated: ${player.enabledTrackIndices.length} track(s) enabled`;
+                }
+            });
+        });
+    } else {
+        mixer.style.display = 'none';
+    }
+}
+
 /**
  * Load and restore a previous analysis result from history
  */
@@ -184,31 +273,24 @@ function loadHistoryItem(selectedLabel) {
  */
 function updateCostDisplay() {
     const costLabel = document.getElementById('ai-cost-estimate');
-    const modelSelect = document.getElementById('ai-model-select');
+    const selectedModelRadio = document.querySelector('input[name="ai_model"]:checked');
     
-    if (!costLabel || !modelSelect) {
+    if (!costLabel || !selectedModelRadio) {
         return;
     }
     
-    const selectedModel = modelSelect.value;
+    const selectedModel = selectedModelRadio.value;
     const duration = currentVideoInfo ? currentVideoInfo.duration : 0;
     
     const result = calculateCost(duration, selectedModel);
     const modelInfo = AI_MODELS[selectedModel];
     
-    // Update tooltip dynamically
-    if (modelInfo && modelInfo.tooltip) {
-        modelSelect.title = modelInfo.tooltip;
-    } else {
-        modelSelect.title = '';
-    }
-    
     if (duration > 0 && modelInfo) {
-        costLabel.textContent = `Est. Cost: ${result.cost} (~${result.tokens} tokens) - ${modelInfo.desc}`;
-        costLabel.style.color = '#888';
+        costLabel.textContent = `Est. Cost: ${result.cost} (~${result.tokens} tokens)`;
+        costLabel.style.color = 'var(--text-muted)';
     } else {
         costLabel.textContent = 'Est. Cost: $0.0000 (Load a video first)';
-        costLabel.style.color = '#666';
+        costLabel.style.color = 'var(--text-muted)';
     }
 }
 
@@ -250,6 +332,41 @@ window.clearConsole = function() {
 window.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Loaded. Finding elements...");
 
+    // --- Tab Switching Functionality ---
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+            
+            // Update active tab button
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update active tab pane
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            const targetPane = document.getElementById(`tab-${targetTab}`);
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
+            
+            console.log(`Switched to tab: ${targetTab}`);
+        });
+    });
+
+    // --- AI Model Tooltips Positioning ---
+    const modelOptions = document.querySelectorAll('.model-option');
+    modelOptions.forEach(option => {
+        option.addEventListener('mouseenter', function(e) {
+            const rect = this.getBoundingClientRect();
+            const tooltip = window.getComputedStyle(this, '::after');
+            
+            // Set CSS custom property for dynamic positioning
+            this.style.setProperty('--tooltip-top', `${rect.top}px`);
+        });
+    });
+
     // --- Initialize UI components (Player and Timeline) ---
     player = new Player(document.getElementById('video-player'));
     timeline = new Timeline(
@@ -258,11 +375,10 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('segments-canvas')
     );
 
-    // Ensure timeline content is visible
-    const timelinePanel = document.querySelector('.timeline.panel');
-    const timelineContent = timelinePanel?.querySelector('.panel-content');
-    if (timelineContent) {
-        timelineContent.style.display = 'flex';
+    // Ensure timeline is properly initialized
+    const timelinePanel = document.querySelector('.timeline-panel');
+    if (timelinePanel) {
+        console.log("Timeline panel found and initialized");
     }
 
     // --- Bind all UI event listeners ---
@@ -320,12 +436,84 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("Cannot attach event listener: btn-load-video not found");
     }
+    
+    // Upload zone click and drag/drop
+    const uploadZone = document.getElementById('upload-zone');
+    if (uploadZone) {
+        // Click to browse
+        uploadZone.addEventListener('click', () => {
+            loadVideoButton.click();
+        });
+        
+        // Drag and drop functionality
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.add('drag-over');
+        });
+        
+        uploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.remove('drag-over');
+        });
+        
+        uploadZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const filePath = file.path || file.name;
+                
+                // Check if it's a video file
+                const videoExtensions = ['.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv', '.m4v'];
+                const hasVideoExt = videoExtensions.some(ext => filePath.toLowerCase().endsWith(ext));
+                
+                if (hasVideoExt) {
+                    console.log('📁 Dropped video file:', filePath);
+                    // Call loadVideo with the file path
+                    await loadVideo(filePath);
+                } else {
+                    const statusLabel = document.getElementById('status-label');
+                    if (statusLabel) {
+                        statusLabel.textContent = 'Please drop a video file';
+                    }
+                }
+            }
+        });
+    }
     detectSilenceButton.addEventListener('click', detectSilence);
     aiAnalysisButton.addEventListener('click', runAIAnalysis);
     exportButton.addEventListener('click', exportVideo);
     exportCutsButton.addEventListener('click', exportCuts);
     exportEdlButton.addEventListener('click', exportEdl);
     exportXmlButton.addEventListener('click', exportXml);
+
+    // Header export button
+    const exportHeaderButton = document.getElementById('btn-export-video-header');
+    if (exportHeaderButton) {
+        exportHeaderButton.addEventListener('click', exportVideo);
+    }
+
+    // Play/Pause button in overlay
+    const playPauseBtn = document.getElementById('btn-play-pause');
+    if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', () => {
+            const video = document.getElementById('video-player');
+            if (video) {
+                if (video.paused) {
+                    video.play();
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                } else {
+                    video.pause();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            }
+        });
+    }
 
     // --- Bind Listeners for local JS ---
     skipSilenceCheckbox.addEventListener('change', () => {
@@ -357,10 +545,21 @@ window.addEventListener('DOMContentLoaded', () => {
     timeline.bindKeyEvents();
 
     // Timeline zoom controls
+    const zoomSlider = document.getElementById('zoom-slider');
+    if (zoomSlider) {
+        zoomSlider.addEventListener('input', (e) => {
+            const zoomValue = parseFloat(e.target.value) / 10; // Scale to 0.1 - 10.0
+            timeline.setZoom(zoomValue);
+            if (zoomLevelSpan) zoomLevelSpan.textContent = `${zoomValue.toFixed(1)}x`;
+            updateTimelineStats();
+        });
+    }
+
     if (zoomInBtn) {
         zoomInBtn.addEventListener('click', () => {
             timeline.zoomIn();
             if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            if (zoomSlider) zoomSlider.value = timeline.zoom * 10;
             updateTimelineStats();
         });
     }
@@ -369,6 +568,7 @@ window.addEventListener('DOMContentLoaded', () => {
         zoomOutBtn.addEventListener('click', () => {
             timeline.zoomOut();
             if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            if (zoomSlider) zoomSlider.value = timeline.zoom * 10;
             updateTimelineStats();
         });
     }
@@ -377,6 +577,7 @@ window.addEventListener('DOMContentLoaded', () => {
         zoomResetBtn.addEventListener('click', () => {
             timeline.setZoom(1.0);
             if (zoomLevelSpan) zoomLevelSpan.textContent = `${timeline.zoom.toFixed(1)}x`;
+            if (zoomSlider) zoomSlider.value = 10; // Reset to 1.0x
             updateTimelineStats();
         });
     }
@@ -645,6 +846,90 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    // --- Splitter Drag Logic ---
+    const splitterVertical = document.getElementById('splitter-vertical');
+    const splitterHorizontal = document.getElementById('splitter-horizontal');
+    const playerPanel = document.getElementById('player-panel');
+
+    const appContainer = document.querySelector('.app-container');
+    const mainContentPanel = document.querySelector('.main-content');
+
+    // Vertical Splitter (Player vs Controls)
+    if (splitterVertical && playerPanel && controlsPanel) {
+        let isDraggingV = false;
+
+        splitterVertical.addEventListener('mousedown', (e) => {
+            isDraggingV = true;
+            splitterVertical.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            e.preventDefault(); // Prevent text selection
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDraggingV) return;
+
+            // Calculate new width for controls panel (from right)
+            const containerRect = mainContentPanel.getBoundingClientRect();
+            const newControlsWidth = containerRect.right - e.clientX - (splitterVertical.offsetWidth / 2);
+
+            // Constraints
+            if (newControlsWidth >= 250 && newControlsWidth <= 600) {
+                controlsPanel.style.width = `${newControlsWidth}px`;
+                controlsPanel.style.flex = 'none'; // Disable flex grow/shrink
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDraggingV) {
+                isDraggingV = false;
+                splitterVertical.classList.remove('dragging');
+                document.body.style.cursor = '';
+                // Trigger resize for charts/canvas if needed
+                if (timeline) timeline.redraw();
+            }
+        });
+    }
+
+    // Horizontal Splitter (Main vs Timeline)
+    if (splitterHorizontal && timelinePanel && mainContentPanel) {
+        let isDraggingH = false;
+
+        splitterHorizontal.addEventListener('mousedown', (e) => {
+            isDraggingH = true;
+            splitterHorizontal.classList.add('dragging');
+            document.body.style.cursor = 'row-resize';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDraggingH) return;
+
+            // Calculate new height for timeline panel (from bottom)
+            const containerRect = appContainer.getBoundingClientRect();
+            const newTimelineHeight = containerRect.bottom - e.clientY - (splitterHorizontal.offsetHeight / 2);
+
+            // Constraints
+            if (newTimelineHeight >= 150 && newTimelineHeight <= 600) {
+                timelinePanel.style.height = `${newTimelineHeight}px`;
+                timelinePanel.style.flex = 'none';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDraggingH) {
+                isDraggingH = false;
+                splitterHorizontal.classList.remove('dragging');
+                document.body.style.cursor = '';
+                // Redraw timeline to fit new height
+                if (timeline) timeline.redraw();
+            }
+        });
+    }
+
+    // Handle window resize to redraw timeline
+    window.addEventListener('resize', () => {
+        if (timeline) timeline.redraw();
+    });
 });
 
 // --- 4. pywebviewready (Python API is ready) ---
@@ -728,16 +1013,18 @@ window.addEventListener('pywebviewready', async () => {
         // Non-fatal error - continue with defaults
     }
 
-    // --- Add event listener for AI model selector ---
-    const aiModelSelect = document.getElementById('ai-model-select');
-    if (aiModelSelect) {
-        aiModelSelect.addEventListener('change', () => {
-            console.log(`AI model changed to: ${aiModelSelect.value}`);
-            updateCostDisplay();
+    // --- Add event listener for AI model selector (radio buttons) ---
+    const aiModelRadios = document.querySelectorAll('input[name="ai_model"]');
+    aiModelRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                console.log(`AI model changed to: ${e.target.value}`);
+                updateCostDisplay();
+            }
         });
-        // Initial cost display update
-        updateCostDisplay();
-    }
+    });
+    // Initial cost display update
+    updateCostDisplay();
 
     // --- Add event listener for AI history selector ---
     const aiHistorySelect = document.getElementById('ai-history-select');
@@ -860,49 +1147,8 @@ async function loadVideo() {
         // Update cost estimate with new video duration
         updateCostDisplay();
 
-        // Populate audio track mute buttons (Premiere Pro style)
-        const audioTracksButtons = document.getElementById('audio-tracks-buttons');
-        if (audioTracksButtons) {
-            audioTracksButtons.innerHTML = ""; // Clear existing buttons
-            
-            // Initialize all tracks as enabled
-            player.enabledTrackIndices = videoInfo.audioTracks.map(track => track.index);
-            
-            // Create a mute button for each track
-            videoInfo.audioTracks.forEach(track => {
-                const button = document.createElement('button');
-                button.className = 'audio-track-button';
-                button.dataset.trackIndex = track.index;
-                button.innerHTML = `<span class="track-icon">🔊</span> <span>${track.name}</span>`;
-                button.title = `Click to mute/unmute ${track.name}`;
-                button.setAttribute('aria-label', `Toggle ${track.name}`);
-                
-                // Add click handler
-                button.addEventListener('click', async () => {
-                    const trackIndex = parseInt(button.dataset.trackIndex);
-                    const isMuted = button.classList.contains('muted');
-                    
-                    if (isMuted) {
-                        // Unmute: add track to enabled list
-                        if (!player.enabledTrackIndices.includes(trackIndex)) {
-                            player.enabledTrackIndices.push(trackIndex);
-                        }
-                        button.classList.remove('muted');
-                        button.querySelector('.track-icon').textContent = '🔊';
-                    } else {
-                        // Mute: remove track from enabled list
-                        player.enabledTrackIndices = player.enabledTrackIndices.filter(idx => idx !== trackIndex);
-                        button.classList.add('muted');
-                        button.querySelector('.track-icon').textContent = '🔇';
-                    }
-                    
-                    // Update video with new track selection
-                    await player.updateAudioTracks(player.enabledTrackIndices);
-                });
-                
-                audioTracksButtons.appendChild(button);
-            });
-        }
+        // Populate audio track mixer
+        populateAudioTrackMixer(videoInfo.audioTracks);
 
         player.loadVideo(videoInfo.filePath, videoInfo.audioTracks);
         timeline.draw([], 0, null); // Clear timeline
@@ -1053,9 +1299,10 @@ async function runAIAnalysis() {
 
     const whisperModel = whisperModelSelect.value;
     
-    // Get selected AI model ID
-    const selectedModelName = aiModelSelect.value;
-    const togetherModel = AI_MODELS[selectedModelName]?.id || "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo";
+    // Get selected AI model ID from radio buttons
+    const selectedModelRadio = document.querySelector('input[name="ai_model"]:checked');
+    const selectedModelName = selectedModelRadio ? selectedModelRadio.value : "Llama 3.3 70B (Recommended)";
+    const togetherModel = AI_MODELS[selectedModelName]?.id || "meta-llama/Llama-3.3-70B-Instruct-Turbo";
 
     aiAnalysisButton.disabled = true;
     statusLabel.textContent = "Running AI analysis...";
@@ -1097,7 +1344,46 @@ async function runAIAnalysis() {
                 console.log(`  Segment ${idx}: keep=${seg.keep}, ai_decision=${seg.ai_decision}, confidence=${seg.ai_confidence}`);
             });
         }
+        // Language name mapping
+        const languageNames = {
+            'en': 'English',
+            'hi': 'Hindi',
+            'es': 'Spanish',
+            'fr': 'French',
+            'de': 'German',
+            'zh': 'Chinese',
+            'ja': 'Japanese',
+            'ko': 'Korean',
+            'ar': 'Arabic',
+            'ru': 'Russian',
+            'pt': 'Portuguese',
+            'it': 'Italian',
+            'nl': 'Dutch',
+            'pl': 'Polish',
+            'tr': 'Turkish',
+            'vi': 'Vietnamese',
+            'id': 'Indonesian',
+            'th': 'Thai',
+            'ur': 'Urdu',
+            'bn': 'Bengali',
+            'ta': 'Tamil',
+            'te': 'Telugu',
+            'mr': 'Marathi',
+            'gu': 'Gujarati',
+            'kn': 'Kannada',
+            'ml': 'Malayalam',
+            'pa': 'Punjabi'
+        };
+        
+        const detectedLang = summary.detected_language;
+        const langProb = summary.language_probability;
+        const langDisplay = detectedLang ? languageNames[detectedLang] || detectedLang.toUpperCase() : 'Unknown';
+        const langConfidence = langProb ? `${(langProb * 100).toFixed(0)}%` : 'N/A';
+        
         window.updateConsole(`\n✅ AI Analysis Complete!\n`);
+        if (detectedLang) {
+            window.updateConsole(`   🌐 Language: ${langDisplay} (${detectedLang}) - Confidence: ${langConfidence}\n`);
+        }
         window.updateConsole(`   Analyzed: ${summary.segments_analyzed} segments\n`);
         window.updateConsole(`   ✅ KEEP: ${summary.keep_count}\n`);
         window.updateConsole(`   ⚠️  FLAG: ${summary.flag_count}\n`);
@@ -1123,9 +1409,10 @@ async function runAIAnalysis() {
         
         // Update status display
         aiAnalysisStatus.style.display = 'block';
+        const languageInfo = detectedLang ? `🌐 ${langDisplay} (${langConfidence})<br>` : '';
         aiAnalysisSummary.innerHTML = `
             <strong>Analysis Summary:</strong><br>
-            ✅ Keep: ${summary.keep_count} | ⚠️ Flag: ${summary.flag_count} | ❓ Uncertain: ${summary.uncertain_count}<br>
+            ${languageInfo}✅ Keep: ${summary.keep_count} | ⚠️ Flag: ${summary.flag_count} | ❓ Uncertain: ${summary.uncertain_count}<br>
             Confidence: ${(summary.avg_confidence * 100).toFixed(1)}%
         `;
         

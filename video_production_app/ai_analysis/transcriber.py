@@ -55,14 +55,19 @@ def transcribe_segments(
         progress_callback: Optional callback for progress (current, total)
         
     Returns:
-        Dictionary mapping segment_id to TranscriptSegment objects
+        Dictionary with keys:
+            - 'transcripts': Dictionary mapping segment_id to TranscriptSegment objects
+            - 'detected_language': Language code (e.g., 'en', 'hi', 'es') or None
+            - 'language_probability': Confidence score (0.0-1.0) for detected language
         
     Example:
         segments = [
             {'start': 0.0, 'end': 10.5, 'type': 'audible', 'keep': True},
             {'start': 15.2, 'end': 25.8, 'type': 'audible', 'keep': True}
         ]
-        transcripts = transcribe_segments("video.mp4", segments)
+        result = transcribe_segments("video.mp4", segments)
+        transcripts = result['transcripts']
+        language = result['detected_language']
     """
     if not WHISPER_AVAILABLE:
         raise ImportError("Whisper is not installed. Install with: pip install openai-whisper")
@@ -90,6 +95,8 @@ def transcribe_segments(
     log(f"🔍 Found {total_segments} audible segments to transcribe\n")
     
     transcripts = {}
+    detected_language = None
+    detected_language_prob = 0.0
     ffmpeg_executable = ffmpeg_path or "ffmpeg"
     
     # Create temp directory for audio extraction
@@ -137,12 +144,53 @@ def transcribe_segments(
                     startupinfo=startupinfo
                 )
                 
-                # Transcribe the extracted audio
+                # Transcribe the extracted audio with auto language detection
                 transcription_result = model.transcribe(
                     str(temp_audio_file),
-                    language="en",  # Assuming English; could be made configurable
+                    language=None,  # Auto-detect language
                     word_timestamps=True  # Get word-level timestamps
                 )
+                
+                # Capture detected language from first segment
+                if detected_language is None and 'language' in transcription_result:
+                    detected_language = transcription_result['language']
+                    # Get language probability if available
+                    if 'language_probability' in transcription_result:
+                        detected_language_prob = transcription_result['language_probability']
+                    
+                    # Language name mapping
+                    language_names = {
+                        'en': 'English',
+                        'hi': 'Hindi',
+                        'es': 'Spanish',
+                        'fr': 'French',
+                        'de': 'German',
+                        'zh': 'Chinese',
+                        'ja': 'Japanese',
+                        'ko': 'Korean',
+                        'ar': 'Arabic',
+                        'ru': 'Russian',
+                        'pt': 'Portuguese',
+                        'it': 'Italian',
+                        'nl': 'Dutch',
+                        'pl': 'Polish',
+                        'tr': 'Turkish',
+                        'vi': 'Vietnamese',
+                        'id': 'Indonesian',
+                        'th': 'Thai',
+                        'ur': 'Urdu',
+                        'bn': 'Bengali',
+                        'ta': 'Tamil',
+                        'te': 'Telugu',
+                        'mr': 'Marathi',
+                        'gu': 'Gujarati',
+                        'kn': 'Kannada',
+                        'ml': 'Malayalam',
+                        'pa': 'Punjabi'
+                    }
+                    lang_name = language_names.get(detected_language, detected_language.upper())
+                    confidence = int(detected_language_prob * 100) if detected_language_prob > 0 else '?'
+                    log(f"🌐 Language Detected: {lang_name} ({detected_language}) - Confidence: {confidence}%\n")
                 
                 # Extract text
                 transcript_text = transcription_result['text'].strip()
@@ -191,7 +239,13 @@ def transcribe_segments(
                 )
     
     log(f"✅ Transcription complete: {len(transcripts)} segments processed\n")
-    return transcripts
+    
+    # Return transcripts along with detected language information
+    return {
+        'transcripts': transcripts,
+        'detected_language': detected_language,
+        'language_probability': detected_language_prob
+    }
 
 
 def transcribe_full_video(
@@ -230,11 +284,11 @@ def transcribe_full_video(
         log(f"❌ Failed to load Whisper model: {e}\n")
         raise
     
-    # Transcribe the video directly (Whisper can handle video files)
+    # Transcribe the video directly (Whisper can handle video files) with auto language detection
     try:
         result = model.transcribe(
             video_path,
-            language="en",
+            language=None,  # Auto-detect language
             word_timestamps=True
         )
         
