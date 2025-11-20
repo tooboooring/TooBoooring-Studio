@@ -645,6 +645,90 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    // --- Splitter Drag Logic ---
+    const splitterVertical = document.getElementById('splitter-vertical');
+    const splitterHorizontal = document.getElementById('splitter-horizontal');
+    const playerPanel = document.getElementById('player-panel');
+
+    const appContainer = document.querySelector('.app-container');
+    const mainContentPanel = document.querySelector('.main-content');
+
+    // Vertical Splitter (Player vs Controls)
+    if (splitterVertical && playerPanel && controlsPanel) {
+        let isDraggingV = false;
+
+        splitterVertical.addEventListener('mousedown', (e) => {
+            isDraggingV = true;
+            splitterVertical.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            e.preventDefault(); // Prevent text selection
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDraggingV) return;
+
+            // Calculate new width for controls panel (from right)
+            const containerRect = mainContentPanel.getBoundingClientRect();
+            const newControlsWidth = containerRect.right - e.clientX - (splitterVertical.offsetWidth / 2);
+
+            // Constraints
+            if (newControlsWidth >= 250 && newControlsWidth <= 600) {
+                controlsPanel.style.width = `${newControlsWidth}px`;
+                controlsPanel.style.flex = 'none'; // Disable flex grow/shrink
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDraggingV) {
+                isDraggingV = false;
+                splitterVertical.classList.remove('dragging');
+                document.body.style.cursor = '';
+                // Trigger resize for charts/canvas if needed
+                if (timeline) timeline.redraw();
+            }
+        });
+    }
+
+    // Horizontal Splitter (Main vs Timeline)
+    if (splitterHorizontal && timelinePanel && mainContentPanel) {
+        let isDraggingH = false;
+
+        splitterHorizontal.addEventListener('mousedown', (e) => {
+            isDraggingH = true;
+            splitterHorizontal.classList.add('dragging');
+            document.body.style.cursor = 'row-resize';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDraggingH) return;
+
+            // Calculate new height for timeline panel (from bottom)
+            const containerRect = appContainer.getBoundingClientRect();
+            const newTimelineHeight = containerRect.bottom - e.clientY - (splitterHorizontal.offsetHeight / 2);
+
+            // Constraints
+            if (newTimelineHeight >= 150 && newTimelineHeight <= 600) {
+                timelinePanel.style.height = `${newTimelineHeight}px`;
+                timelinePanel.style.flex = 'none';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDraggingH) {
+                isDraggingH = false;
+                splitterHorizontal.classList.remove('dragging');
+                document.body.style.cursor = '';
+                // Redraw timeline to fit new height
+                if (timeline) timeline.redraw();
+            }
+        });
+    }
+
+    // Handle window resize to redraw timeline
+    window.addEventListener('resize', () => {
+        if (timeline) timeline.redraw();
+    });
 });
 
 // --- 4. pywebviewready (Python API is ready) ---

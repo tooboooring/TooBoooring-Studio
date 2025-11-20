@@ -26931,3 +26931,326 @@ Key Points: The phrase transitions to a practical step in the tutorial, and the 
 2025-11-20 21:05:41 - video_production_app.Api - INFO -   Segment 4: start=41.4, keep=True, ai_decision=keep, confidence=0.8
 2025-11-20 21:05:41 - video_production_app.Api - INFO - AI analysis complete: 24 keep, 1 flag
 2025-11-20 21:05:42 - video_production_app.Api - DEBUG - Using cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv at width 1681
+2025-11-20 21:46:03 - video_production_app.Api - INFO - API initialized
+2025-11-20 21:46:05 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 21:46:05 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 21:46:05 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 21:46:05 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 21:46:05 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 21:46:05 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 21:46:05 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 21:46:05 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 21:46:05 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 21:46:18 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 21:46:18 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 21:46:18 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 21:46:18 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-20 21:46:41 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/1.mkv on track 1
+2025-11-20 21:46:41 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 21:46:41 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 21:46:41 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+
+2025-11-20 21:46:41 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
+
+2025-11-20 21:46:41 - video_production_app.Api - INFO - Found 50 segments
+2025-11-20 21:46:41 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/1.mkv...
+2025-11-20 21:46:41 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-20 21:46:41 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-20 21:46:41 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-20 21:46:41 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-20 21:46:44 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-20 21:46:44 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-20 21:46:44 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-20 21:46:44 - video_production_app.Api - INFO -   Downsampled to 1706 points
+2025-11-20 21:46:44 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-20 21:46:44 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 21:59:12 - video_production_app.Api - INFO - API initialized
+2025-11-20 21:59:14 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 21:59:14 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 21:59:14 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 21:59:14 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 21:59:14 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 21:59:14 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 22:00:25 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 22:00:25 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 22:00:25 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:00:25 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 22:00:25 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:00:25 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-20 22:00:28 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/1.mkv on track 1
+2025-11-20 22:00:28 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 22:00:28 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:00:28 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 22:00:28 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:00:28 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+
+2025-11-20 22:00:28 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:00:28 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
+
+2025-11-20 22:00:28 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:00:28 - video_production_app.Api - INFO - Found 50 segments
+2025-11-20 22:00:28 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/1.mkv...
+2025-11-20 22:00:28 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-20 22:00:28 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-20 22:00:28 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-20 22:00:28 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-20 22:00:30 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-20 22:00:30 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-20 22:00:30 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-20 22:00:30 - video_production_app.Api - INFO -   Downsampled to 1707 points
+2025-11-20 22:00:30 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-20 22:00:30 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 22:10:49 - video_production_app.Api - INFO - API initialized
+2025-11-20 22:10:51 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 22:10:51 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 22:10:51 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 22:10:51 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:10:51 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 22:10:51 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 22:33:56 - video_production_app.Api - INFO - API initialized
+2025-11-20 22:33:59 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 22:33:59 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 22:33:59 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 22:33:59 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:33:59 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 22:33:59 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 22:44:11 - video_production_app.Api - INFO - API initialized
+2025-11-20 22:44:13 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 22:44:13 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 22:44:13 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 22:44:13 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:13 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 22:44:13 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 22:44:48 - video_production_app.Api - INFO - API initialized
+2025-11-20 22:44:50 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 22:44:50 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 22:44:50 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 22:44:50 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:44:50 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 22:44:50 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 22:49:49 - video_production_app.Api - INFO - API initialized
+2025-11-20 22:49:51 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 22:49:51 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 22:49:51 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 22:49:51 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 22:49:51 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 22:49:51 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 22:49:51 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 22:49:51 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 22:49:51 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 22:50:33 - video_production_app.Api - INFO - API initialized
+2025-11-20 22:50:35 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 22:50:35 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 22:50:35 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 22:50:35 - video_production_app.Api - ERROR - Error sending status to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:35 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 22:50:35 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 22:50:39 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 22:50:39 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 22:50:39 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:39 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 22:50:39 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:39 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-20 22:50:43 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/1.mkv on track 1
+2025-11-20 22:50:43 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 22:50:43 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:43 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 22:50:43 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:43 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+
+2025-11-20 22:50:43 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:43 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
+
+2025-11-20 22:50:43 - video_production_app.Api - ERROR - Error sending log to console: {'name': 'TypeError', 'stack': 'TypeError: window.app.addLog is not a function\n    at eval (eval at <anonymous> (:4:29), <anonymous>:1:12)\n    at <anonymous>:4:29', 'message': 'window.app.addLog is not a function'}
+2025-11-20 22:50:43 - video_production_app.Api - INFO - Found 50 segments
+2025-11-20 22:50:43 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/1.mkv...
+2025-11-20 22:50:43 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-20 22:50:43 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-20 22:50:43 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-20 22:50:43 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-20 22:50:45 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-20 22:50:45 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-20 22:50:45 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-20 22:50:45 - video_production_app.Api - INFO -   Downsampled to 1707 points
+2025-11-20 22:50:45 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-20 22:50:45 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv
