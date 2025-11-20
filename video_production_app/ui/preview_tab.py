@@ -733,6 +733,14 @@ class PreviewTab:
             on_time_click=self.on_preview_timeline_click
         )
         self.preview_timeline.grid(row=0, column=0, sticky="nsew", padx=1, pady=1)
+        
+        # Set initial tooltip for AI model selector
+        if hasattr(self, 'ai_model_selector') and hasattr(self, 'ai_model_var'):
+            selected_model_name = self.ai_model_var.get()
+            if selected_model_name and selected_model_name in AI_MODELS:
+                model_info = AI_MODELS[selected_model_name]
+                if "tooltip" in model_info:
+                    add_tooltip(self.ai_model_selector, model_info["tooltip"])
     
     def preview_load_video(self):
         """Load a video file for preview and analysis."""
@@ -1204,9 +1212,14 @@ class PreviewTab:
         else:
             tokens_str = f"{int(estimated_tokens)}"
         
-        # Update label with BOTH Cost and Tokens
+        # Update tooltip dynamically with model details
+        if "tooltip" in model_info and hasattr(self, 'ai_model_selector'):
+            add_tooltip(self.ai_model_selector, model_info["tooltip"])
+        
+        # Update label with Cost, Tokens, and Description
+        desc = model_info.get("desc", "")
         self.cost_label.configure(
-            text=f"Est. Cost: ${cost:.4f} (~{tokens_str} tokens)",
+            text=f"Est. Cost: ${cost:.4f} (~{tokens_str} tokens) - {desc}",
             text_color=AppColors.TEXT_SECONDARY
         )
     

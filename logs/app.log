@@ -22706,3 +22706,162 @@ JUDGE PERSPECTIVE: While the segment is not deeply insightful, it does serve a t
 
 2025-11-20 16:51:20 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo...
 
+2025-11-20 16:53:20 - video_production_app.Api - INFO -    ⚠️ Request timeout: API took too long to respond (>120s)
+
+2025-11-20 16:53:23 - video_production_app.Api - INFO -    [23/25] Analyzing segment_22...
+
+2025-11-20 16:53:23 - video_production_app.Api - INFO -    [analysis] 23/25
+
+2025-11-20 16:53:23 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo...
+
+2025-11-20 16:55:23 - video_production_app.Api - INFO -    ⚠️ Request timeout: API took too long to respond (>120s)
+
+2025-11-20 16:55:25 - video_production_app.Api - INFO -    [24/25] Analyzing segment_23...
+
+2025-11-20 16:55:25 - video_production_app.Api - INFO -    [analysis] 24/25
+
+2025-11-20 16:55:25 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo...
+
+2025-11-20 16:57:26 - video_production_app.Api - INFO -    ⚠️ Request timeout: API took too long to respond (>120s)
+
+2025-11-20 16:57:28 - video_production_app.Api - INFO -    [25/25] Analyzing segment_24...
+
+2025-11-20 16:57:28 - video_production_app.Api - INFO -    [analysis] 25/25
+
+2025-11-20 16:57:28 - video_production_app.Api - INFO - 🤖 Analyzing segment with meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo...
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO -    ⚠️ Request timeout: API took too long to respond (>120s)
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO - ✅ Batch analysis complete: 25 segments analyzed
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO - 
+✅ AI analysis complete: 25 segments analyzed
+
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO - STEP 4: RESULTS AGGREGATION
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO - ------------------------------------------------------------
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO - 📊 Analysis Summary:
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO -    Total segments analyzed: 25
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO -    ✅ KEEP: 0 (0.0%)
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO -    ⚠️  FLAG: 0 (0.0%)
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO -    ❓ UNCERTAIN: 25 (100.0%)
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO -    Average confidence: 0.00
+
+2025-11-20 16:59:29 - video_production_app.Api - INFO -    Total processing time: 3065.3s
+
+2025-11-20 16:59:30 - video_production_app.Api - INFO - 
+============================================================
+
+2025-11-20 16:59:30 - video_production_app.Api - INFO - ✅ AI CONTENT ANALYSIS COMPLETE
+
+2025-11-20 16:59:30 - video_production_app.Api - INFO - ============================================================
+
+2025-11-20 16:59:30 - video_production_app.Api - INFO - First 5 updated audible segments:
+2025-11-20 16:59:30 - video_production_app.Api - INFO -   Segment 0: start=5.0, keep=False, ai_decision=uncertain, confidence=0.0
+2025-11-20 16:59:30 - video_production_app.Api - INFO -   Segment 1: start=8.9, keep=False, ai_decision=uncertain, confidence=0.0
+2025-11-20 16:59:30 - video_production_app.Api - INFO -   Segment 2: start=15.9, keep=False, ai_decision=uncertain, confidence=0.0
+2025-11-20 16:59:30 - video_production_app.Api - INFO -   Segment 3: start=30.4, keep=False, ai_decision=uncertain, confidence=0.0
+2025-11-20 16:59:30 - video_production_app.Api - INFO -   Segment 4: start=41.4, keep=False, ai_decision=uncertain, confidence=0.0
+2025-11-20 16:59:30 - video_production_app.Api - INFO - AI analysis complete: 0 keep, 0 flag
+2025-11-20 16:59:30 - video_production_app.Api - DEBUG - Using cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv at width 1681
+2025-11-20 17:08:35 - video_production_app.Api - INFO - API initialized
+2025-11-20 17:08:36 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 17:08:36 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 17:08:36 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 17:08:36 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 17:08:36 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 17:08:36 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 17:08:36 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 17:08:36 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 17:08:36 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 17:10:22 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 17:10:22 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 17:10:22 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 17:10:22 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-20 17:11:56 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/1.mkv on track 1
+2025-11-20 17:11:56 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 17:11:56 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 17:11:56 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+
+2025-11-20 17:11:56 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
+
+2025-11-20 17:11:56 - video_production_app.Api - INFO - Found 50 segments
+2025-11-20 17:11:56 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/1.mkv...
+2025-11-20 17:11:56 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-20 17:11:56 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-20 17:11:56 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-20 17:11:56 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-20 17:11:58 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-20 17:11:58 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-20 17:11:58 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-20 17:11:58 - video_production_app.Api - INFO -   Downsampled to 1681 points
+2025-11-20 17:11:58 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-20 17:11:58 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 17:13:43 - video_production_app.Api - INFO - API initialized
+2025-11-20 17:13:45 - video_production_app.Api - INFO - Getting app configuration
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-20 17:13:45 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-20 17:13:45 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-20 17:13:45 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-20 17:13:45 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-20 17:13:45 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-20 17:13:45 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-20 17:13:45 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-20 17:13:45 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-20 17:13:50 - video_production_app.Api - INFO - Loading video: E:/PDF TOOl/test pdfs/1.mkv
+2025-11-20 17:13:50 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 17:13:50 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 17:13:50 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-20 17:14:04 - video_production_app.Api - INFO - Detecting silence for E:/PDF TOOl/test pdfs/1.mkv on track 1
+2025-11-20 17:14:04 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
+
+2025-11-20 17:14:05 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+
+2025-11-20 17:14:05 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+
+2025-11-20 17:14:05 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
+
+2025-11-20 17:14:05 - video_production_app.Api - INFO - Found 50 segments
+2025-11-20 17:14:05 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/PDF TOOl/test pdfs/1.mkv...
+2025-11-20 17:14:05 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-20 17:14:05 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-20 17:14:05 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-20 17:14:05 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-20 17:14:07 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-20 17:14:07 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-20 17:14:07 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-20 17:14:07 - video_production_app.Api - INFO -   Downsampled to 1681 points
+2025-11-20 17:14:07 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-20 17:14:07 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/PDF TOOl/test pdfs/1.mkv

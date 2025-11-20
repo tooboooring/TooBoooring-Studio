@@ -138,30 +138,29 @@ UI_SETTINGS = {
 # AI Model Definitions & Pricing (per 1 Million tokens)
 # Prices based on Together.ai (as of late 2024/2025)
 AI_MODELS = {
-    "Llama 3.1 8B (Fast & Cheap)": {
-        "id": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-        "price": 0.18,
-        "desc": "Instant speed, lowest cost. Good for testing."
-    },
-    "Llama 3.3 70B (Best Overall)": {
+    "Llama 3.3 70B (Recommended)": {
         "id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
         "price": 0.88,
-        "desc": "The new standard. Smart, reliable, and affordable."
+        "desc": "The Storyteller. Smooth, natural cuts.",
+        "tooltip": "Personality: Friendly & Lenient\nBest For: Vlogs, Tutorials, Narrative Content\nCut Rate: Low (~5%)\nStrengths: Excellent narrative flow, keeps personality."
     },
-    "DeepSeek R1 (Reasoning Pro)": {
+    "DeepSeek R1 (Ruthless)": {
         "id": "deepseek-ai/DeepSeek-R1",
-        "price": 4.00,  # Avg blended price (Input $3 / Output $7)
-        "desc": "Thinks before speaking. Best for complex narratives."
+        "price": 4.00,  # Blended approx
+        "desc": "The Viral Editor. High-density cuts.",
+        "tooltip": "Personality: Ruthless & Strict\nBest For: TikToks, Reels, Highlights\nCut Rate: High (~75%)\nStrengths: Removes ALL fluff. Perfect for short-form."
     },
-    "Qwen 2.5 72B (Strict Logic)": {
+    "Qwen 2.5 72B (Balanced)": {
         "id": "Qwen/Qwen2.5-72B-Instruct-Turbo",
         "price": 1.20,
-        "desc": "Excellent at following strict formatting rules."
+        "desc": "The Professional. Logical and clean.",
+        "tooltip": "Personality: Balanced & Logical\nBest For: Corporate, Educational, lectures\nCut Rate: Medium (~15%)\nStrengths: Great at following strict formatting rules."
     },
-    "Llama 3.1 405B (Maximum IQ)": {
-        "id": "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
-        "price": 3.50,
-        "desc": "Huge knowledge base. Expensive but powerful."
+    "Llama 3.1 8B (Speed)": {
+        "id": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+        "price": 0.18,
+        "desc": "The Draftsman. Instant results.",
+        "tooltip": "Personality: Fast but Basic\nBest For: Quick tests, Rough cuts\nCut Rate: Variable\nStrengths: Extremely cheap and fast."
     }
 }
 
@@ -169,7 +168,7 @@ AI_MODELS = {
 AI_ANALYSIS_SETTINGS = {
     # together.ai API configuration
     "api_key": os.getenv("TOGETHER_API_KEY", ""),  # Load from .env file or use empty string as fallback
-    "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",  # Default model (Llama 3.3 70B - best overall)
+    "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",  # Default model (Llama 3.3 70B - Recommended)
     "temperature": 0.7,  # LLM temperature (0.0=deterministic, 0.7=creative/balanced, 1.0=very random)
     "max_tokens": 8000,  # Maximum response tokens (increased for DeepSeek R1's verbose reasoning)
     
