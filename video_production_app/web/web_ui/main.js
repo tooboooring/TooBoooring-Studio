@@ -10,6 +10,95 @@ let saveDestination = null;
 let player = null;
 let timeline = null;
 
+// AI Models configuration (must match config.py)
+const AI_MODELS = {
+    "Llama 3.1 8B (Fast & Cheap)": {
+        "id": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+        "price": 0.18,
+        "desc": "Instant speed, lowest cost. Good for testing."
+    },
+    "Llama 3.3 70B (Best Overall)": {
+        "id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "price": 0.88,
+        "desc": "The new standard. Smart, reliable, and affordable."
+    },
+    "DeepSeek R1 (Reasoning Pro)": {
+        "id": "deepseek-ai/DeepSeek-R1",
+        "price": 4.00,  // Avg blended price (Input $3 / Output $7)
+        "desc": "Thinks before speaking. Best for complex narratives."
+    },
+    "Qwen 2.5 72B (Strict Logic)": {
+        "id": "Qwen/Qwen2.5-72B-Instruct-Turbo",
+        "price": 1.20,
+        "desc": "Excellent at following strict formatting rules."
+    },
+    "Llama 3.1 405B (Maximum IQ)": {
+        "id": "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+        "price": 3.50,
+        "desc": "Huge knowledge base. Expensive but powerful."
+    }
+};
+
+/**
+ * Calculate estimated cost for AI analysis
+ * @param {number} durationSec - Video duration in seconds
+ * @param {string} modelKey - Model key from AI_MODELS
+ * @returns {string} - Formatted cost string (e.g., "$0.0123")
+ */
+function calculateCost(durationSec, modelKey) {
+    if (!durationSec || durationSec <= 0) {
+        return "$0.0000";
+    }
+    
+    const modelInfo = AI_MODELS[modelKey];
+    if (!modelInfo) {
+        return "$0.0000";
+    }
+    
+    // Estimate tokens: 150 words/min * 1.3 tokens/word * duration_minutes
+    // Simplified: 2.5 tokens per second
+    const estimatedTokens = durationSec * 2.5;
+    
+    // Calculate cost
+    const cost = (estimatedTokens / 1000000) * modelInfo.price;
+    
+    // Format tokens (e.g., 1500 -> 1.5k)
+    let tokensStr;
+    if (estimatedTokens >= 1000) {
+        tokensStr = `${(estimatedTokens/1000).toFixed(1)}k`;
+    } else {
+        tokensStr = `${Math.round(estimatedTokens)}`;
+    }
+    
+    return { cost: `$${cost.toFixed(4)}`, tokens: tokensStr };
+}
+
+/**
+ * Update the cost estimate display
+ */
+function updateCostDisplay() {
+    const costLabel = document.getElementById('ai-cost-estimate');
+    const modelSelect = document.getElementById('ai-model-select');
+    
+    if (!costLabel || !modelSelect) {
+        return;
+    }
+    
+    const selectedModel = modelSelect.value;
+    const duration = currentVideoInfo ? currentVideoInfo.duration : 0;
+    
+    const result = calculateCost(duration, selectedModel);
+    const modelInfo = AI_MODELS[selectedModel];
+    
+    if (duration > 0 && modelInfo) {
+        costLabel.textContent = `Est. Cost: ${result.cost} (~${result.tokens} tokens)`;
+        costLabel.style.color = '#888';
+    } else {
+        costLabel.textContent = 'Est. Cost: $0.0000 (Load a video first)';
+        costLabel.style.color = '#666';
+    }
+}
+
 // Global functions for Python to call via window.evaluate_js
 window.updateProgress = function(percentage, eta, speed) {
     const progressPercentage = document.getElementById('progress-percentage');
@@ -526,6 +615,17 @@ window.addEventListener('pywebviewready', async () => {
         // Non-fatal error - continue with defaults
     }
 
+    // --- Add event listener for AI model selector ---
+    const aiModelSelect = document.getElementById('ai-model-select');
+    if (aiModelSelect) {
+        aiModelSelect.addEventListener('change', () => {
+            console.log(`AI model changed to: ${aiModelSelect.value}`);
+            updateCostDisplay();
+        });
+        // Initial cost display update
+        updateCostDisplay();
+    }
+
     window.app.addLog("Welcome! Please select a video file to begin.\n");
 });
 
@@ -623,6 +723,9 @@ async function loadVideo() {
             option.textContent = track.name;
             trackSelector.appendChild(option);
         });
+
+        // Update cost estimate with new video duration
+        updateCostDisplay();
 
         // Populate audio track mute buttons (Premiere Pro style)
         const audioTracksButtons = document.getElementById('audio-tracks-buttons');
@@ -792,6 +895,7 @@ async function runAIAnalysis() {
     const aiAnalysisButton = document.getElementById('btn-ai-analysis');
     const apiKeyInput = document.getElementById('ai-api-key');
     const whisperModelSelect = document.getElementById('whisper-model-select');
+    const aiModelSelect = document.getElementById('ai-model-select');
     const aiAnalysisStatus = document.getElementById('ai-analysis-status');
     const aiAnalysisSummary = document.getElementById('ai-analysis-summary');
 
@@ -815,18 +919,24 @@ async function runAIAnalysis() {
     }
 
     const whisperModel = whisperModelSelect.value;
+    
+    // Get selected AI model ID
+    const selectedModelName = aiModelSelect.value;
+    const togetherModel = AI_MODELS[selectedModelName]?.id || "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo";
 
     aiAnalysisButton.disabled = true;
     statusLabel.textContent = "Running AI analysis...";
     window.updateConsole(`\n${"=".repeat(60)}\n🤖 Starting AI Content Analysis...\n${"=".repeat(60)}\n`);
     console.log("JavaScript: Starting AI analysis...");
+    console.log(`Using model: ${togetherModel} (${selectedModelName})`);
 
     try {
         const result = await window.pywebview.api.run_ai_analysis(
             currentVideoInfo.filePath,
             timeline.segments,
             apiKey,
-            whisperModel
+            whisperModel,
+            togetherModel
         );
 
         aiAnalysisButton.disabled = false;
@@ -845,6 +955,15 @@ async function runAIAnalysis() {
         const summary = data.analysis_summary || result.analysis_summary;
 
         console.log("AI analysis complete:", summary);
+        console.log("Updated segments:", updatedSegments);
+        // Log first few segments to see their AI decisions
+        if (updatedSegments && updatedSegments.length > 0) {
+            console.log("First 5 audible segments with AI decisions:");
+            const audibleSegs = updatedSegments.filter(s => s.type === 'audible').slice(0, 5);
+            audibleSegs.forEach((seg, idx) => {
+                console.log(`  Segment ${idx}: keep=${seg.keep}, ai_decision=${seg.ai_decision}, confidence=${seg.ai_confidence}`);
+            });
+        }
         window.updateConsole(`\n✅ AI Analysis Complete!\n`);
         window.updateConsole(`   Analyzed: ${summary.segments_analyzed} segments\n`);
         window.updateConsole(`   ✅ KEEP: ${summary.keep_count}\n`);

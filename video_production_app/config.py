@@ -7,6 +7,8 @@ configuration that can be easily modified without touching the main code.
 Key components:
 - DEFAULT_SETTINGS: Default silence detection parameters
 - ENCODER_OPTIONS: Available video encoders with their FFmpeg parameters
+- AI_MODELS: Supported AI models with pricing information
+- AI_ANALYSIS_SETTINGS: Configuration for AI content analysis
 - Application metadata and version information
 
 These settings are used throughout the application to maintain consistency
@@ -133,13 +135,43 @@ UI_SETTINGS = {
     }
 }
 
+# AI Model Definitions & Pricing (per 1 Million tokens)
+# Prices based on Together.ai (as of late 2024/2025)
+AI_MODELS = {
+    "Llama 3.1 8B (Fast & Cheap)": {
+        "id": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+        "price": 0.18,
+        "desc": "Instant speed, lowest cost. Good for testing."
+    },
+    "Llama 3.3 70B (Best Overall)": {
+        "id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "price": 0.88,
+        "desc": "The new standard. Smart, reliable, and affordable."
+    },
+    "DeepSeek R1 (Reasoning Pro)": {
+        "id": "deepseek-ai/DeepSeek-R1",
+        "price": 4.00,  # Avg blended price (Input $3 / Output $7)
+        "desc": "Thinks before speaking. Best for complex narratives."
+    },
+    "Qwen 2.5 72B (Strict Logic)": {
+        "id": "Qwen/Qwen2.5-72B-Instruct-Turbo",
+        "price": 1.20,
+        "desc": "Excellent at following strict formatting rules."
+    },
+    "Llama 3.1 405B (Maximum IQ)": {
+        "id": "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+        "price": 3.50,
+        "desc": "Huge knowledge base. Expensive but powerful."
+    }
+}
+
 # AI Content Analysis Settings
 AI_ANALYSIS_SETTINGS = {
     # together.ai API configuration
     "api_key": os.getenv("TOGETHER_API_KEY", ""),  # Load from .env file or use empty string as fallback
-    "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",  # Default model
+    "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",  # Default model (Llama 3.3 70B - best overall)
     "temperature": 0.7,  # LLM temperature (0.0=deterministic, 0.7=creative/balanced, 1.0=very random)
-    "max_tokens": 500,  # Maximum response tokens
+    "max_tokens": 8000,  # Maximum response tokens (increased for DeepSeek R1's verbose reasoning)
     
     # Whisper transcription settings
     "whisper_model": "base",  # Options: 'tiny', 'base', 'small', 'medium', 'large'
@@ -154,7 +186,7 @@ AI_ANALYSIS_SETTINGS = {
     "context_window_seconds": 30.0,  # How many seconds before/after to include
     
     # API rate limiting
-    "api_delay_seconds": 1.0,  # Delay between API calls to avoid rate limits (increased from 0.5s)
+    "api_delay_seconds": 2.0,  # Delay between API calls to avoid rate limits (increased for DeepSeek R1)
     
     # Caching and performance
     "cache_transcriptions": True,  # Cache Whisper results
@@ -180,6 +212,7 @@ AI_ANALYSIS_SETTINGS = {
     ],
     
     # Prompt engineering templates for different editing personas
+    # NOTE: All templates use "reasoning first" approach for better AI consistency
     "PROMPT_TEMPLATES": {
         "STRICT_RETENTION": """
 You are a ruthless Video Editor for a viral YouTube channel. Your ONLY goal is Viewer Retention.
@@ -198,7 +231,12 @@ Evaluate the transcript segment below.
 
 {context_section}
 
-Respond JSON ONLY: {{"decision": "KEEP/FLAG", "confidence": float, "reasoning": "string"}}
+**Instructions:**
+Step 1: Analyze the content in the "reasoning" field (explain why keep or flag).
+Step 2: Based ONLY on that reasoning, determine the "decision" (KEEP/FLAG).
+Step 3: Assign a "confidence" score (0.0-1.0) reflecting how clear the choice was.
+
+Respond JSON ONLY: {{"reasoning": "string", "decision": "KEEP/FLAG", "confidence": float}}
 """,
 
         "NARRATIVE_FLOW": """
@@ -218,7 +256,12 @@ Evaluate the transcript segment below.
 
 {context_section}
 
-Respond JSON ONLY: {{"decision": "KEEP/FLAG", "confidence": float, "reasoning": "string"}}
+**Instructions:**
+Step 1: Analyze the content in the "reasoning" field (explain narrative value).
+Step 2: Based ONLY on that reasoning, determine the "decision" (KEEP/FLAG).
+Step 3: Assign a "confidence" score (0.0-1.0) reflecting how clear the choice was.
+
+Respond JSON ONLY: {{"reasoning": "string", "decision": "KEEP/FLAG", "confidence": float}}
 """,
 
         "AUDIENCE_CONNECTION": """
@@ -238,7 +281,12 @@ Evaluate the transcript segment below.
 
 {context_section}
 
-Respond JSON ONLY: {{"decision": "KEEP/FLAG", "confidence": float, "reasoning": "string"}}
+**Instructions:**
+Step 1: Analyze the content in the "reasoning" field (explain authenticity/connection value).
+Step 2: Based ONLY on that reasoning, determine the "decision" (KEEP/FLAG).
+Step 3: Assign a "confidence" score (0.0-1.0) reflecting how clear the choice was.
+
+Respond JSON ONLY: {{"reasoning": "string", "decision": "KEEP/FLAG", "confidence": float}}
 """
     }
 }

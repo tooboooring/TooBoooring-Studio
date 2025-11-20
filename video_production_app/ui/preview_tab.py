@@ -19,7 +19,9 @@ from .widgets.timeline import InteractiveTimeline
 from .widgets.waveform import WaveformGenerator
 from ..utils.colors import AppColors
 from ..utils.helpers import format_time, load_icon, add_tooltip
-from ..config import ENCODER_OPTIONS
+from ..config import ENCODER_OPTIONS, AI_MODELS
+from ..ai_analysis.orchestrator import apply_decisions_to_segments
+from datetime import datetime
 
 
 class PreviewTab:
@@ -63,6 +65,9 @@ class PreviewTab:
         self.duration = 0
         self.save_path = ""
         self.available_encoders = available_encoders if available_encoders else ["CPU (x264)"]
+        
+        # Analysis history for toggling between different AI runs
+        self.analysis_history = []  # List of dicts: {label, result, model_name, timestamp}
         
         # Set up the UI
         self.setup_ui()
@@ -404,6 +409,60 @@ class PreviewTab:
         )
         self.save_dest_label.pack(side="left", padx=5, fill="x", expand=True)
         
+        # AI Model Selection
+        ai_model_inner = ctk.CTkFrame(export_section, fg_color="transparent")
+        ai_model_inner.pack(fill="x", pady=(5, 0))
+        
+        ctk.CTkLabel(ai_model_inner, text="AI Model:", font=("Segoe UI", 11), width=70).pack(side="left", padx=5)
+        model_names = list(AI_MODELS.keys())
+        self.ai_model_var = ctk.StringVar(value=model_names[1] if len(model_names) > 1 else model_names[0])  # Default to 70B
+        self.ai_model_selector = ctk.CTkOptionMenu(
+            ai_model_inner,
+            values=model_names,
+            variable=self.ai_model_var,
+            command=self.update_cost_estimate,
+            width=180,
+            height=28,
+            fg_color=AppColors.BG_LIGHT,
+            button_color=AppColors.PRIMARY,
+            button_hover_color=AppColors.PRIMARY_HOVER,
+            corner_radius=4,
+            font=("Segoe UI", 10)
+        )
+        self.ai_model_selector.pack(side="left", padx=5, fill="x", expand=True)
+        
+        # Cost Estimate Label
+        self.cost_label = ctk.CTkLabel(
+            export_section,
+            text="Est. Cost: $0.0000",
+            font=("Segoe UI", 9),
+            text_color=AppColors.TEXT_SECONDARY,
+            anchor="w"
+        )
+        self.cost_label.pack(anchor="w", pady=(3, 0), padx=10)
+        
+        # Analysis History Selector
+        history_inner = ctk.CTkFrame(export_section, fg_color="transparent")
+        history_inner.pack(fill="x", pady=(5, 0))
+        
+        ctk.CTkLabel(history_inner, text="History:", font=("Segoe UI", 11), width=70).pack(side="left", padx=5)
+        self.history_var = ctk.StringVar(value="No runs yet")
+        self.history_selector = ctk.CTkOptionMenu(
+            history_inner,
+            values=["No runs yet"],
+            variable=self.history_var,
+            command=self.load_history_item,
+            width=180,
+            height=28,
+            state="disabled",
+            fg_color=AppColors.BG_LIGHT,
+            button_color=AppColors.PRIMARY,
+            button_hover_color=AppColors.PRIMARY_HOVER,
+            corner_radius=4,
+            font=("Segoe UI", 10)
+        )
+        self.history_selector.pack(side="left", padx=5, fill="x", expand=True)
+        
         # Trim Settings Panel (Right, in same row as Export, 50% width)
         trim_panel = ctk.CTkFrame(
             export_trim_row,
@@ -730,6 +789,9 @@ class PreviewTab:
         
         # Update status
         self.preview_status.configure(text=f"Loaded: {Path(file_path).name} ({format_time(self.duration)})")
+        
+        # Update cost estimate with new video duration
+        self.update_cost_estimate()
         
         # Notify main tab about video loaded
         if self.on_video_loaded:
@@ -1098,6 +1160,56 @@ class PreviewTab:
         if hasattr(self, 'vlc_player') and self.vlc_player:
             self.vlc_player.seek_to_time(time_seconds)
     
+    def update_cost_estimate(self, *args):
+        """
+        Update the cost estimate display based on selected model and video duration.
+        
+        Formula:
+        - estimated_words = duration_seconds * 2.5 (avg speaking rate)
+        - estimated_tokens = estimated_words * 1.3 (tokens per word)
+        - total_tokens = estimated_tokens * 2 (safety buffer for input + output)
+        - cost = (total_tokens / 1_000_000) * price_per_million
+        """
+        if not hasattr(self, 'cost_label') or not hasattr(self, 'ai_model_var'):
+            return
+        
+        # Get selected model
+        selected_model_name = self.ai_model_var.get()
+        if not selected_model_name or selected_model_name not in AI_MODELS:
+            self.cost_label.configure(text="Est. Cost: $0.0000", text_color=AppColors.TEXT_SECONDARY)
+            return
+        
+        # Get video duration
+        if not self.duration or self.duration <= 0:
+            self.cost_label.configure(
+                text="Est. Cost: $0.0000 (Load video first)",
+                text_color=AppColors.TEXT_SECONDARY
+            )
+            return
+        
+        # Calculate estimated cost
+        model_info = AI_MODELS[selected_model_name]
+        
+        # Estimate tokens: 2.5 words/sec * 1.3 tokens/word = 3.25 tokens/sec
+        # Add 2x safety buffer for input + output + context
+        estimated_tokens = self.duration * 3.25 * 2
+        
+        # Calculate cost
+        price_per_million = model_info["price"]
+        cost = (estimated_tokens / 1_000_000) * price_per_million
+        
+        # Format tokens (e.g., 1500 -> 1.5k)
+        if estimated_tokens >= 1000:
+            tokens_str = f"{estimated_tokens/1000:.1f}k"
+        else:
+            tokens_str = f"{int(estimated_tokens)}"
+        
+        # Update label with BOTH Cost and Tokens
+        self.cost_label.configure(
+            text=f"Est. Cost: ${cost:.4f} (~{tokens_str} tokens)",
+            text_color=AppColors.TEXT_SECONDARY
+        )
+    
     def update_status(self, message: str):
         """Update the status label and console with a message."""
         if self.preview_status:
@@ -1111,3 +1223,148 @@ class PreviewTab:
             self.status_textbox.insert("end", message + "\n")
             self.status_textbox.see("end")
             self.status_textbox.configure(state="disabled")
+    
+    def save_analysis_result(self, result, model_name: str):
+        """
+        Save an AI analysis result to history.
+        
+        Args:
+            result: AnalysisResults object from analyze_content
+            model_name: Display name of the model used (e.g., "Llama 3.3 70B")
+        """
+        if not result or not hasattr(result, 'decisions'):
+            return
+        
+        # Calculate summary stats
+        total = result.segments_analyzed
+        keep_pct = (result.keep_count / total * 100) if total > 0 else 0
+        
+        # Create label with timestamp and summary
+        timestamp = datetime.now().strftime("%I:%M %p")
+        label = f"{timestamp} - {model_name} ({int(keep_pct)}% Keep)"
+        
+        # Store in history
+        history_item = {
+            "label": label,
+            "result": result,
+            "model_name": model_name,
+            "timestamp": datetime.now()
+        }
+        
+        self.analysis_history.append(history_item)
+        
+        # Update dropdown values
+        values = [item["label"] for item in self.analysis_history]
+        self.history_selector.configure(values=values, state="normal")
+        self.history_var.set(label)  # Select the newest run
+        
+        self.update_status(f"💾 Saved analysis: {label}")
+    
+    def load_history_item(self, selected_label: str):
+        """
+        Load and restore a previous analysis result from history.
+        
+        Args:
+            selected_label: The label of the history item to load
+        """
+        if not selected_label or selected_label == "No runs yet":
+            return
+        
+        # Find the matching history item
+        history_item = None
+        for item in self.analysis_history:
+            if item["label"] == selected_label:
+                history_item = item
+                break
+        
+        if not history_item:
+            self.update_status("⚠️ Could not find history item")
+            return
+        
+        result = history_item["result"]
+        
+        # Apply decisions to segments
+        if self.detected_segments and result.decisions:
+            try:
+                updated_segments = apply_decisions_to_segments(
+                    self.detected_segments.copy(),
+                    result.decisions
+                )
+                self.detected_segments = updated_segments
+                
+                # Update timeline visualization
+                if hasattr(self, 'preview_timeline') and self.preview_timeline:
+                    # Get waveforms if available
+                    waveforms = None
+                    if hasattr(self.preview_timeline, 'waveforms'):
+                        waveforms = self.preview_timeline.waveforms
+                    
+                    self.preview_timeline.update_timeline(
+                        self.detected_segments,
+                        self.duration,
+                        waveforms
+                    )
+                
+                # Update status
+                self.update_status(f"✅ Restored: {selected_label}")
+                self.preview_status.configure(
+                    text=f"Restored: {history_item['model_name']} ({result.keep_count} Keep, {result.flag_count} Flag)"
+                )
+                
+            except Exception as e:
+                self.update_status(f"❌ Error restoring history: {str(e)}")
+                messagebox.showerror("Restore Error", f"Failed to restore analysis:\n{str(e)}")
+        else:
+            self.update_status("⚠️ No segments or decisions to restore")
+    
+    def on_ai_analysis_complete(self, result, model_name: str):
+        """
+        Callback to be called when AI analysis completes.
+        
+        This method should be called after analyze_content() finishes successfully.
+        It saves the result to history and applies it to the timeline.
+        
+        Example usage:
+            from ..ai_analysis.orchestrator import analyze_content
+            
+            results = analyze_content(...)
+            if results and not results.errors:
+                self.on_ai_analysis_complete(results, "Llama 3.3 70B")
+        
+        Args:
+            result: AnalysisResults object from analyze_content
+            model_name: Display name of the model used
+        """
+        if not result or result.errors:
+            self.update_status("⚠️ Analysis completed with errors - not saving to history")
+            return
+        
+        # Save to history
+        self.save_analysis_result(result, model_name)
+        
+        # Apply decisions immediately to current segments
+        if self.detected_segments and result.decisions:
+            try:
+                updated_segments = apply_decisions_to_segments(
+                    self.detected_segments.copy(),
+                    result.decisions
+                )
+                self.detected_segments = updated_segments
+                
+                # Update timeline visualization
+                if hasattr(self, 'preview_timeline') and self.preview_timeline:
+                    waveforms = None
+                    if hasattr(self.preview_timeline, 'waveforms'):
+                        waveforms = self.preview_timeline.waveforms
+                    
+                    self.preview_timeline.update_timeline(
+                        self.detected_segments,
+                        self.duration,
+                        waveforms
+                    )
+                
+                self.update_status(f"✅ Analysis complete: {result.keep_count} Keep, {result.flag_count} Flag")
+                
+            except Exception as e:
+                self.update_status(f"❌ Error applying decisions: {str(e)}")
+                messagebox.showerror("Apply Error", f"Failed to apply AI decisions:\n{str(e)}")

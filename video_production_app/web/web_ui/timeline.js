@@ -51,6 +51,15 @@ export class Timeline {
 
     // Main function to call
     draw(segments, duration, waveformData) {
+        console.log("Timeline.draw() called with", segments ? segments.length : 0, "segments");
+        if (segments && segments.length > 0) {
+            const audibleSegs = segments.filter(s => s.type === 'audible').slice(0, 3);
+            console.log("  First 3 audible segments in draw():", audibleSegs.map(s => ({ 
+                start: s.start.toFixed(1), 
+                keep: s.keep, 
+                ai_decision: s.ai_decision 
+            })));
+        }
         this.segments = segments || [];
         this.duration = duration || 0;
         

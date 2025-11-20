@@ -95,6 +95,17 @@
                             <input type="password" id="ai-api-key" placeholder="Enter API key" style="width: 100%; padding: 5px; background-color: #383838; color: #CCC; border: 1px solid #444; border-radius: 3px; font-size: 12px;">
                         </div>
                         <div style="margin-bottom: 10px;">
+                            <label style="display: block; margin-bottom: 3px; font-size: 12px;">AI Model:</label>
+                            <select id="ai-model-select" style="width: 100%; padding: 5px; background-color: #383838; color: #CCC; border: 1px solid #444; border-radius: 3px;">
+                                <option value="Llama 3.1 8B (Fast & Cheap)">Llama 3.1 8B (Fast & Cheap)</option>
+                                <option value="Llama 3.3 70B (Best Overall)" selected>Llama 3.3 70B (Best Overall)</option>
+                                <option value="DeepSeek R1 (Reasoning Pro)">DeepSeek R1 (Reasoning Pro)</option>
+                                <option value="Qwen 2.5 72B (Strict Logic)">Qwen 2.5 72B (Strict Logic)</option>
+                                <option value="Llama 3.1 405B (Maximum IQ)">Llama 3.1 405B (Maximum IQ)</option>
+                            </select>
+                            <div id="ai-cost-estimate" style="font-size: 11px; color: #888; margin-top: 3px;">Est. Cost: $0.0000</div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
                             <label style="display: block; margin-bottom: 3px; font-size: 12px;">Whisper Model:</label>
                             <select id="whisper-model-select" style="width: 100%; padding: 5px; background-color: #383838; color: #CCC; border: 1px solid #444; border-radius: 3px;">
                                 <option value="tiny">Tiny (fastest)</option>

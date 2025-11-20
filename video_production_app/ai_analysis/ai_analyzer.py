@@ -56,6 +56,7 @@ if PYDANTIC_AVAILABLE:
 
 
 # Default prompt template (can be overridden via config)
+# NOTE: Reasoning comes FIRST to force the LLM to "think before deciding"
 DEFAULT_PROMPT_TEMPLATE = """You are analyzing a transcript segment from a video to determine if it should be kept or flagged for removal.
 
 Your task is to evaluate the content using three perspectives (steelman, skeptic, judge) and reach a decision:
@@ -83,22 +84,31 @@ Your task is to evaluate the content using three perspectives (steelman, skeptic
 
 **ANALYSIS INSTRUCTIONS:**
 
-1. **STEELMAN PERSPECTIVE**: What's the best case for keeping this content? What value might it provide?
+Follow these steps IN ORDER:
 
-2. **SKEPTIC PERSPECTIVE**: What are the reasons this might be filler or low-value content?
+**Step 1 - ANALYZE (reasoning):**
+- STEELMAN PERSPECTIVE: What's the best case for keeping this content?
+- SKEPTIC PERSPECTIVE: What are the reasons this might be filler or low-value?
+- JUDGE PERSPECTIVE: Weighing both sides, write a brief explanation.
 
-3. **JUDGE PERSPECTIVE**: Weighing both sides, what's the verdict?
+**Step 2 - DECIDE (decision):**
+- Based ONLY on your reasoning above, determine: KEEP or FLAG
+
+**Step 3 - ASSESS (confidence):**
+- How clear was this choice? (0.0 = very uncertain, 1.0 = completely certain)
 
 **OUTPUT FORMAT (JSON):**
 ```json
 {{
+  "reasoning": "Your analysis from Step 1 - explain your thinking FIRST",
   "decision": "KEEP" or "FLAG",
   "confidence": 0.0-1.0,
-  "reasoning": "Brief explanation of your decision",
   "key_points": ["point1", "point2"],
   "content_type": "aside|filler|joke|insight|technical_issue|rant|other"
 }}
 ```
+
+IMPORTANT: Put "reasoning" FIRST in your JSON response. Think before you decide.
 
 Respond ONLY with the JSON object, no additional text.
 """
@@ -250,6 +260,20 @@ def analyze_segment(
         if status_callback:
             status_callback(msg)
     
+    # Sanitize segment text to prevent API errors
+    # Remove null bytes and control characters that can cause 422 errors
+    def sanitize_text(text: str) -> str:
+        """Remove problematic characters from text."""
+        if not text:
+            return ""
+        # Remove null bytes
+        text = text.replace('\x00', '')
+        # Remove other control characters except newlines and tabs
+        text = ''.join(char for char in text if char == '\n' or char == '\t' or ord(char) >= 32)
+        return text
+    
+    segment_text = sanitize_text(segment_text)
+    
     # Use provided template or default
     template = prompt_template or DEFAULT_PROMPT_TEMPLATE
     
@@ -262,9 +286,9 @@ def analyze_segment(
             if context.before_text or context.after_text:
                 context_section = f"\n**CONTEXT NOTE:**\n"
                 if context.before_text:
-                    context_section += f"Previous content: {context.before_text[:200]}...\n"
+                    context_section += f"Previous content: {sanitize_text(context.before_text[:200])}...\n"
                 if context.after_text:
-                    context_section += f"Following content: {context.after_text[:200]}...\n"
+                    context_section += f"Following content: {sanitize_text(context.after_text[:200])}...\n"
     
     # Format the prompt
     prompt = template.format(
@@ -279,12 +303,17 @@ def analyze_segment(
         "Content-Type": "application/json"
     }
     
+    # Enable JSON mode for models that support it
+    # NOTE: DeepSeek R1 uses <think> tags and doesn't need JSON mode
+    use_json_mode = "json" in model.lower() or "llama-3" in model.lower()
+    use_json_mode = use_json_mode and "deepseek" not in model.lower()  # Disable for DeepSeek
+    
     payload = {
         "model": model,
         "messages": [
             {
                 "role": "system",
-                "content": "You are a content analysis assistant that evaluates video transcript segments."
+                "content": "You are a content analysis assistant that evaluates video transcript segments. Respond with valid JSON only."
             },
             {
                 "role": "user",
@@ -292,28 +321,107 @@ def analyze_segment(
             }
         ],
         "temperature": temperature,
-        "max_tokens": max_tokens,
-        "response_format": {"type": "json_object"} if "json" in model.lower() else None
+        "max_tokens": max_tokens
     }
     
-    # Make API request
+    # Only add response_format if JSON mode is enabled
+    # (Don't send null value as it causes 422 errors)
+    if use_json_mode:
+        payload["response_format"] = {"type": "json_object"}
+    
+    # Make API request with retry logic for rate limits
     start_time = time.time()
+    max_retries = 5  # Increased for DeepSeek R1's strict rate limits
+    
     try:
         log(f"🤖 Analyzing segment with {model}...\n")
         
-        response = requests.post(
-            api_url,
-            headers=headers,
-            json=payload,
-            timeout=60
-        )
-        
-        # Check for authentication errors BEFORE raise_for_status
-        if response.status_code in [401, 403]:
-            log(f"   ❌ Authentication failed: Invalid API key\n")
-            raise ValueError("Authentication Failed: Invalid or expired together.ai API key")
-        
-        response.raise_for_status()
+        # Retry loop to handle 429 (rate limit) and 5xx (server errors)
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(
+                    api_url,
+                    headers=headers,
+                    json=payload,
+                    timeout=120  # Increased for DeepSeek R1's verbose reasoning (was 60)
+                )
+                
+                # Check for authentication errors BEFORE raise_for_status
+                if response.status_code in [401, 403]:
+                    log(f"   ❌ Authentication failed: Invalid API key\n")
+                    raise ValueError("Authentication Failed: Invalid or expired together.ai API key")
+                
+                # Check for bad request (don't retry these)
+                if response.status_code == 400:
+                    log(f"   ❌ Bad request (400): {response.text[:200]}\n")
+                    raise ValueError(f"Bad request: {response.text[:200]}")
+                
+                # Check for 422 Unprocessable Entity (bad request format)
+                if response.status_code == 422:
+                    try:
+                        error_detail = response.json()
+                        log(f"   ❌ API rejected request (422): {error_detail}\n")
+                    except:
+                        log(f"   ❌ API rejected request (422): {response.text}\n")
+                    # Don't retry 422 - return UNCERTAIN instead
+                    return SegmentDecision(
+                        decision=Decision.UNCERTAIN,
+                        confidence=0.0,
+                        reasoning=f"API rejected request (422): {response.text[:200]}",
+                        raw_response="",
+                        prompt_used=prompt,
+                        model=model,
+                        processing_time=time.time() - start_time
+                    )
+                
+                # Check for 429 Rate Limit
+                if response.status_code == 429:
+                    if attempt < max_retries - 1:
+                        retry_delay = (attempt + 1) * 5  # 5s, 10s, 15s, 20s, 25s (increased for DeepSeek)
+                        log(f"   ⚠️ Rate limit hit (429). Waiting {retry_delay}s before retry {attempt + 2}/{max_retries}...\n")
+                        time.sleep(retry_delay)
+                        continue  # Retry
+                    else:
+                        log(f"   ❌ Rate limit hit (429). Max retries reached.\n")
+                        return SegmentDecision(
+                            decision=Decision.UNCERTAIN,
+                            confidence=0.0,
+                            reasoning=f"Rate limit exceeded after {max_retries} attempts",
+                            raw_response="",
+                            prompt_used=prompt,
+                            model=model,
+                            processing_time=time.time() - start_time
+                        )
+                
+                # Check for 5xx Server Errors (retryable)
+                if 500 <= response.status_code < 600:
+                    if attempt < max_retries - 1:
+                        retry_delay = (attempt + 1) * 5  # 5s, 10s, 15s, 20s, 25s (increased for DeepSeek)
+                        log(f"   ⚠️ Server error ({response.status_code}). Waiting {retry_delay}s before retry {attempt + 2}/{max_retries}...\n")
+                        time.sleep(retry_delay)
+                        continue  # Retry
+                    else:
+                        log(f"   ⚠️ Server error ({response.status_code}). Max retries reached. Returning UNCERTAIN.\n")
+                        return SegmentDecision(
+                            decision=Decision.UNCERTAIN,
+                            confidence=0.0,
+                            reasoning=f"Server error {response.status_code} after {max_retries} attempts",
+                            raw_response="",
+                            prompt_used=prompt,
+                            model=model,
+                            processing_time=time.time() - start_time
+                        )
+                
+                # If we get here, check for other HTTP errors
+                response.raise_for_status()
+                
+                # Success! Break out of retry loop
+                break
+                
+            except requests.exceptions.HTTPError as e:
+                # This catches any HTTP errors not handled above
+                # Re-raise to be caught by outer exception handler
+                raise
         
         processing_time = time.time() - start_time
         result = response.json()
@@ -324,26 +432,49 @@ def analyze_segment(
         
         raw_response = result['choices'][0]['message']['content']
         
+        # Log first 300 chars of response for debugging
+        log(f"   📝 API Response (first 300 chars): {raw_response[:300]}...\n")
+        
         # Parse the JSON response
+        # NOTE: JSON parsing handles fields in any order, so "reasoning first" prompts work fine
+        # SPECIAL HANDLING: DeepSeek R1 uses <think> tags, extract JSON after them
         try:
+            # For DeepSeek R1: Strip <think> tags if present
+            response_to_parse = raw_response
+            if '<think>' in response_to_parse:
+                # Extract content after </think> tag
+                think_end = response_to_parse.rfind('</think>')
+                if think_end > 0:
+                    response_to_parse = response_to_parse[think_end + 8:].strip()
+                    log(f"   🧠 DeepSeek R1 detected: Extracted response after <think> tags\n")
+                else:
+                    # Incomplete response - still inside <think> block
+                    log(f"   ⚠️ DeepSeek R1 response incomplete (no closing </think> tag)\n")
+                    response_to_parse = ""  # Will trigger "No JSON found" below
+            
             # Try to extract JSON from response (handle cases where LLM adds extra text)
-            json_start = raw_response.find('{')
-            json_end = raw_response.rfind('}') + 1
+            json_start = response_to_parse.find('{')
+            json_end = response_to_parse.rfind('}') + 1
             
             if json_start >= 0 and json_end > json_start:
-                json_str = raw_response[json_start:json_end]
+                json_str = response_to_parse[json_start:json_end]
                 parsed = json.loads(json_str)
+                # Log what we actually parsed for debugging
+                log(f"   ✓ Parsed JSON: decision={parsed.get('decision', 'MISSING')}, confidence={parsed.get('confidence', 'MISSING')}\n")
             else:
-                # No JSON found, create default response
+                # No JSON found, log sample of response for debugging
+                log(f"   ⚠️ No JSON found in response. First 200 chars: {raw_response[:200]}...\n")
+                # Create default response
                 parsed = {
                     "decision": "UNCERTAIN",
                     "confidence": 0.5,
-                    "reasoning": "Could not parse structured response",
+                    "reasoning": "Could not parse structured response - no JSON found",
                     "key_points": [],
                     "content_type": "unknown"
                 }
         except json.JSONDecodeError as e:
             log(f"   ⚠️ Failed to parse JSON response: {e}\n")
+            log(f"   📝 Response sample: {raw_response[:300]}...\n")
             # Create default response
             parsed = {
                 "decision": "UNCERTAIN",
@@ -358,23 +489,44 @@ def analyze_segment(
         try:
             decision = Decision(decision_str)
         except ValueError:
+            log(f"   ⚠️ Invalid decision value '{decision_str}' - defaulting to UNCERTAIN\n")
             decision = Decision.UNCERTAIN
         
         # Extract confidence (ensure it's in range)
-        confidence = float(parsed.get('confidence', 0.5))
-        confidence = max(0.0, min(1.0, confidence))
+        try:
+            confidence = float(parsed.get('confidence', 0.5))
+            confidence = max(0.0, min(1.0, confidence))
+        except (ValueError, TypeError):
+            # If confidence can't be converted to float, use default
+            confidence = 0.5
         
-        # Extract reasoning
-        reasoning = parsed.get('reasoning', 'No reasoning provided')
+        # Extract reasoning (ensure it's a string)
+        reasoning_raw = parsed.get('reasoning', 'No reasoning provided')
+        # Handle cases where LLM returns wrong type
+        if isinstance(reasoning_raw, str):
+            reasoning = reasoning_raw
+        elif isinstance(reasoning_raw, dict):
+            # LLM returned dict instead of string - extract what we can
+            reasoning = str(reasoning_raw.get('text', str(reasoning_raw)))
+        else:
+            reasoning = str(reasoning_raw)
         
         # Build key points summary if available
-        key_points = parsed.get('key_points', [])
-        content_type = parsed.get('content_type', 'unknown')
+        key_points_raw = parsed.get('key_points', [])
+        # Ensure key_points is a list
+        if isinstance(key_points_raw, list):
+            key_points = key_points_raw
+        else:
+            key_points = []
+        
+        content_type = str(parsed.get('content_type', 'unknown'))
         
         if key_points or content_type != 'unknown':
             reasoning += f"\n[Type: {content_type}]"
             if key_points:
-                reasoning += f"\n[Points: {', '.join(key_points[:3])}]"
+                # Ensure all items are strings
+                key_points_str = [str(item) for item in key_points[:3]]
+                reasoning += f"\n[Points: {', '.join(key_points_str)}]"
         
         log(f"   ✓ Decision: {decision.value} (confidence: {confidence:.2f})\n")
         log(f"     📝 Reasoning: {reasoning}\n")
@@ -396,12 +548,12 @@ def analyze_segment(
     
     except requests.exceptions.Timeout as e:
         # Timeout during analysis - treat as recoverable, return UNCERTAIN
-        # (This can happen due to rate limiting or slow API response)
-        log(f"   ⚠️ Request timeout: API took too long to respond (>60s)\n")
+        # (This can happen due to rate limiting or slow API response, especially with DeepSeek R1)
+        log(f"   ⚠️ Request timeout: API took too long to respond (>120s)\n")
         return SegmentDecision(
             decision=Decision.UNCERTAIN,
             confidence=0.0,
-            reasoning=f"API timeout: Request exceeded 60 seconds - {str(e)}",
+            reasoning=f"API timeout: Request exceeded 120 seconds - {str(e)}",
             raw_response="",
             prompt_used=prompt,
             model=model,
@@ -461,7 +613,7 @@ def analyze_segments_batch(
     prompt_template: Optional[str] = None,
     status_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, int], None]] = None,
-    delay_between_requests: float = 0.5,
+    delay_between_requests: float = 1.0,  # Increased to 1.0s for better rate limit handling
     temperature: float = 0.7,
     max_tokens: int = 500
 ) -> Dict[str, SegmentDecision]:
@@ -503,7 +655,7 @@ def analyze_segments_batch(
             api_key=api_key,
             model=model,
             prompt_template=prompt_template,
-            status_callback=None,  # Suppress per-segment logs
+            status_callback=status_callback,  # Enable detailed logs for debugging
             temperature=temperature,
             max_tokens=max_tokens
         )

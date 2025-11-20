@@ -8,11 +8,18 @@ segments within the specified time window.
 import sys
 import io
 import re
+from pathlib import Path
 
 # Fix Unicode encoding issues on Windows
 if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+# Add temp_repo to Python path so we can import video_production_app
+_current_file = Path(__file__).resolve()
+_temp_repo = _current_file.parent.parent / "temp_repo"
+if str(_temp_repo) not in sys.path:
+    sys.path.insert(0, str(_temp_repo))
 
 from video_production_app.ai_analysis.context_builder import build_context, ContextWindow
 from video_production_app.ai_analysis.transcriber import TranscriptSegment

@@ -323,7 +323,7 @@ class Api:
         segments: List[Dict[str, Any]],
         api_key: str,
         whisper_model: str = "base",
-        together_model: str = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
+        together_model: str = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
     ) -> Dict[str, Any]:
         """
         Run AI content analysis on video segments.
@@ -391,6 +391,12 @@ class Api:
             
             # Apply decisions to segments
             updated_segments = apply_decisions_to_segments(segments, results.decisions)
+            
+            # Debug: Log first few segments to verify AI decisions are applied
+            audible_updated = [s for s in updated_segments if s.get('type') == 'audible'][:5]
+            self.logger.info(f"First 5 updated audible segments:")
+            for i, seg in enumerate(audible_updated):
+                self.logger.info(f"  Segment {i}: start={seg.get('start'):.1f}, keep={seg.get('keep')}, ai_decision={seg.get('ai_decision')}, confidence={seg.get('ai_confidence')}")
             
             self.logger.info(f"AI analysis complete: {results.keep_count} keep, {results.flag_count} flag")
             

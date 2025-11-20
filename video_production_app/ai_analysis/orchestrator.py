@@ -347,6 +347,13 @@ def analyze_content(
         temperature = AI_ANALYSIS_SETTINGS.get("temperature", 0.7)
         max_tokens = AI_ANALYSIS_SETTINGS.get("max_tokens", 500)
         
+        # DeepSeek R1 needs much higher max_tokens due to verbose <think> reasoning
+        # Note: Default max_tokens is now 8000 in config, which should be sufficient
+        # But we can still override if needed for even more verbose models
+        if "deepseek" in together_model.lower():
+            # Use config value (8000) which is already high enough
+            log(f"   🧠 DeepSeek model detected - using max_tokens={max_tokens} for verbose reasoning\n")
+        
         decisions = analyze_segments_batch(
             segments_with_context=segments_with_context,
             api_key=api_key,
@@ -446,9 +453,12 @@ def apply_decisions_to_segments(
     Apply AI decisions to the segment list.
     
     Updates the segment colors based on AI analysis:
-    - KEEP decisions → keep=True, ai_decision='keep'
-    - FLAG decisions → keep=False, ai_decision='flag'
-    - UNCERTAIN → no change, ai_decision='uncertain'
+    - KEEP decisions → keep=True, ai_decision='keep' (Green)
+    - FLAG decisions → keep=False, ai_decision='flag' (Orange/Red)
+    - UNCERTAIN → keep=False, ai_decision='uncertain' (Orange/Red - requires manual review)
+    
+    Note: UNCERTAIN segments default to flagged (keep=False) to ensure they are
+    manually reviewed before inclusion. This is a "safety first" approach.
     
     Args:
         segments: Original list of segments
@@ -460,6 +470,9 @@ def apply_decisions_to_segments(
     # Create a mapping of segment times to decisions
     audible_segments = [seg for seg in segments if seg.get('type') == 'audible']
     
+    # Create a counter for audible segment indexing
+    audible_counter = 0
+    
     # Apply decisions to segments
     updated_segments = []
     for seg_idx, segment in enumerate(segments):
@@ -467,31 +480,32 @@ def apply_decisions_to_segments(
         
         # Only apply to audible segments
         if segment.get('type') == 'audible':
-            # Find the corresponding audible segment index
-            audible_idx = [i for i, s in enumerate(audible_segments) if s == segment]
-            if audible_idx:
-                seg_id = f"segment_{audible_idx[0]}"
+            # Use counter to map to audible segment index
+            seg_id = f"segment_{audible_counter}"
+            audible_counter += 1
+            
+            if seg_id in decisions:
+                decision_data = decisions[seg_id]
+                decision = decision_data['decision']
                 
-                if seg_id in decisions:
-                    decision_data = decisions[seg_id]
-                    decision = decision_data['decision']
-                    
-                    # Update segment based on decision
-                    if decision == 'KEEP':
-                        new_segment['keep'] = True
-                        new_segment['ai_decision'] = 'keep'
-                        new_segment['ai_confidence'] = decision_data['confidence']
-                        new_segment['ai_reasoning'] = decision_data['reasoning']
-                    elif decision == 'FLAG':
-                        new_segment['keep'] = False
-                        new_segment['ai_decision'] = 'flag'
-                        new_segment['ai_confidence'] = decision_data['confidence']
-                        new_segment['ai_reasoning'] = decision_data['reasoning']
-                    else:  # UNCERTAIN
-                        # Keep original 'keep' value, but mark as uncertain
-                        new_segment['ai_decision'] = 'uncertain'
-                        new_segment['ai_confidence'] = decision_data['confidence']
-                        new_segment['ai_reasoning'] = decision_data['reasoning']
+                # Update segment based on decision
+                if decision == 'KEEP':
+                    new_segment['keep'] = True
+                    new_segment['ai_decision'] = 'keep'
+                    new_segment['ai_confidence'] = decision_data['confidence']
+                    new_segment['ai_reasoning'] = decision_data['reasoning']
+                elif decision == 'FLAG':
+                    new_segment['keep'] = False
+                    new_segment['ai_decision'] = 'flag'
+                    new_segment['ai_confidence'] = decision_data['confidence']
+                    new_segment['ai_reasoning'] = decision_data['reasoning']
+                else:  # UNCERTAIN
+                    # Uncertain -> Default to Flag (requires user review)
+                    # Safety first: if AI isn't confident, flag for manual review
+                    new_segment['keep'] = False
+                    new_segment['ai_decision'] = 'uncertain'
+                    new_segment['ai_confidence'] = decision_data['confidence']
+                    new_segment['ai_reasoning'] = decision_data['reasoning']
         
         updated_segments.append(new_segment)
     
