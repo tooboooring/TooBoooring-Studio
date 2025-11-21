@@ -5,6 +5,10 @@ import time
 from tkinter import Tk, filedialog
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Union
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Handle imports for both direct execution and module execution
 if __name__ == '__main__':

@@ -410,9 +410,14 @@ def analyze_content(
     
     log(f"📊 Analysis Summary:\n")
     log(f"   Total segments analyzed: {len(decisions)}\n")
-    log(f"   ✅ KEEP: {keep_count} ({keep_count/len(decisions)*100:.1f}%)\n")
-    log(f"   ⚠️  FLAG: {flag_count} ({flag_count/len(decisions)*100:.1f}%)\n")
-    log(f"   ❓ UNCERTAIN: {uncertain_count} ({uncertain_count/len(decisions)*100:.1f}%)\n")
+    if len(decisions) > 0:
+        log(f"   ✅ KEEP: {keep_count} ({keep_count/len(decisions)*100:.1f}%)\n")
+        log(f"   ⚠️  FLAG: {flag_count} ({flag_count/len(decisions)*100:.1f}%)\n")
+        log(f"   ❓ UNCERTAIN: {uncertain_count} ({uncertain_count/len(decisions)*100:.1f}%)\n")
+    else:
+        log(f"   ✅ KEEP: {keep_count} (0.0%)\n")
+        log(f"   ⚠️  FLAG: {flag_count} (0.0%)\n")
+        log(f"   ❓ UNCERTAIN: {uncertain_count} (0.0%)\n")
     log(f"   Average confidence: {avg_confidence:.2f}\n")
     log(f"   Total processing time: {total_time:.1f}s\n")
     

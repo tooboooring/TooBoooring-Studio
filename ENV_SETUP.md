@@ -14,7 +14,7 @@ This guide explains how to set up environment variables for the Video Production
 2. **Create a `.env` file** in the project root (`video_production_by_tooboooring/.env`):
    ```bash
    # together.ai API Key for AI Content Analysis
-   TOGETHER_AI_API_KEY=your_actual_api_key_here
+   TOGETHER_API_KEY=your_actual_api_key_here
    
    # Optional: Customize AI settings
    WHISPER_MODEL=base
@@ -28,12 +28,12 @@ This guide explains how to set up environment variables for the Video Production
 
 **Windows:**
 ```cmd
-setx TOGETHER_AI_API_KEY "your_api_key_here"
+setx TOGETHER_API_KEY "your_api_key_here"
 ```
 
 **macOS/Linux:**
 ```bash
-export TOGETHER_AI_API_KEY="your_api_key_here"
+export TOGETHER_API_KEY="your_api_key_here"
 # Add to ~/.bashrc or ~/.zshrc to persist
 ```
 
@@ -82,7 +82,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get API key from environment, fall back to UI input
-api_key = os.getenv("TOGETHER_AI_API_KEY", "")
+api_key = os.getenv("TOGETHER_API_KEY", "")
 if not api_key:
     # Use the UI-provided key as fallback
     api_key = user_provided_api_key

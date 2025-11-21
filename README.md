@@ -160,15 +160,15 @@ For AI-powered content analysis features:
    - **Option A**: Enter in UI settings panel (most secure)
    - **Option B**: Create `.env` file in project root:
      ```bash
-     TOGETHER_AI_API_KEY=your_api_key_here
+     TOGETHER_API_KEY=your_api_key_here
      ```
    - **Option C**: Set system environment variable:
      ```bash
      # Windows
-     setx TOGETHER_AI_API_KEY "your_api_key_here"
+     setx TOGETHER_API_KEY "your_api_key_here"
      
      # macOS/Linux
-     export TOGETHER_AI_API_KEY="your_api_key_here"
+     export TOGETHER_API_KEY="your_api_key_here"
      ```
 
 ---
