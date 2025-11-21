@@ -676,14 +676,24 @@ class Api:
                     self.logger.warning(f"Error sending progress update: {e}")
 
         try:
-            # 6. Call our existing core function!
+            # 6. Get audio tracks safely (handle videos without audio)
+            audio_tracks = video_info.get('audioTracks', [])
+            if not audio_tracks:
+                # Video has no audio tracks - use default index 0
+                silence_track_index = 0
+                self.logger.warning("Video has no audio tracks, using default track index 0")
+            else:
+                # Safe access for audio track index
+                silence_track_index = audio_tracks[0].get('index', 0)
+            
+            # 7. Call our existing core function!
             process_video_logic(
                 video_path=video_info['filePath'],
                 output_dir=save_path,
                 output_format=output_format,
                 video_params=video_params,
-                all_audio_tracks=video_info['audioTracks'],
-                silence_track_index=video_info['audioTracks'][0]['index'], # Just use first track for now
+                all_audio_tracks=audio_tracks,
+                silence_track_index=silence_track_index,
                 ffmpeg_path="", # Use system path
                 ffprobe_path="", # Use system path
                 settings=settings_dict,
