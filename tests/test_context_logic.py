@@ -17,7 +17,7 @@ if sys.platform == 'win32':
 
 # Add temp_repo to Python path so we can import video_production_app
 _current_file = Path(__file__).resolve()
-_temp_repo = _current_file.parent.parent / "temp_repo"
+_temp_repo = _current_file.parent.parent  # tests/ -> temp_repo/
 if str(_temp_repo) not in sys.path:
     sys.path.insert(0, str(_temp_repo))
 

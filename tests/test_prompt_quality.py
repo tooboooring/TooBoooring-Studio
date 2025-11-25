@@ -7,8 +7,16 @@ evaluates content differently.
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Add temp_repo to Python path so we can import video_production_app
+_current_file = Path(__file__).resolve()
+_temp_repo = _current_file.parent.parent  # tests/ -> temp_repo/
+if str(_temp_repo) not in sys.path:
+    sys.path.insert(0, str(_temp_repo))
+
 from video_production_app.config import AI_ANALYSIS_SETTINGS
 from video_production_app.ai_analysis.ai_analyzer import analyze_segment
 

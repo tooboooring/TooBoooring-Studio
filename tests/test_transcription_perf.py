@@ -5,8 +5,16 @@ Tests transcription speed of different Whisper models (tiny vs base) on a real v
 """
 
 import os
+import sys
 import time
 from pathlib import Path
+
+# Add temp_repo to Python path so we can import video_production_app
+_current_file = Path(__file__).resolve()
+_temp_repo = _current_file.parent.parent  # tests/ -> temp_repo/
+if str(_temp_repo) not in sys.path:
+    sys.path.insert(0, str(_temp_repo))
+
 from video_production_app.ai_analysis.transcriber import transcribe_segments
 from video_production_app.config import AI_ANALYSIS_SETTINGS
 
