@@ -247,8 +247,135 @@ class Api:
             return video_info
 
         except Exception as e:
-            self.logger.error(f"Error analyzing video: {e}", exc_info=True)
-            return self._error_response(f"Error analyzing video: {str(e)}")
+            self.logger.error(f"Error loading video: {e}", exc_info=True)
+            return self._error_response(f"Error loading video: {str(e)}")
+    
+    def handle_dropped_file(self, file_name: str, file_data_base64: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """
+        Handle a file dropped in the UI by saving it temporarily and loading it.
+        
+        In PyWebView, we can't directly get the file path from drag and drop.
+        This method accepts file data as base64, saves it temporarily, then loads it.
+        
+        Args:
+            file_name: Name of the dropped file
+            file_data_base64: Base64 encoded file data
+            
+        Returns:
+            Dict with video info on success, None if invalid, error dict on failure
+        """
+        if not file_name:
+            return None
+        
+        if not file_data_base64:
+            # Fallback: Try to find the file by name in common locations
+            self.logger.info(f"Handling dropped file (searching by name): {file_name}")
+            from pathlib import Path
+            
+            # Common locations to search
+            search_paths = [
+                Path.home() / "Downloads",
+                Path.home() / "Desktop",
+                Path.home() / "Documents",
+                Path.home() / "Videos",
+                Path.cwd(),
+            ]
+            
+            file_path = None
+            for search_path in search_paths:
+                potential_path = search_path / file_name
+                if potential_path.exists() and potential_path.is_file():
+                    file_path = str(potential_path.resolve())
+                    self.logger.info(f"Found file at: {file_path}")
+                    return self.load_video_from_path(file_path)
+            
+            # If we can't find it, return an error
+            return self._error_response(
+                f"Could not locate file '{file_name}'. Please use the 'Load Video' button to select the file."
+            )
+        
+        # We have file data - save it temporarily and load it
+        self.logger.info(f"Handling dropped file (saving from base64): {file_name}")
+        
+        try:
+            import base64
+            import tempfile
+            
+            # Decode base64 data
+            file_bytes = base64.b64decode(file_data_base64)
+            
+            # Create temporary file
+            temp_dir = Path(tempfile.gettempdir()) / "video_production_app"
+            temp_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Generate unique filename
+            import uuid
+            temp_filename = f"{uuid.uuid4().hex}_{file_name}"
+            temp_path = temp_dir / temp_filename
+            
+            # Write file
+            with open(temp_path, 'wb') as f:
+                f.write(file_bytes)
+            
+            self.logger.info(f"Saved dropped file to: {temp_path}")
+            
+            # Load the video from the temp path
+            result = self.load_video_from_path(str(temp_path))
+            
+            # Note: We keep the temp file for now (cleanup happens later)
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Error handling dropped file: {e}", exc_info=True)
+            return self._error_response(f"Error processing dropped file: {str(e)}")
+    
+    def load_video_from_path(self, file_path: str) -> Optional[Dict[str, Any]]:
+        """
+        Load a video file from a given file path (for drag and drop).
+        
+        Args:
+            file_path: Path to the video file
+            
+        Returns:
+            Dict with video info on success, None if invalid, error dict on failure
+        """
+        if not file_path:
+            self.logger.warning("Empty file path provided")
+            return None
+        
+        self.logger.info(f"Loading video from path: {file_path}")
+        
+        # Validate file path
+        is_valid, error_msg = validate_video_path(file_path)
+        if not is_valid:
+            self.logger.error(f"Invalid video path: {error_msg}")
+            return self._error_response(error_msg)
+        
+        # Use console logger
+        status_callback = self.log_to_console
+        
+        try:
+            # Get info from our core Python files
+            duration = get_video_duration(Path(file_path), "", status_callback)
+            if duration <= 0:
+                return self._error_response("Could not determine video duration")
+            
+            audio_tracks = get_audio_tracks(Path(file_path), "", status_callback)
+            if not audio_tracks:
+                self.logger.warning("No audio tracks found in video")
+            
+            video_info = {
+                "filePath": file_path,
+                "fileName": Path(file_path).name,
+                "duration": duration,
+                "audioTracks": audio_tracks
+            }
+            
+            self.logger.info(f"Successfully loaded video: {video_info['fileName']} ({duration:.2f}s, {len(audio_tracks)} tracks)")
+            return video_info
+        except Exception as e:
+            self.logger.error(f"Error loading video: {e}", exc_info=True)
+            return self._error_response(f"Error loading video: {str(e)}")
     
     def detect_silence(self, video_path: str, track_index: Union[int, str]) -> Dict[str, Any]:
         """

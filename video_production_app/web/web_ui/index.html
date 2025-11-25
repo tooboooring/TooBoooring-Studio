@@ -69,18 +69,17 @@
                   <i class="fas fa-folder-open"></i> Load Video
                 </button>
 
+                <input type="file" id="file-input" accept="video/*" style="display: none;" />
+
                 <div class="upload-zone" id="upload-zone">
-                  <i class="fas fa-cloud-arrow-up"></i>
-                  <p>Drag & drop video here</p>
-                  <span class="upload-hint">or click to browse</span>
+                  <i class="fas fa-folder-open"></i>
+                  <p>Click to browse for video</p>
+                  <span class="upload-hint">Select a video file to load</span>
                 </div>
               </div>
 
-            </div>
+              <div class="section-divider"></div>
 
-            <!-- TAB: AI TOOLS -->
-            <div id="tab-ai" class="tab-pane">
-              
               <!-- Audio Analysis Section -->
               <div class="tab-section">
                 <h3 class="section-title">
@@ -110,8 +109,11 @@
                 </button>
               </div>
 
-              <div class="section-divider"></div>
+            </div>
 
+            <!-- TAB: AI TOOLS -->
+            <div id="tab-ai" class="tab-pane">
+              
               <!-- AI Content Analysis Section -->
               <div class="tab-section">
                 <h3 class="section-title">
@@ -236,6 +238,16 @@
                 <h3 class="section-title">Output Settings</h3>
 
                 <div class="control-box">
+                  <div class="form-group">
+                    <label class="form-label">Save Destination</label>
+                    <button id="btn-select-destination" class="btn btn-outline btn-block">
+                      <i class="fas fa-folder-open"></i> Select Folder
+                    </button>
+                    <div id="save-destination-label" class="destination-label" style="margin-top: 8px; font-size: 12px; color: #888; word-break: break-all;">
+                      No destination selected
+                    </div>
+                  </div>
+
                   <div class="form-group">
                     <label class="form-label">Encoder</label>
                     <select id="encoder-select" class="form-select">

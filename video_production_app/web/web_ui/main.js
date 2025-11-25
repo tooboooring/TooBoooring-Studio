@@ -437,52 +437,12 @@ window.addEventListener('DOMContentLoaded', () => {
         console.error("Cannot attach event listener: btn-load-video not found");
     }
     
-    // Upload zone click and drag/drop
+    // Upload zone click to browse
     const uploadZone = document.getElementById('upload-zone');
     if (uploadZone) {
         // Click to browse
         uploadZone.addEventListener('click', () => {
             loadVideoButton.click();
-        });
-        
-        // Drag and drop functionality
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadZone.classList.add('drag-over');
-        });
-        
-        uploadZone.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadZone.classList.remove('drag-over');
-        });
-        
-        uploadZone.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadZone.classList.remove('drag-over');
-            
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) {
-                const file = files[0];
-                const filePath = file.path || file.name;
-                
-                // Check if it's a video file
-                const videoExtensions = ['.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv', '.m4v'];
-                const hasVideoExt = videoExtensions.some(ext => filePath.toLowerCase().endsWith(ext));
-                
-                if (hasVideoExt) {
-                    console.log('📁 Dropped video file:', filePath);
-                    // Call loadVideo with the file path
-                    await loadVideo(filePath);
-                } else {
-                    const statusLabel = document.getElementById('status-label');
-                    if (statusLabel) {
-                        statusLabel.textContent = 'Please drop a video file';
-                    }
-                }
-            }
         });
     }
     detectSilenceButton.addEventListener('click', detectSilence);
@@ -541,6 +501,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Bind timeline controls
     timeline.bindClick();
     timeline.bindRulerClick();
+    timeline.bindWaveformClick();
     timeline.bindWheelEvents();
     timeline.bindKeyEvents();
 
@@ -1064,6 +1025,59 @@ function checkError(result) {
 // --- 5. Async Functions (called by listeners) ---
 // We move the main logic into separate functions.
 
+/**
+ * Process video info after loading (shared by loadVideo and drag-and-drop)
+ */
+async function processVideoInfo(videoInfo) {
+    if (!videoInfo || !videoInfo.fileName) {
+        console.error("Invalid videoInfo structure:", videoInfo);
+        const statusLabel = document.getElementById('status-label');
+        if (statusLabel) {
+            statusLabel.textContent = "Error: Invalid video data received.";
+        }
+        window.updateConsole("❌ Error: Invalid video data structure\n");
+        return;
+    }
+    
+    currentVideoInfo = videoInfo;
+    const trackSelector = document.getElementById('audio-track-selector');
+    const statusLabel = document.getElementById('status-label');
+    
+    // Clear analysis history when loading a new video
+    analysisHistory = [];
+    const historySelect = document.getElementById('ai-history-select');
+    if (historySelect) {
+        historySelect.innerHTML = '<option value="">No runs yet</option>';
+        historySelect.disabled = true;
+    }
+    
+    if (statusLabel) {
+        statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
+    }
+    window.updateConsole(`✅ Video loaded: ${videoInfo.fileName}\n`);
+    window.updateConsole(`Duration: ${videoInfo.duration.toFixed(2)}s\n`);
+    window.updateConsole(`Audio tracks: ${videoInfo.audioTracks.length}\n`);
+
+    if (trackSelector) {
+        trackSelector.innerHTML = ""; // Clear options
+        videoInfo.audioTracks.forEach(track => {
+            const option = document.createElement('option');
+            option.value = track.index;
+            option.textContent = track.name;
+            trackSelector.appendChild(option);
+        });
+    }
+
+    // Update cost estimate with new video duration
+    updateCostDisplay();
+
+    // Populate audio track mixer
+    populateAudioTrackMixer(videoInfo.audioTracks);
+
+    player.loadVideo(videoInfo.filePath, videoInfo.audioTracks);
+    timeline.draw([], 0, null); // Clear timeline
+}
+
 async function loadVideo() {
     console.log("loadVideo() called");
     const statusLabel = document.getElementById('status-label');
@@ -1114,44 +1128,8 @@ async function loadVideo() {
         const videoInfo = data || result;
         console.log("Using videoInfo:", videoInfo);
         
-        if (!videoInfo || !videoInfo.fileName) {
-            console.error("Invalid videoInfo structure:", videoInfo);
-            statusLabel.textContent = "Error: Invalid video data received.";
-            window.updateConsole("❌ Error: Invalid video data structure\n");
-            return;
-        }
-        
-        currentVideoInfo = videoInfo;
-        
-        // Clear analysis history when loading a new video
-        analysisHistory = [];
-        const historySelect = document.getElementById('ai-history-select');
-        if (historySelect) {
-            historySelect.innerHTML = '<option value="">No runs yet</option>';
-            historySelect.disabled = true;
-        }
-        
-        statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
-        window.updateConsole(`✅ Video loaded: ${videoInfo.fileName}\n`);
-        window.updateConsole(`Duration: ${videoInfo.duration.toFixed(2)}s\n`);
-        window.updateConsole(`Audio tracks: ${videoInfo.audioTracks.length}\n`);
-
-        trackSelector.innerHTML = ""; // Clear options
-        videoInfo.audioTracks.forEach(track => {
-            const option = document.createElement('option');
-            option.value = track.index;
-            option.textContent = track.name;
-            trackSelector.appendChild(option);
-        });
-
-        // Update cost estimate with new video duration
-        updateCostDisplay();
-
-        // Populate audio track mixer
-        populateAudioTrackMixer(videoInfo.audioTracks);
-
-        player.loadVideo(videoInfo.filePath, videoInfo.audioTracks);
-        timeline.draw([], 0, null); // Clear timeline
+        // Process the video info
+        await processVideoInfo(videoInfo);
     } catch (error) {
         console.error("Error in loadVideo:", error);
         statusLabel.textContent = "Error loading video.";

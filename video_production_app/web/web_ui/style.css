@@ -1046,6 +1046,26 @@ body, html {
 
 /* --- 10. Specialized Components --- */
 
+/* Destination Label */
+.destination-label {
+  display: block;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  word-break: break-all;
+  min-height: 20px;
+  transition: color 0.2s ease;
+}
+
+.destination-label[style*="color: #4CAF50"] {
+  color: var(--emerald-400) !important;
+  border-color: var(--emerald-500);
+}
+
 /* Console Output */
 .console-area {
   width: 100%;

@@ -469,8 +469,69 @@ export class Timeline {
     }
 
     bindClick() {
-        // Attaches a click listener to the segments canvas
-        this.segmentsCanvas.addEventListener('click', this.handleClick.bind(this));
+        // Attaches click and drag listeners to the segments canvas
+        // Click toggles segments, drag seeks
+        let isDragging = false;
+        let dragStartX = 0;
+        let hasMoved = false;
+        
+        const handleMouseDown = (event) => {
+            if (this.duration === 0) return;
+            isDragging = true;
+            hasMoved = false;
+            dragStartX = event.clientX;
+        };
+        
+        const handleMouseMove = (event) => {
+            if (!isDragging || this.duration === 0) return;
+            
+            // Check if mouse has moved significantly (more than 3 pixels)
+            if (Math.abs(event.clientX - dragStartX) > 3) {
+                hasMoved = true;
+            }
+            
+            if (hasMoved) {
+                // Dragging - seek to position
+                const rect = this.segmentsCanvas.getBoundingClientRect();
+                const scaleX = this.segmentsCanvas.width / rect.width;
+                const x = (event.clientX - rect.left) * scaleX;
+                const w = this.segmentsCanvas.width;
+                const timeDragged = this.xToTime(x, w, this.duration);
+                
+                // Clamp time to valid range
+                const clampedTime = Math.max(0, Math.min(this.duration, timeDragged));
+                
+                // Update playhead during drag
+                this.playhead = clampedTime;
+                this.ensurePlayheadVisible();
+                this.redraw();
+                
+                // Seek to dragged position
+                if (this.onSeek) {
+                    this.onSeek(clampedTime);
+                }
+            }
+        };
+        
+        const handleMouseUp = (event) => {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            // If mouse didn't move much, treat as click (toggle segment)
+            if (!hasMoved) {
+                this.handleClick(event);
+            }
+        };
+        
+        this.segmentsCanvas.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        this.segmentsCanvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+        
+        // Change cursor to indicate draggable
+        this.segmentsCanvas.style.cursor = 'pointer';
     }
 
     handleClick(event) {
@@ -566,6 +627,75 @@ export class Timeline {
                 this.onSeek(timeClicked);
             }
         });
+    }
+    
+    bindWaveformClick() {
+        // Add click and drag handlers to waveform canvas for seeking
+        let isDragging = false;
+        
+        const handleMouseDown = (event) => {
+            if (this.duration === 0) return;
+            isDragging = true;
+            
+            const rect = this.waveformCanvas.getBoundingClientRect();
+            const scaleX = this.waveformCanvas.width / rect.width;
+            const x = (event.clientX - rect.left) * scaleX;
+            const w = this.waveformCanvas.width;
+            const timeClicked = this.xToTime(x, w, this.duration);
+            
+            // Clamp time to valid range
+            const clampedTime = Math.max(0, Math.min(this.duration, timeClicked));
+            
+            // Update playhead immediately
+            this.playhead = clampedTime;
+            this.redraw();
+            
+            // Seek to clicked position
+            if (this.onSeek) {
+                this.onSeek(clampedTime);
+            }
+        };
+        
+        const handleMouseMove = (event) => {
+            if (!isDragging || this.duration === 0) return;
+            
+            const rect = this.waveformCanvas.getBoundingClientRect();
+            const scaleX = this.waveformCanvas.width / rect.width;
+            const x = (event.clientX - rect.left) * scaleX;
+            const w = this.waveformCanvas.width;
+            const timeDragged = this.xToTime(x, w, this.duration);
+            
+            // Clamp time to valid range
+            const clampedTime = Math.max(0, Math.min(this.duration, timeDragged));
+            
+            // Update playhead during drag
+            this.playhead = clampedTime;
+            this.ensurePlayheadVisible();
+            this.redraw();
+            
+            // Seek to dragged position
+            if (this.onSeek) {
+                this.onSeek(clampedTime);
+            }
+        };
+        
+        const handleMouseUp = () => {
+            isDragging = false;
+        };
+        
+        const handleMouseLeave = () => {
+            isDragging = false;
+        };
+        
+        // Add event listeners to waveform canvas only
+        // Use document-level listeners for mousemove/mouseup so dragging works even outside canvas
+        this.waveformCanvas.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        this.waveformCanvas.addEventListener('mouseleave', handleMouseLeave);
+        
+        // Change cursor to indicate draggable
+        this.waveformCanvas.style.cursor = 'pointer';
     }
     
     // Zoom methods
