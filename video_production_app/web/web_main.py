@@ -832,7 +832,7 @@ class Api:
             )
 
             self.logger.info(f"Export complete! Saved to {save_path}")
-            return {"status": "success", "message": f"Export complete! Saved to {save_path}"}
+            return {"status": "success", "message": f"TooBoooring Studio - Export complete! Saved to {save_path}"}
 
         except Exception as e:
             self.logger.error(f"Export failed: {e}", exc_info=True)
@@ -1044,7 +1044,7 @@ class Api:
             self.logger.info(f"Export cuts complete! Saved {total_cuts} cut(s) to {cuts_folder}")
             return {
                 "status": "success",
-                "message": f"Export complete! {total_cuts} cut(s) saved to:\n{cuts_folder}"
+                "message": f"TooBoooring Studio - Export complete! {total_cuts} cut(s) saved to:\n{cuts_folder}"
             }
         
         except Exception as e:
@@ -1246,7 +1246,7 @@ class Api:
             
             return {
                 "status": "success",
-                "message": f"EDL file exported successfully!\n\nFile: {edl_filename}\nLocation: {edl_path}",
+                "message": f"TooBoooring Studio - EDL file exported successfully!\n\nFile: {edl_filename}\nLocation: {edl_path}",
                 "file_path": str(edl_path)
             }
         
@@ -1710,7 +1710,7 @@ class Api:
             
             return {
                 "status": "success",
-                "message": f"FCP XML file exported successfully!\n\nFile: {xml_filename}\nLocation: {xml_path}",
+                "message": f"TooBoooring Studio - FCP XML file exported successfully!\n\nFile: {xml_filename}\nLocation: {xml_path}",
                 "file_path": str(xml_path)
             }
         
@@ -2007,7 +2007,7 @@ def main():
     ui_dir = os.path.normpath(ui_dir)
 
     window = webview.create_window(
-        'Video Production Suite v4.0',
+        'TooBoooring Studio 1.0',
         'file://' + os.path.join(ui_dir, 'index.html'),
         js_api=api,
         width=1280,

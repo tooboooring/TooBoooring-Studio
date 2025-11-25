@@ -1,4 +1,4 @@
-# 🎬 Video Production Suite
+# TooBoooring Studio 1.0
 
 > Professional video editing application with AI-powered content analysis, silence detection, and GPU-accelerated encoding
 

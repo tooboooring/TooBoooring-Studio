@@ -1484,7 +1484,7 @@ async function exportVideo() {
             window.updateProgress(100, "Complete", 0);
             statusLabel.textContent = "Export complete!";
             window.updateConsole("\n✅ Export completed successfully!\n");
-            alert(result.message || "Export completed successfully!");
+            alert(result.message || "TooBoooring Studio - Export completed successfully!");
             exportSucceeded = true;
         } else if (result.status === 'cancelled') {
             statusLabel.textContent = "Export cancelled.";
@@ -1592,7 +1592,7 @@ async function exportCuts() {
             window.updateProgress(100, "Complete", 0);
             statusLabel.textContent = `Export complete! ${audibleSegments.length} cut(s) exported.`;
             window.updateConsole(`\n✅ Export completed successfully! ${audibleSegments.length} cut(s) exported.\n`);
-            alert(result.message || `Export completed! ${audibleSegments.length} cut(s) exported.`);
+            alert(result.message || `TooBoooring Studio - Export completed! ${audibleSegments.length} cut(s) exported.`);
             exportSucceeded = true;
         } else if (result.status === 'cancelled') {
             statusLabel.textContent = "Export cancelled.";
@@ -1657,7 +1657,7 @@ async function exportEdl() {
             statusLabel.textContent = "EDL export complete!";
             window.updateConsole(`\n✅ EDL file exported successfully!\n`);
             window.updateConsole(`📁 Saved to: ${result.message || result.file_path || 'Unknown location'}\n`);
-            alert(`EDL file exported successfully!\n\n${result.message || result.file_path || 'File saved'}`);
+            alert(`TooBoooring Studio - EDL file exported successfully!\n\n${result.message || result.file_path || 'File saved'}`);
         } else if (result.status === 'cancelled') {
             statusLabel.textContent = "EDL export cancelled.";
             window.updateConsole("\n❌ EDL export cancelled by user.\n");
@@ -1716,7 +1716,7 @@ async function exportXml() {
             statusLabel.textContent = "XML export complete!";
             window.updateConsole(`\n✅ FCP XML file exported successfully!\n`);
             window.updateConsole(`📁 Saved to: ${result.message || result.file_path || 'Unknown location'}\n`);
-            alert(`FCP XML file exported successfully!\n\n${result.message || result.file_path || 'File saved'}`);
+            alert(`TooBoooring Studio - FCP XML file exported successfully!\n\n${result.message || result.file_path || 'File saved'}`);
         } else if (result.status === 'cancelled') {
             statusLabel.textContent = "XML export cancelled.";
             window.updateConsole("\n❌ XML export cancelled by user.\n");

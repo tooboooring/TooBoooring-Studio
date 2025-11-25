@@ -24,7 +24,7 @@ from video_production_app.web.launcher import launch as launch_web
 def main():
     """Main entry point - launches Web UI."""
     print("\n" + "=" * 50)
-    print("  🎬 Video Production Suite")
+    print("  TooBoooring Studio 1.0")
     print("=" * 50)
     print("🌐 Launching Web UI...\n")
     

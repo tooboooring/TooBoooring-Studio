@@ -98,7 +98,7 @@ ENCODER_OPTIONS = {
 }
 
 # Application metadata
-APP_NAME = "Video Production Suite"
+APP_NAME = "TooBoooring Studio"
 APP_VERSION = "3.0.0"
 APP_DESCRIPTION = "Professional video editing with silence detection and GPU acceleration"
 
