@@ -20,7 +20,7 @@ if __name__ == '__main__':
     from video_production_app.core.silence_detector import detect_silence, parse_segments
     from video_production_app.core.settings_manager import SettingsManager
     from video_production_app.core.video_processor import process_video_logic
-    from video_production_app.ui.widgets.waveform import WaveformGenerator
+    from video_production_app.utils.waveform import WaveformGenerator
     from video_production_app.config import ENCODER_OPTIONS, UI_SETTINGS
     from video_production_app.utils.logger import app_logger
     from video_production_app.utils.validators import validate_video_path, validate_track_index, validate_trim_values
@@ -31,7 +31,7 @@ else:
         from ..core.silence_detector import detect_silence, parse_segments
         from ..core.settings_manager import SettingsManager
         from ..core.video_processor import process_video_logic
-        from ..ui.widgets.waveform import WaveformGenerator
+        from ..utils.waveform import WaveformGenerator
         from ..config import ENCODER_OPTIONS, UI_SETTINGS
         from ..utils.logger import app_logger
         from ..utils.validators import validate_video_path, validate_track_index, validate_trim_values
@@ -1728,7 +1728,7 @@ class Api:
             
             if not waveforms:
                 # No waveforms extracted - log detailed info
-                from video_production_app.ui.widgets.waveform import AUDIO_ANALYSIS_AVAILABLE
+                from video_production_app.utils.waveform import AUDIO_ANALYSIS_AVAILABLE
                 self.logger.warning("No waveforms extracted (librosa may not be installed or extraction failed)")
                 self.logger.info(f"  - AUDIO_ANALYSIS_AVAILABLE: {AUDIO_ANALYSIS_AVAILABLE}")
                 self.logger.info(f"  - Number of tracks requested: {len(waveform_tracks)}")

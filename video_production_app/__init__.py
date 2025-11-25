@@ -11,10 +11,10 @@ This package provides a comprehensive video editing application with advanced fe
 
 The application is organized into several modules:
 - core/: Business logic and video processing
-- ui/: User interface components and tabs
+- web/: Web UI components (PyWebView-based)
 - utils/: Utility functions and themes
 
-To run the application, use: python -m video_production_app.main
+To run the application, use: python -m video_production_app.launcher.launcher
 """
 
 __version__ = "3.0.0"

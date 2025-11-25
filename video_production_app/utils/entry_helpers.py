@@ -65,7 +65,7 @@ def handle_launch_error(error: Exception, ui_type: str, package_name: str, insta
         try:
             launch_ui()
         except ImportError as e:
-            handle_launch_error(e, "Tkinter", "CustomTkinter", "pip install customtkinter")
+            handle_launch_error(e, "Web", "PyWebView", "pip install pywebview")
     """
     if isinstance(error, ImportError):
         print(f"❌ Error: Could not import {ui_type} UI dependencies.")

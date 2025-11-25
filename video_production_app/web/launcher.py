@@ -2,7 +2,7 @@
 """
 Direct launcher for Web UI (PyWebView-based).
 
-Run: python -m video_production_app.main_web_ui
+Run: python -m video_production_app.web.launcher
 
 The Web UI provides a modern, browser-based interface for video silence cutting.
 """
@@ -12,7 +12,7 @@ from pathlib import Path
 
 # Set up path before relative imports
 _current_file = Path(__file__).resolve()
-_project_root = _current_file.parent.parent
+_project_root = _current_file.parent.parent.parent
 if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
 

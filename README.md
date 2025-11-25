@@ -185,13 +185,13 @@ python -m video_production_app.launcher
 **Option 2: Direct Launch**
 ```bash
 # Launch Web UI directly
-python -m video_production_app.main_web_ui
+python -m video_production_app.web.launcher
 ```
 
 **Option 3: Using Launcher**
 ```bash
 # Launch via launcher (same as Option 1)
-python -m video_production_app.launcher
+python -m video_production_app.launcher.launcher
 ```
 
 ### Basic Workflow
@@ -333,20 +333,22 @@ The **TB Studio** interface is organized into a modern three-panel layout:
 video_production_app/
 ├── __init__.py                 # Package initialization
 ├── config.py                   # Configuration constants
-├── launcher.py                 # Main launcher (launches Web UI)
-├── main_web_ui.py              # Web UI entry point
+│
+├── launcher/                   # Main launcher module
+│   └── launcher.py             # Main entry point
+│
+├── web/                        # Web UI package
+│   ├── launcher.py             # Web UI entry point
+│   ├── web_main.py             # PyWebView backend API
+│   └── web_ui/                 # Frontend files
+│       ├── index.html          # Main HTML
+│       ├── main.js             # Main JavaScript logic
 │
 ├── core/                       # Core business logic
 │   ├── ffmpeg_wrapper.py       # FFmpeg/FFprobe operations
 │   ├── silence_detector.py     # Silence detection logic
 │   ├── video_processor.py      # Video processing logic
 │   └── settings_manager.py     # Settings persistence
-│
-├── web/                        # Web UI package
-│   ├── web_main.py             # PyWebView backend API
-│   └── web_ui/                 # Frontend files
-│       ├── index.html          # Main HTML
-│       ├── main.js             # Main JavaScript logic
 │       ├── player.js           # Video player controls
 │       ├── timeline.js         # Timeline visualization
 │       └── style.css           # Stylesheet
@@ -359,18 +361,21 @@ video_production_app/
 │
 ├── utils/                      # Utility functions
 │   ├── colors.py               # Color theme definitions
+│   ├── entry_helpers.py         # Entry point helpers
 │   ├── helpers.py              # Helper functions
 │   ├── logger.py               # Logging configuration
-│   └── validators.py           # Input validation
+│   ├── validators.py           # Input validation
+│   └── waveform.py             # Waveform generator
 │
 ├── bin/                        # Binary executables
 │   ├── ffmpeg.exe              # FFmpeg executable
 │   ├── ffprobe.exe             # FFprobe executable
 │   └── ffplay.exe              # FFplay executable
 │
-└── scripts/                    # Build and utility scripts
-    ├── build_app.py            # Application builder
-    └── create_standalone.py    # Standalone app creator
+└── bin/                        # Binary executables
+    ├── ffmpeg.exe              # FFmpeg executable
+    ├── ffprobe.exe             # FFprobe executable
+    └── ffplay.exe              # FFplay executable
 ```
 
 ---

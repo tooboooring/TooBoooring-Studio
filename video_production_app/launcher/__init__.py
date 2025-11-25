@@ -1,10 +1,9 @@
 """
 Launcher module for Video Production Suite.
 
-This module provides functions to launch either the Web UI or Tkinter UI.
+This module provides the main launcher for the Web UI.
 """
 
-from .launcher import launch_web_ui, launch_tkinter_ui, show_launcher_menu
+from .launcher import main
 
-__all__ = ['launch_web_ui', 'launch_tkinter_ui', 'show_launcher_menu']
-
+__all__ = ['main']
