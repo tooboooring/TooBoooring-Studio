@@ -21,8 +21,8 @@
 - [Project Structure](#project-structure)
 - [Requirements](#requirements)
 - [Contributing](#contributing)
-- [License](#license)
 - [Upcoming Features](#upcoming-features)
+- [License](#license)
 
 ---
 
@@ -52,12 +52,8 @@
 - **Modern Web UI**: Professional three-panel layout with PyWebView for cross-platform compatibility
 - **Tabbed Navigation**: Organized workspace with Media, AI Tools, and Export tabs
 - **Dark Theme**: Sleek, modern zinc/slate dark theme with indigo accents optimized for video editing
-- **Audio Track Mixer**: Listen to all audio tracks simultaneously with toggle controls
-- **Drag & Drop**: Simple drag and drop video loading for quick workflow
 - **Keyboard Shortcuts**: Efficient workflow with keyboard navigation (Ctrl+S to save, Ctrl+O to open)
-- **Enhanced Timeline**: Smooth waveform rendering with improved visual feedback
 - **Cost Estimation**: Real-time cost and token count estimates before running AI analysis
-- **Advanced Tooltips**: Hover over AI models to see detailed personality, use cases, and cut rates
 - **Auto-Save**: Automatic project saves every 5 minutes to prevent data loss
 
 ### Advanced Features
@@ -65,45 +61,6 @@
 - **Settings Persistence**: Save and restore your preferred settings
 - **Progress Tracking**: Real-time progress updates during video processing
 - **Audio Analysis**: Detailed audio track analysis and visualization
-
----
-
-## What's New
-
-### Latest Updates
-
-**UI Redesign:**
-- **Modern Three-Panel Layout**: Professional workspace with left sidebar, center video player, and bottom timeline
-- **Tabbed Navigation**: Organized tabs for Media, AI Tools, and Export
-- **TB Studio Branding**: Updated branding with modern logo and color scheme
-- **Dark Theme**: Beautiful zinc/slate dark theme with indigo accents
-- **Drag & Drop**: Simply drag video files into the app to load them
-- **Audio Track Mixer**: Multi-track audio support - listen to all tracks simultaneously with toggle controls
-- **Enhanced Timeline**: Smooth waveform rendering with better visual clarity
-- **Streamlined UI**: Removed non-functional components for a cleaner, more focused interface
-- **Advanced Tooltips**: Rich tooltips showing AI model personality, best use cases, and cut rates
-
-**Project Management:**
-- **Project Save/Load**: Save your editing sessions to .tbproj files with all segments, settings, and AI analysis
-- **Auto-Save**: Automatic background saves every 5 minutes to prevent data loss
-- **Keyboard Shortcuts**: Ctrl+S to save, Ctrl+O to open projects quickly
-- **Beautiful Notifications**: Modern toast notifications and modal dialogs for user feedback
-- **Video Path Tracking**: Projects remember video file paths for easy restoration
-
-**AI Analysis Improvements:**
-- **DeepSeek R1 Support**: Fixed token starvation issues - DeepSeek R1 now works correctly with proper reasoning
-- **Analysis History**: Compare different AI runs instantly - toggle between models without re-analyzing
-- **Enhanced Model Selection**: 4 specialized models optimized for different content types:
-  - **Llama 3.3 70B (Recommended)**: The Storyteller - Low cut rate (~5%), best for vlogs and tutorials
-  - **DeepSeek R1 (Ruthless)**: The Viral Editor - High cut rate (~75%), perfect for TikToks and reels
-  - **Qwen 2.5 72B (Balanced)**: The Professional - Medium cut rate (~15%), ideal for corporate/educational content
-  - **Llama 3.1 8B (Speed)**: The Draftsman - Fast and cheap, great for quick tests
-
-**Reliability Improvements:**
-- **Robust Error Handling**: Enhanced retry logic with exponential backoff for rate limits (429 errors)
-- **Fail-Fast Validation**: API key and connection validation before starting analysis (saves time)
-- **Improved Timeouts**: Increased timeouts for verbose models like DeepSeek R1 (120s)
-- **Better Logging**: Comprehensive debug logging for troubleshooting
 
 ---
 
@@ -183,40 +140,22 @@ For AI-powered content analysis features:
 
 ### Launch the Application
 
-**Option 1: Interactive Launcher** (Recommended)
 ```bash
 python -m video_production_app.launcher
 ```
 
-**Option 2: Direct Launch**
+Or launch the Web UI directly:
 ```bash
-# Launch Web UI directly
 python -m video_production_app.web.launcher
-```
-
-**Option 3: Using Launcher**
-```bash
-# Launch via launcher (same as Option 1)
-python -m video_production_app.launcher.launcher
 ```
 
 ### Basic Workflow
 
-1. **Load Video**: Click "Load Video" or drag & drop a video file into the upload zone
-2. **Audio Mixer**: Toggle audio tracks on/off to hear multiple tracks simultaneously (if applicable)
-3. **Select Audio Track**: Navigate to the AI Tools tab and choose the audio track to analyze
-4. **Detect Silence**: Click "Detect Silence" to identify silent segments
-5. **Review Timeline**: Check the smooth waveform visualization and color-coded segments
-6. **Optional - AI Analysis**: Run AI analysis to get intelligent content recommendations
-7. **Save Project** (Optional): Click "Save" in the header to save your work (Ctrl+S)
-8. **Export Video**: Navigate to the Export tab and click "Export Video" to render the final video
-
-### Project Management
-
-- **Save Project**: Click "Save" button in header or press Ctrl+S to save your editing session
-- **Open Project**: Click "Open" button in header or press Ctrl+O to resume a saved project
-- **Auto-Save**: Projects are automatically saved every 5 minutes in the same folder as your video
-- **Project Files**: Saved as `.tbproj` files containing segments, settings, AI analysis history, and video metadata
+1. **Load Video**: Click "Load Video" or drag & drop a video file
+2. **Detect Silence**: Navigate to AI Tools tab and click "Detect Silence"
+3. **AI Analysis** (Optional): Run AI analysis for intelligent content recommendations
+4. **Save Project** (Ctrl+S): Save your editing session to a `.tbproj` file
+5. **Export Video**: Navigate to Export tab and click "Export Video"
 
 ---
 
@@ -252,11 +191,7 @@ Configure AI analysis in the settings:
   - `medium`: Very good accuracy (~5GB VRAM)
   - `large`: Best accuracy, slowest (~10GB VRAM)
 - **Context Window**: Seconds before/after each segment to include (default: 30s)
-- **AI Model**: Choose from 4 specialized models (hover for tooltip):
-  - **Llama 3.3 70B (Recommended)**: Default, best overall balance
-  - **DeepSeek R1 (Ruthless)**: High-density cuts, perfect for short-form content
-  - **Qwen 2.5 72B (Balanced)**: Professional, logical analysis
-  - **Llama 3.1 8B (Speed)**: Fast and cheap for quick tests
+- **AI Model**: Choose from 4 specialized models optimized for different content types (hover for detailed tooltips)
 
 ---
 
@@ -484,12 +419,9 @@ Copyright 2024 Shankargouda Hanchinal
 #### Video Processing
 - [ ] **Batch Processing**: Process multiple videos in a queue with progress tracking
 - [ ] **Subtitle Support**: Import and export SRT subtitle files
-- [x] **Audio Mixing**: Mix multiple audio tracks with toggle controls - *Implemented*
-- [x] **Project Save/Load**: Save and restore editing sessions - *Implemented*
 - [ ] **Multi-format Export**: Support for additional video formats and codecs
 
 #### User Interface
-- [x] **Dark Theme**: Professional zinc/slate dark theme - *Implemented*
 - [ ] **Light Theme**: Optional light theme for daytime use
 - [ ] **Customizable Layout**: Resizable and rearrangeable UI panels
 - [ ] **Undo/Redo System**: Full undo/redo functionality for edits
@@ -498,24 +430,6 @@ Copyright 2024 Shankargouda Hanchinal
 - [ ] **GPU Acceleration for Whisper**: CUDA support for faster transcription
 - [ ] **Parallel Processing**: Process multiple videos simultaneously
 - [ ] **Progress Resume**: Resume interrupted processing tasks
-
-### Feature Requests
-
-We welcome feature requests from the community! If you have an idea for a feature:
-
-1. **Check existing issues**: Search for similar feature requests
-2. **Create an issue**: Open a new issue with the `enhancement` label
-3. **Provide details**: Describe the feature, use cases, and potential implementation
-4. **Community feedback**: Engage with other users' suggestions
-
----
-
-## Acknowledgments
-
-- **FFmpeg**: Video processing capabilities
-- **OpenAI Whisper**: Speech recognition and transcription
-- **together.ai**: AI content analysis
-- **PyWebView**: Web UI framework
 
 ---
 
