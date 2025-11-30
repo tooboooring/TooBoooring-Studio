@@ -187,34 +187,62 @@ export class Timeline {
             return; // No data
         }
 
-        ctx.strokeStyle = '#3b82f6'; // Blue
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#4a9eff'; // Blue
+        ctx.fillStyle = '#4a9eff';
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
         
         const mid_h = h / 2;
+        const padding = 8;
+        const maxAmplitude = (h / 2) - padding;
+        
+        // Normalize waveform to use full amplitude range
+        const maxValue = Math.max(...data.map(v => Math.abs(v)));
+        const normalizeFactor = maxValue > 0 ? 1.0 / maxValue : 1.0;
         
         // Calculate visible time range
         const visibleDuration = this.duration / this.zoom;
         const startTime = this.scrollOffset;
         const endTime = Math.min(this.duration, startTime + visibleDuration);
         
-        ctx.beginPath();
-        ctx.lineWidth = 1.5; // Slightly thicker lines
-        
+        // Prepare waveform points for smooth rendering
+        const waveformPoints = [];
         for (let i = 0; i < data.length; i++) {
             const time = (i / data.length) * this.duration;
-            
-            // Only draw if within visible range
             if (time >= startTime && time <= endTime) {
                 const x = this.timeToX(time, w, this.duration);
-                const amplitude = data[i] * mid_h * 1.3; // 30% bigger amplitude
-                
                 if (x >= 0 && x <= w) {
-                    ctx.moveTo(x, mid_h - amplitude);
-                    ctx.lineTo(x, mid_h + amplitude);
+                    const normalizedValue = data[i] * normalizeFactor;
+                    const amplitude = normalizedValue * maxAmplitude;
+                    waveformPoints.push({
+                        x: x,
+                        y: mid_h - amplitude
+                    });
                 }
             }
         }
+
+        if (waveformPoints.length === 0) return;
+
+        // Draw smooth continuous waveform (top half)
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.moveTo(waveformPoints[0].x, waveformPoints[0].y);
+        for (let i = 1; i < waveformPoints.length; i++) {
+            ctx.lineTo(waveformPoints[i].x, waveformPoints[i].y);
+        }
         ctx.stroke();
+
+        // Draw smooth continuous waveform (bottom half - symmetric)
+        ctx.beginPath();
+        ctx.moveTo(waveformPoints[0].x, mid_h + (mid_h - waveformPoints[0].y));
+        for (let i = 1; i < waveformPoints.length; i++) {
+            const bottomY = mid_h + (mid_h - waveformPoints[i].y);
+            ctx.lineTo(waveformPoints[i].x, bottomY);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1.0;
     }
     
     drawMultiWaveforms() {
@@ -264,6 +292,7 @@ export class Timeline {
             const scaledTrackHeight = trackHeight * scaleFactor;
             const trackYStart = idx * scaledTrackHeight;
             const trackCenterY = trackYStart + scaledTrackHeight / 2;
+            const maxAmplitude = (scaledTrackHeight / 2) - 2; // 2px padding
 
             // Get colors for this track
             const colorIdx = idx % trackColors.length;
@@ -272,128 +301,80 @@ export class Timeline {
 
             // Draw separator line between tracks (except for first track)
             if (idx > 0) {
-                ctx.strokeStyle = '#333333';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(0, trackYStart);
-                ctx.lineTo(w, trackYStart);
-                ctx.stroke();
+                ctx.fillStyle = '#333333';
+                ctx.fillRect(0, trackYStart, w, 1);
             }
 
             // Draw track label
             const labelText = trackInfo.name || `Track ${trackIndex + 1}`;
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 8px sans-serif';
-            ctx.fillText(labelText, 5, trackYStart + 10);
+            ctx.font = 'bold 10px sans-serif';
+            ctx.fillText(labelText, 6, trackYStart + 14);
 
-            // Draw the waveform as filled area (smoother rendering)
-            const maxAmplitude = (scaledTrackHeight / 2 - 10) * 1.2; // Leave some padding
-
-            // Draw for audible segments (active color)
-            ctx.fillStyle = activeColor;
-            ctx.beginPath();
-            let pathStarted = false;
+            // --- PRO PEAK RENDERING ---
             
-            for (let i = 0; i < waveform.length; i++) {
-                const time = (i / waveform.length) * this.duration;
+            const samplesPerPixel = (waveform.length / this.duration) * (visibleDuration / w);
+            // Normalize audio data (0.0 to 1.0)
+            const globalMax = Math.max(...waveform.map(v => Math.abs(v)));
+            const normFactor = globalMax > 0 ? 1 / globalMax : 1;
 
-                // Only draw if within visible range
-                if (time >= startTime && time <= endTime) {
-                    const x = this.timeToX(time, w, this.duration);
+            // We loop through pixels (X) rather than samples. 
+            // This ensures 1 pixel = 1 vertical bar. Crisp.
+            for (let x = 0; x < w; x++) {
+                // 1. Determine time window for this pixel
+                const pixelStartTime = startTime + (x / w) * visibleDuration;
+                
+                // 2. Map to array indices
+                const exactIndex = (pixelStartTime / this.duration) * waveform.length;
+                const startIndex = Math.floor(exactIndex);
+                
+                let val = 0;
 
-                    if (x >= 0 && x <= w) {
-                        // Check if in audible segment
-                        let inAudibleSegment = false;
-                        if (this.segments && this.segments.length > 0) {
-                            inAudibleSegment = this.segments.some(seg =>
-                                seg.type === 'audible' && seg.start <= time && time <= seg.end
-                            );
-                        }
-
-                        if (inAudibleSegment) {
-                            const amplitude = Math.abs(waveform[i]) * maxAmplitude;
-                            
-                            if (!pathStarted) {
-                                ctx.moveTo(x, trackCenterY);
-                                pathStarted = true;
-                            }
-                            ctx.lineTo(x, trackCenterY - amplitude);
-                        }
+                // 3. Calculate Amplitude
+                if (samplesPerPixel >= 1.0) {
+                    // ZOOMED OUT: We have many samples per pixel. Find the Peak (Max).
+                    // This creates the solid "wall" look.
+                    const endIndex = Math.floor(startIndex + samplesPerPixel);
+                    const safeEnd = Math.min(waveform.length, endIndex + 1); // +1 to ensure we read at least one
+                    
+                    for (let i = startIndex; i < safeEnd; i++) {
+                        const absV = Math.abs(waveform[i]);
+                        if (absV > val) val = absV;
+                    }
+                } else {
+                    // ZOOMED IN: 1 sample covers many pixels. 
+                    // Use Linear Interpolation to connect points sharply (no curves, no blocks).
+                    const i = startIndex;
+                    if (i >= 0 && i < waveform.length - 1) {
+                        const v1 = Math.abs(waveform[i]);
+                        const v2 = Math.abs(waveform[i+1]);
+                        const t = exactIndex - i; // fractional part
+                        val = v1 + (v2 - v1) * t; // Linear Lerp
+                    } else if (i < waveform.length) {
+                         val = Math.abs(waveform[i]);
                     }
                 }
-            }
-            
-            // Complete the path (bottom half)
-            for (let i = waveform.length - 1; i >= 0; i--) {
-                const time = (i / waveform.length) * this.duration;
-                if (time >= startTime && time <= endTime) {
-                    const x = this.timeToX(time, w, this.duration);
-                    if (x >= 0 && x <= w) {
-                        let inAudibleSegment = false;
-                        if (this.segments && this.segments.length > 0) {
-                            inAudibleSegment = this.segments.some(seg =>
-                                seg.type === 'audible' && seg.start <= time && time <= seg.end
-                            );
-                        }
-                        if (inAudibleSegment) {
-                            const amplitude = Math.abs(waveform[i]) * maxAmplitude;
-                            ctx.lineTo(x, trackCenterY + amplitude);
-                        }
-                    }
+
+                // 4. Check Segments (Audible vs Silent coloring)
+                let isAudible = false;
+                if (this.segments) {
+                    // Check if the center of this pixel time is inside a segment
+                    const checkTime = pixelStartTime + (visibleDuration/w)/2;
+                    isAudible = this.segments.some(seg => 
+                        seg.type === 'audible' && seg.start <= checkTime && checkTime <= seg.end
+                    );
                 }
+
+                // 5. Draw Vertical Line
+                const barHeight = Math.max(1, val * normFactor * maxAmplitude);
+                
+                ctx.fillStyle = isAudible ? activeColor : dimColor;
+                ctx.globalAlpha = isAudible ? 1.0 : 0.5;
+
+                // Draw from center up and center down (Mirrored)
+                // Using fillRect with width 1 creates a solid, sharp line.
+                ctx.fillRect(x, trackCenterY - barHeight, 1, barHeight * 2);
             }
-            ctx.closePath();
-            ctx.fill();
-            
-            // Draw dimmed waveform for silent parts
-            ctx.fillStyle = dimColor;
-            ctx.globalAlpha = 0.5;
-            ctx.beginPath();
-            pathStarted = false;
-            
-            for (let i = 0; i < waveform.length; i++) {
-                const time = (i / waveform.length) * this.duration;
-                if (time >= startTime && time <= endTime) {
-                    const x = this.timeToX(time, w, this.duration);
-                    if (x >= 0 && x <= w) {
-                        let inAudibleSegment = false;
-                        if (this.segments && this.segments.length > 0) {
-                            inAudibleSegment = this.segments.some(seg =>
-                                seg.type === 'audible' && seg.start <= time && time <= seg.end
-                            );
-                        }
-                        if (!inAudibleSegment) {
-                            const amplitude = Math.abs(waveform[i]) * maxAmplitude;
-                            if (!pathStarted) {
-                                ctx.moveTo(x, trackCenterY);
-                                pathStarted = true;
-                            }
-                            ctx.lineTo(x, trackCenterY - amplitude);
-                        }
-                    }
-                }
-            }
-            
-            for (let i = waveform.length - 1; i >= 0; i--) {
-                const time = (i / waveform.length) * this.duration;
-                if (time >= startTime && time <= endTime) {
-                    const x = this.timeToX(time, w, this.duration);
-                    if (x >= 0 && x <= w) {
-                        let inAudibleSegment = false;
-                        if (this.segments && this.segments.length > 0) {
-                            inAudibleSegment = this.segments.some(seg =>
-                                seg.type === 'audible' && seg.start <= time && time <= seg.end
-                            );
-                        }
-                        if (!inAudibleSegment) {
-                            const amplitude = Math.abs(waveform[i]) * maxAmplitude;
-                            ctx.lineTo(x, trackCenterY + amplitude);
-                        }
-                    }
-                }
-            }
-            ctx.closePath();
-            ctx.fill();
             ctx.globalAlpha = 1.0;
         });
     }

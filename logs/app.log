@@ -1,241 +1,92 @@
-2025-11-26 00:04:31 - video_production_app.Api - INFO - API initialized
-2025-11-26 00:04:34 - video_production_app.Api - INFO - Getting app configuration
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
-2025-11-26 00:04:34 - video_production_app.Api - DEBUG - Starting encoder detection
-2025-11-26 00:04:34 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
-2025-11-26 00:04:34 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
-2025-11-26 00:04:34 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
-2025-11-26 00:04:34 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
-2025-11-26 00:04:34 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
-2025-11-26 00:04:34 - video_production_app.Api - DEBUG - Returning config with 8 encoders
-2025-11-26 00:04:34 - video_production_app.Api - DEBUG - Getting AI settings
-2025-11-26 00:05:05 - video_production_app.Api - INFO - Loading video: C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:05:05 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Stop_Motion_Video_Creation_Request.mp4...
+2025-11-30 12:40:18 - video_production_app.Api - INFO - API initialized
+2025-11-30 12:40:21 - video_production_app.Api - INFO - Getting app configuration
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-30 12:40:21 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-30 12:40:21 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-30 12:40:21 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-30 12:40:21 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-30 12:40:21 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-30 12:40:21 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-30 12:40:21 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-30 12:40:21 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-30 12:40:25 - video_production_app.Api - INFO - Loading video: E:/lesage_november_task/deliverables/video_pipeline/download/1.mkv
+2025-11-30 12:40:25 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
 
-2025-11-26 00:05:05 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+2025-11-30 12:40:25 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
 
-2025-11-26 00:05:05 - video_production_app.Api - INFO - Successfully loaded video: Stop_Motion_Video_Creation_Request.mp4 (8.00s, 1 tracks)
-2025-11-26 00:05:13 - video_production_app.Api - INFO - Detecting silence for C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4 on track 1
-2025-11-26 00:05:13 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Stop_Motion_Video_Creation_Request.mp4...
+2025-11-30 12:40:25 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-30 12:40:30 - video_production_app.Api - INFO - Detecting silence for E:/lesage_november_task/deliverables/video_pipeline/download/1.mkv on track 1
+2025-11-30 12:40:30 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
 
-2025-11-26 00:05:13 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+2025-11-30 12:40:30 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
 
-2025-11-26 00:05:13 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+2025-11-30 12:40:30 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
 
-2025-11-26 00:05:13 - video_production_app.Api - INFO - 🤔 No silence detected. Treating entire video as one audible segment.
+2025-11-30 12:40:30 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
 
-2025-11-26 00:05:13 - video_production_app.Api - INFO - Found 1 segments
-2025-11-26 00:05:13 - video_production_app.Api - INFO - Extracting waveforms for all tracks in C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4...
-2025-11-26 00:05:13 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
-2025-11-26 00:05:13 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (aac)
-2025-11-26 00:05:13 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
-2025-11-26 00:05:13 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
-2025-11-26 00:05:20 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
-2025-11-26 00:05:20 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
-2025-11-26 00:05:20 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (176400,)
-2025-11-26 00:05:20 - video_production_app.Api - INFO -   Downsampled to 1707 points
-2025-11-26 00:05:20 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
-2025-11-26 00:05:20 - video_production_app.Api - DEBUG - Cached multi-track waveforms for C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:08:55 - video_production_app.Api - INFO - API initialized
-2025-11-26 00:08:58 - video_production_app.Api - INFO - Getting app configuration
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
-2025-11-26 00:08:58 - video_production_app.Api - DEBUG - Starting encoder detection
-2025-11-26 00:08:58 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
-2025-11-26 00:08:58 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
-2025-11-26 00:08:58 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
-2025-11-26 00:08:58 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
-2025-11-26 00:08:58 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
-2025-11-26 00:08:58 - video_production_app.Api - DEBUG - Returning config with 8 encoders
-2025-11-26 00:08:58 - video_production_app.Api - DEBUG - Getting AI settings
-2025-11-26 00:10:11 - video_production_app.Api - INFO - User cancelled file selection
-2025-11-26 00:10:57 - video_production_app.Api - INFO - Loading video: C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:10:57 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Stop_Motion_Video_Creation_Request.mp4...
+2025-11-30 12:40:30 - video_production_app.Api - INFO - Found 50 segments
+2025-11-30 12:40:30 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/lesage_november_task/deliverables/video_pipeline/download/1.mkv...
+2025-11-30 12:40:30 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-30 12:40:30 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-30 12:40:30 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-30 12:40:30 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-30 12:40:32 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-30 12:40:32 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-30 12:40:32 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-30 12:40:32 - video_production_app.Api - INFO -   Downsampled to 1258 points
+2025-11-30 12:40:32 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-30 12:40:32 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/lesage_november_task/deliverables/video_pipeline/download/1.mkv
+2025-11-30 12:41:10 - video_production_app.Api - INFO - API initialized
+2025-11-30 12:41:12 - video_production_app.Api - INFO - Getting app configuration
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
+2025-11-30 12:41:12 - video_production_app.Api - DEBUG - Starting encoder detection
+2025-11-30 12:41:12 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
+2025-11-30 12:41:12 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
+2025-11-30 12:41:12 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
+2025-11-30 12:41:12 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
+2025-11-30 12:41:12 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
+2025-11-30 12:41:12 - video_production_app.Api - DEBUG - Returning config with 8 encoders
+2025-11-30 12:41:12 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-30 12:41:17 - video_production_app.Api - INFO - Loading video: E:/lesage_november_task/deliverables/video_pipeline/download/1.mkv
+2025-11-30 12:41:17 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
 
-2025-11-26 00:10:58 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+2025-11-30 12:41:17 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
 
-2025-11-26 00:10:58 - video_production_app.Api - INFO - Successfully loaded video: Stop_Motion_Video_Creation_Request.mp4 (8.00s, 1 tracks)
-2025-11-26 00:10:59 - video_production_app.Api - INFO - Detecting silence for C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4 on track 1
-2025-11-26 00:10:59 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Stop_Motion_Video_Creation_Request.mp4...
+2025-11-30 12:41:17 - video_production_app.Api - INFO - Successfully loaded video: 1.mkv (211.40s, 1 tracks)
+2025-11-30 12:41:19 - video_production_app.Api - INFO - Detecting silence for E:/lesage_november_task/deliverables/video_pipeline/download/1.mkv on track 1
+2025-11-30 12:41:19 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in 1.mkv...
 
-2025-11-26 00:10:59 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
+2025-11-30 12:41:19 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
 
-2025-11-26 00:10:59 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
+2025-11-30 12:41:19 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
 
-2025-11-26 00:11:00 - video_production_app.Api - INFO - 🤔 No silence detected. Treating entire video as one audible segment.
+2025-11-30 12:41:19 - video_production_app.Api - INFO - 🔍 Found 25 audible segments and 25 silent segments.
 
-2025-11-26 00:11:00 - video_production_app.Api - INFO - Found 1 segments
-2025-11-26 00:11:00 - video_production_app.Api - INFO - Extracting waveforms for all tracks in C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4...
-2025-11-26 00:11:00 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
-2025-11-26 00:11:00 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (aac)
-2025-11-26 00:11:00 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
-2025-11-26 00:11:00 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
-2025-11-26 00:11:02 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
-2025-11-26 00:11:02 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
-2025-11-26 00:11:02 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (176400,)
-2025-11-26 00:11:02 - video_production_app.Api - INFO -   Downsampled to 1707 points
-2025-11-26 00:11:02 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
-2025-11-26 00:11:02 - video_production_app.Api - DEBUG - Cached multi-track waveforms for C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:13:38 - video_production_app.Api - INFO - API initialized
-2025-11-26 00:13:40 - video_production_app.Api - INFO - Getting app configuration
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
-2025-11-26 00:13:40 - video_production_app.Api - DEBUG - Starting encoder detection
-2025-11-26 00:13:40 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
-2025-11-26 00:13:40 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
-2025-11-26 00:13:40 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
-2025-11-26 00:13:40 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
-2025-11-26 00:13:40 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
-2025-11-26 00:13:40 - video_production_app.Api - DEBUG - Returning config with 8 encoders
-2025-11-26 00:13:40 - video_production_app.Api - DEBUG - Getting AI settings
-2025-11-26 00:14:23 - video_production_app.Api - INFO - Loading video from path: /Pushing for top 100 in the world [g2Ig3nrkAs8].mp4
-2025-11-26 00:14:23 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Pushing for top 100 in the world [g2Ig3nrkAs8].mp4...
-
-2025-11-26 00:14:23 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
-
-2025-11-26 00:14:23 - video_production_app.Api - INFO - Successfully loaded video: Pushing for top 100 in the world [g2Ig3nrkAs8].mp4 (584.54s, 1 tracks)
-2025-11-26 00:14:45 - video_production_app.Api - INFO - Loading video: C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:14:45 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Stop_Motion_Video_Creation_Request.mp4...
-
-2025-11-26 00:14:45 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
-
-2025-11-26 00:14:45 - video_production_app.Api - INFO - Successfully loaded video: Stop_Motion_Video_Creation_Request.mp4 (8.00s, 1 tracks)
-2025-11-26 00:15:29 - video_production_app.Api - INFO - Detecting silence for C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4 on track 1
-2025-11-26 00:15:29 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Stop_Motion_Video_Creation_Request.mp4...
-
-2025-11-26 00:15:29 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
-
-2025-11-26 00:15:29 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
-
-2025-11-26 00:15:29 - video_production_app.Api - INFO - 🤔 No silence detected. Treating entire video as one audible segment.
-
-2025-11-26 00:15:29 - video_production_app.Api - INFO - Found 1 segments
-2025-11-26 00:15:29 - video_production_app.Api - INFO - Extracting waveforms for all tracks in C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4...
-2025-11-26 00:15:29 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
-2025-11-26 00:15:29 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (aac)
-2025-11-26 00:15:29 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
-2025-11-26 00:15:29 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
-2025-11-26 00:15:31 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
-2025-11-26 00:15:31 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
-2025-11-26 00:15:31 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (176400,)
-2025-11-26 00:15:31 - video_production_app.Api - INFO -   Downsampled to 1707 points
-2025-11-26 00:15:31 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
-2025-11-26 00:15:31 - video_production_app.Api - DEBUG - Cached multi-track waveforms for C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:21:03 - video_production_app.Api - INFO - API initialized
-2025-11-26 00:21:05 - video_production_app.Api - INFO - Getting app configuration
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
-2025-11-26 00:21:05 - video_production_app.Api - DEBUG - Starting encoder detection
-2025-11-26 00:21:05 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
-2025-11-26 00:21:05 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
-2025-11-26 00:21:05 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
-2025-11-26 00:21:05 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
-2025-11-26 00:21:05 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
-2025-11-26 00:21:05 - video_production_app.Api - DEBUG - Returning config with 8 encoders
-2025-11-26 00:21:05 - video_production_app.Api - DEBUG - Getting AI settings
-2025-11-26 00:21:22 - video_production_app.Api - INFO - Loading video from path: /Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:21:22 - video_production_app.Api - ERROR - Invalid video path: File does not exist
-2025-11-26 00:21:22 - video_production_app.Api - ERROR - Error: File does not exist
-2025-11-26 00:21:52 - video_production_app.Api - INFO - Loading video: C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:21:52 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Stop_Motion_Video_Creation_Request.mp4...
-
-2025-11-26 00:21:52 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
-
-2025-11-26 00:21:52 - video_production_app.Api - INFO - Successfully loaded video: Stop_Motion_Video_Creation_Request.mp4 (8.00s, 1 tracks)
-2025-11-26 00:21:55 - video_production_app.Api - INFO - Detecting silence for C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4 on track 1
-2025-11-26 00:21:55 - video_production_app.Api - INFO - 🔎 Scanning for audio tracks in Stop_Motion_Video_Creation_Request.mp4...
-
-2025-11-26 00:21:55 - video_production_app.Api - INFO - ✅ Found 1 audio track(s).
-
-2025-11-26 00:21:55 - video_production_app.Api - INFO - 🤫 Detecting silence in track 1...
-
-2025-11-26 00:21:55 - video_production_app.Api - INFO - 🤔 No silence detected. Treating entire video as one audible segment.
-
-2025-11-26 00:21:55 - video_production_app.Api - INFO - Found 1 segments
-2025-11-26 00:21:55 - video_production_app.Api - INFO - Extracting waveforms for all tracks in C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4...
-2025-11-26 00:21:55 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
-2025-11-26 00:21:55 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (aac)
-2025-11-26 00:21:55 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
-2025-11-26 00:21:55 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
-2025-11-26 00:21:57 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
-2025-11-26 00:21:57 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
-2025-11-26 00:21:57 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (176400,)
-2025-11-26 00:21:57 - video_production_app.Api - INFO -   Downsampled to 1707 points
-2025-11-26 00:21:57 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
-2025-11-26 00:21:57 - video_production_app.Api - DEBUG - Cached multi-track waveforms for C:/Users/ASUS/Downloads/Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:27:12 - video_production_app.Api - INFO - API initialized
-2025-11-26 00:27:15 - video_production_app.Api - INFO - Getting app configuration
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
-2025-11-26 00:27:15 - video_production_app.Api - DEBUG - Starting encoder detection
-2025-11-26 00:27:15 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
-2025-11-26 00:27:15 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
-2025-11-26 00:27:15 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
-2025-11-26 00:27:15 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
-2025-11-26 00:27:15 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
-2025-11-26 00:27:15 - video_production_app.Api - DEBUG - Returning config with 8 encoders
-2025-11-26 00:27:15 - video_production_app.Api - DEBUG - Getting AI settings
-2025-11-26 00:27:39 - video_production_app.Api - INFO - Loading video from path: /Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:27:39 - video_production_app.Api - ERROR - Invalid video path: File does not exist
-2025-11-26 00:27:39 - video_production_app.Api - ERROR - Error: File does not exist
-2025-11-26 00:27:44 - video_production_app.Api - INFO - Loading video from path: /Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:27:44 - video_production_app.Api - ERROR - Invalid video path: File does not exist
-2025-11-26 00:27:44 - video_production_app.Api - ERROR - Error: File does not exist
-2025-11-26 00:27:53 - video_production_app.Api - INFO - Loading video from path: /Stop_Motion_Video_Creation_Request.mp4
-2025-11-26 00:27:53 - video_production_app.Api - ERROR - Invalid video path: File does not exist
-2025-11-26 00:27:53 - video_production_app.Api - ERROR - Error: File does not exist
-2025-11-26 00:32:17 - video_production_app.Api - INFO - API initialized
-2025-11-26 00:32:20 - video_production_app.Api - INFO - Getting app configuration
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✅ Found FFmpeg locally.
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✅ Found FFprobe locally.
-2025-11-26 00:32:20 - video_production_app.Api - DEBUG - Starting encoder detection
-2025-11-26 00:32:20 - video_production_app.Api - INFO - 🔍 Detecting available GPU encoders...
-2025-11-26 00:32:20 - video_production_app.Api - INFO - 📋 FFmpeg encoder list length: 14046 chars
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✓ Found: NVIDIA (H.264) (h264_nvenc)
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✓ Found: NVIDIA (HEVC) (hevc_nvenc)
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✓ Found: AMD (H.264) (h264_amf)
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✓ Found: AMD (HEVC) (hevc_amf)
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✓ Found: Intel (H.264) (h264_qsv)
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✓ Found: Intel (HEVC) (hevc_qsv)
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✓ Found: CPU (x264) (libx264)
-2025-11-26 00:32:20 - video_production_app.Api - INFO - ✅ Found 6 compatible hardware encoder(s).
-2025-11-26 00:32:20 - video_production_app.Api - INFO - Found 8 encoder(s): ['Automatic (Best GPU)', 'NVIDIA (H.264)', 'NVIDIA (HEVC)', 'AMD (H.264)', 'AMD (HEVC)', 'Intel (H.264)', 'Intel (HEVC)', 'CPU (x264)']
-2025-11-26 00:32:20 - video_production_app.Api - INFO - 📊 Encoder detection complete. Found 8 option(s).
-2025-11-26 00:32:20 - video_production_app.Api - DEBUG - Returning config with 8 encoders
-2025-11-26 00:32:20 - video_production_app.Api - DEBUG - Getting AI settings
+2025-11-30 12:41:19 - video_production_app.Api - INFO - Found 50 segments
+2025-11-30 12:41:19 - video_production_app.Api - INFO - Extracting waveforms for all tracks in E:/lesage_november_task/deliverables/video_pipeline/download/1.mkv...
+2025-11-30 12:41:19 - video_production_app.Api - INFO - Preparing to extract waveforms for 1 track(s)
+2025-11-30 12:41:19 - video_production_app.Api - INFO -   Track 0: stream_index=1, name=Track 1 (pcm_s16le)
+2025-11-30 12:41:19 - video_production_app.Api - INFO - Waveform: 🔍 Starting waveform extraction for 1 track(s)...
+2025-11-30 12:41:19 - video_production_app.Api - INFO - Waveform: 📊 Extracting waveform for Track 1...
+2025-11-30 12:41:21 - video_production_app.Api - INFO - Waveform: ✅ Extracted 1 waveforms!
+2025-11-30 12:41:21 - video_production_app.Api - INFO - Waveform extraction returned 1 waveforms
+2025-11-30 12:41:21 - video_production_app.Api - INFO - Processing waveform for track 0, shape: (4660736,)
+2025-11-30 12:41:21 - video_production_app.Api - INFO -   Downsampled to 1258 points
+2025-11-30 12:41:21 - video_production_app.Api - INFO - Successfully processed 1 waveforms for frontend
+2025-11-30 12:41:21 - video_production_app.Api - DEBUG - Cached multi-track waveforms for E:/lesage_november_task/deliverables/video_pipeline/download/1.mkv
