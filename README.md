@@ -10,108 +10,114 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Features](#-features)
-- [Screenshots](#-screenshots)
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Configuration](#-configuration)
-- [Usage Guide](#-usage-guide)
-- [Project Structure](#-project-structure)
-- [Requirements](#-requirements)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Upcoming Features](#-upcoming-features)
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Usage Guide](#usage-guide)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Contributing](#contributing)
+- [License](#license)
+- [Upcoming Features](#upcoming-features)
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core Video Processing
-- **🎯 Silence Detection & Removal**: Advanced silence detection with customizable thresholds and duration settings
-- **✂️ Video Trimming**: Frame-accurate video cutting with multi-segment support
-- **🎨 GPU-Accelerated Encoding**: Hardware acceleration support for NVIDIA (NVENC), AMD (AMF), Intel (Quick Sync), and CPU encoding
-- **📊 Enhanced Timeline**: Smooth waveform visualization with color-coded segments for precise editing
-- **🎥 Frame-Accurate Preview**: Preview video frames at exact timestamps with FFplay integration
-- **🎵 Multi-Track Audio Mixer**: Listen to all audio tracks simultaneously with toggle controls - works with any language (Hindi, English, etc.)
-- **📤 Drag & Drop**: Simple drag and drop interface for quick video loading
+- **Silence Detection & Removal**: Advanced silence detection with customizable thresholds and duration settings
+- **Video Trimming**: Frame-accurate video cutting with multi-segment support
+- **GPU-Accelerated Encoding**: Hardware acceleration support for NVIDIA (NVENC), AMD (AMF), Intel (Quick Sync), and CPU encoding
+- **Enhanced Timeline**: Smooth waveform visualization with color-coded segments for precise editing
+- **Frame-Accurate Preview**: Preview video frames at exact timestamps with FFplay integration
+- **Multi-Track Audio Mixer**: Listen to all audio tracks simultaneously with toggle controls - works with any language (Hindi, English, etc.)
+- **Drag & Drop**: Simple drag and drop interface for quick video loading
+- **Project Save/Load**: Save your editing sessions to .tbproj files and resume later with all segments, settings, and AI analysis history preserved
 
 ### AI-Powered Content Analysis
-- **🤖 AI Content Analysis**: Intelligent content evaluation using OpenAI Whisper and together.ai
-- **📝 Automatic Transcription**: Local audio transcription with word-level timestamps (cached for performance)
-- **🧠 Context-Aware Analysis**: AI analyzes content with surrounding context for better decisions
-- **🎨 Visual Feedback**: Color-coded segments (green=keep, orange=flag) based on AI recommendations
-- **💾 Export Analysis**: Save AI decisions and reasoning to JSON for review
-- **📚 Analysis History**: Toggle between different AI analysis runs without re-analyzing
-- **💡 Model Tooltips**: Hover over AI models to see detailed information (personality, use cases, cut rates)
-- **🎯 Multiple AI Models**: Choose from 4 specialized models optimized for different content types
+- **AI Content Analysis**: Intelligent content evaluation using OpenAI Whisper and together.ai
+- **Automatic Transcription**: Local audio transcription with word-level timestamps (cached for performance)
+- **Context-Aware Analysis**: AI analyzes content with surrounding context for better decisions
+- **Visual Feedback**: Color-coded segments (green=keep, orange=flag) based on AI recommendations
+- **Export Analysis**: Save AI decisions and reasoning to JSON for review
+- **Analysis History**: Toggle between different AI analysis runs without re-analyzing
+- **Model Tooltips**: Hover over AI models to see detailed information (personality, use cases, cut rates)
+- **Multiple AI Models**: Choose from 4 specialized models optimized for different content types
 
 ### User Interface
-- **🌐 Modern Web UI**: Professional three-panel layout with PyWebView for cross-platform compatibility
-- **📑 Tabbed Navigation**: Organized workspace with Media, AI Tools, and Export tabs
-- **🎨 Dark Theme**: Sleek, modern zinc/slate dark theme with indigo accents optimized for video editing
-- **🎵 Audio Track Mixer**: Listen to all audio tracks simultaneously with toggle controls
-- **📤 Drag & Drop**: Simple drag and drop video loading for quick workflow
-- **⌨️ Keyboard Shortcuts**: Efficient workflow with keyboard navigation
-- **📊 Enhanced Timeline**: Smooth waveform rendering with improved visual feedback
-- **💰 Cost Estimation**: Real-time cost and token count estimates before running AI analysis
-- **🎯 Advanced Tooltips**: Hover over AI models to see detailed personality, use cases, and cut rates
+- **Modern Web UI**: Professional three-panel layout with PyWebView for cross-platform compatibility
+- **Tabbed Navigation**: Organized workspace with Media, AI Tools, and Export tabs
+- **Dark Theme**: Sleek, modern zinc/slate dark theme with indigo accents optimized for video editing
+- **Audio Track Mixer**: Listen to all audio tracks simultaneously with toggle controls
+- **Drag & Drop**: Simple drag and drop video loading for quick workflow
+- **Keyboard Shortcuts**: Efficient workflow with keyboard navigation (Ctrl+S to save, Ctrl+O to open)
+- **Enhanced Timeline**: Smooth waveform rendering with improved visual feedback
+- **Cost Estimation**: Real-time cost and token count estimates before running AI analysis
+- **Advanced Tooltips**: Hover over AI models to see detailed personality, use cases, and cut rates
+- **Auto-Save**: Automatic project saves every 5 minutes to prevent data loss
 
 ### Advanced Features
-- **⚙️ Advanced Settings**: Fine-tune silence detection, padding, and encoding parameters
-- **💾 Settings Persistence**: Save and restore your preferred settings
-- **📈 Progress Tracking**: Real-time progress updates during video processing
-- **🔍 Audio Analysis**: Detailed audio track analysis and visualization
+- **Advanced Settings**: Fine-tune silence detection, padding, and encoding parameters
+- **Settings Persistence**: Save and restore your preferred settings
+- **Progress Tracking**: Real-time progress updates during video processing
+- **Audio Analysis**: Detailed audio track analysis and visualization
 
 ---
 
-## 🆕 What's New
+## What's New
 
 ### Latest Updates
 
 **UI Redesign:**
-- ✅ **Modern Three-Panel Layout**: Professional workspace with left sidebar, center video player, and bottom timeline
-- ✅ **Tabbed Navigation**: Organized tabs for Media, AI Tools, and Export
-- ✅ **TB Studio Branding**: Updated branding with modern logo and color scheme
-- ✅ **Dark Theme**: Beautiful zinc/slate dark theme with indigo accents
-- ✅ **Drag & Drop**: Simply drag video files into the app to load them
-- ✅ **Audio Track Mixer**: Multi-track audio support - listen to all tracks simultaneously with toggle controls
-- ✅ **Enhanced Timeline**: Smooth waveform rendering with better visual clarity
-- ✅ **Streamlined UI**: Removed non-functional components for a cleaner, more focused interface
-- ✅ **Advanced Tooltips**: Rich tooltips showing AI model personality, best use cases, and cut rates
+- **Modern Three-Panel Layout**: Professional workspace with left sidebar, center video player, and bottom timeline
+- **Tabbed Navigation**: Organized tabs for Media, AI Tools, and Export
+- **TB Studio Branding**: Updated branding with modern logo and color scheme
+- **Dark Theme**: Beautiful zinc/slate dark theme with indigo accents
+- **Drag & Drop**: Simply drag video files into the app to load them
+- **Audio Track Mixer**: Multi-track audio support - listen to all tracks simultaneously with toggle controls
+- **Enhanced Timeline**: Smooth waveform rendering with better visual clarity
+- **Streamlined UI**: Removed non-functional components for a cleaner, more focused interface
+- **Advanced Tooltips**: Rich tooltips showing AI model personality, best use cases, and cut rates
+
+**Project Management:**
+- **Project Save/Load**: Save your editing sessions to .tbproj files with all segments, settings, and AI analysis
+- **Auto-Save**: Automatic background saves every 5 minutes to prevent data loss
+- **Keyboard Shortcuts**: Ctrl+S to save, Ctrl+O to open projects quickly
+- **Beautiful Notifications**: Modern toast notifications and modal dialogs for user feedback
+- **Video Path Tracking**: Projects remember video file paths for easy restoration
 
 **AI Analysis Improvements:**
-- ✅ **DeepSeek R1 Support**: Fixed token starvation issues - DeepSeek R1 now works correctly with proper reasoning
-- ✅ **Analysis History**: Compare different AI runs instantly - toggle between models without re-analyzing
-- ✅ **Enhanced Model Selection**: 4 specialized models optimized for different content types:
+- **DeepSeek R1 Support**: Fixed token starvation issues - DeepSeek R1 now works correctly with proper reasoning
+- **Analysis History**: Compare different AI runs instantly - toggle between models without re-analyzing
+- **Enhanced Model Selection**: 4 specialized models optimized for different content types:
   - **Llama 3.3 70B (Recommended)**: The Storyteller - Low cut rate (~5%), best for vlogs and tutorials
   - **DeepSeek R1 (Ruthless)**: The Viral Editor - High cut rate (~75%), perfect for TikToks and reels
   - **Qwen 2.5 72B (Balanced)**: The Professional - Medium cut rate (~15%), ideal for corporate/educational content
   - **Llama 3.1 8B (Speed)**: The Draftsman - Fast and cheap, great for quick tests
 
 **Reliability Improvements:**
-- ✅ **Robust Error Handling**: Enhanced retry logic with exponential backoff for rate limits (429 errors)
-- ✅ **Fail-Fast Validation**: API key and connection validation before starting analysis (saves time)
-- ✅ **Improved Timeouts**: Increased timeouts for verbose models like DeepSeek R1 (120s)
-- ✅ **Better Logging**: Comprehensive debug logging for troubleshooting
+- **Robust Error Handling**: Enhanced retry logic with exponential backoff for rate limits (429 errors)
+- **Fail-Fast Validation**: API key and connection validation before starting analysis (saves time)
+- **Improved Timeouts**: Increased timeouts for verbose models like DeepSeek R1 (120s)
+- **Better Logging**: Comprehensive debug logging for troubleshooting
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
-> **Note**: Screenshots will be added here. To add screenshots:
-> 1. Place images in a `docs/screenshots/` directory
-> 2. Update this section with markdown image links:
->    ```markdown
->    ![Main Interface](docs/screenshots/main_interface.png)
->    ![Timeline View](docs/screenshots/timeline.png)
->    ![AI Analysis](docs/screenshots/ai_analysis.png)
->    ```
+![Main Interface](video_production_app/docs/screenshots/image.png)
+
+![Timeline and Waveform View](video_production_app/docs/screenshots/image2.png)
+
+![AI Analysis and Project Management](video_production_app/docs/screenshots/image3.png)
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 
@@ -173,7 +179,7 @@ For AI-powered content analysis features:
 
 ---
 
-## 🏃 Quick Start
+## Quick Start
 
 ### Launch the Application
 
@@ -202,11 +208,19 @@ python -m video_production_app.launcher.launcher
 4. **Detect Silence**: Click "Detect Silence" to identify silent segments
 5. **Review Timeline**: Check the smooth waveform visualization and color-coded segments
 6. **Optional - AI Analysis**: Run AI analysis to get intelligent content recommendations
-7. **Export Video**: Navigate to the Export tab and click "Export Video" to render the final video
+7. **Save Project** (Optional): Click "Save" in the header to save your work (Ctrl+S)
+8. **Export Video**: Navigate to the Export tab and click "Export Video" to render the final video
+
+### Project Management
+
+- **Save Project**: Click "Save" button in header or press Ctrl+S to save your editing session
+- **Open Project**: Click "Open" button in header or press Ctrl+O to resume a saved project
+- **Auto-Save**: Projects are automatically saved every 5 minutes in the same folder as your video
+- **Project Files**: Saved as `.tbproj` files containing segments, settings, AI analysis history, and video metadata
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Silence Detection Settings
 
@@ -246,7 +260,7 @@ Configure AI analysis in the settings:
 
 ---
 
-## 📖 Usage Guide
+## Usage Guide
 
 ### Understanding the Interface
 
@@ -295,7 +309,7 @@ The **TB Studio** interface is organized into a modern three-panel layout:
    - Select AI model (hover for detailed tooltip showing personality and cut rates)
    - Select Whisper model for transcription quality
    - View real-time cost estimate
-   - Click "🤖 Run AI Analysis"
+   - Click "Run AI Analysis"
    - Wait for transcription and analysis
    - Review AI recommendations:
      - Green = keep segments
@@ -324,10 +338,13 @@ The **TB Studio** interface is organized into a modern three-panel layout:
 - **Arrow Keys**: Navigate timeline
 - **Mouse Wheel**: Zoom timeline
 - **Click Segment**: Toggle keep/remove
+- **Ctrl+S** (or **Cmd+S**): Save project
+- **Ctrl+O** (or **Cmd+O**): Open project
+- **Ctrl+Shift+S**: Save project as (shows dialog)
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 video_production_app/
@@ -343,15 +360,16 @@ video_production_app/
 │   └── web_ui/                 # Frontend files
 │       ├── index.html          # Main HTML
 │       ├── main.js             # Main JavaScript logic
+│       ├── player.js           # Video player controls
+│       ├── timeline.js         # Timeline visualization
+│       └── style.css           # Stylesheet
 │
 ├── core/                       # Core business logic
 │   ├── ffmpeg_wrapper.py       # FFmpeg/FFprobe operations
 │   ├── silence_detector.py     # Silence detection logic
 │   ├── video_processor.py      # Video processing logic
-│   └── settings_manager.py     # Settings persistence
-│       ├── player.js           # Video player controls
-│       ├── timeline.js         # Timeline visualization
-│       └── style.css           # Stylesheet
+│   ├── settings_manager.py     # Settings persistence
+│   └── project_manager.py      # Project save/load functionality
 │
 ├── ai_analysis/                # AI content analysis
 │   ├── transcriber.py          # Whisper transcription
@@ -367,11 +385,6 @@ video_production_app/
 │   ├── validators.py           # Input validation
 │   └── waveform.py             # Waveform generator
 │
-├── bin/                        # Binary executables
-│   ├── ffmpeg.exe              # FFmpeg executable
-│   ├── ffprobe.exe             # FFprobe executable
-│   └── ffplay.exe              # FFplay executable
-│
 └── bin/                        # Binary executables
     ├── ffmpeg.exe              # FFmpeg executable
     ├── ffprobe.exe             # FFprobe executable
@@ -380,7 +393,7 @@ video_production_app/
 
 ---
 
-## 📦 Requirements
+## Requirements
 
 ### Core Dependencies
 
@@ -410,7 +423,7 @@ video_production_app/
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! This project follows best practices for maintainability and code organization.
 
@@ -450,7 +463,7 @@ Contributions are welcome! This project follows best practices for maintainabili
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
@@ -458,7 +471,7 @@ Copyright 2024 Shankargouda Hanchinal
 
 ---
 
-## 🚧 Upcoming Features
+## Upcoming Features
 
 ### Planned Enhancements
 
@@ -471,11 +484,12 @@ Copyright 2024 Shankargouda Hanchinal
 #### Video Processing
 - [ ] **Batch Processing**: Process multiple videos in a queue with progress tracking
 - [ ] **Subtitle Support**: Import and export SRT subtitle files
-- [x] **Audio Mixing**: Mix multiple audio tracks with toggle controls ✅ *Implemented*
+- [x] **Audio Mixing**: Mix multiple audio tracks with toggle controls - *Implemented*
+- [x] **Project Save/Load**: Save and restore editing sessions - *Implemented*
 - [ ] **Multi-format Export**: Support for additional video formats and codecs
 
 #### User Interface
-- [x] **Dark Theme**: Professional zinc/slate dark theme ✅ *Implemented*
+- [x] **Dark Theme**: Professional zinc/slate dark theme - *Implemented*
 - [ ] **Light Theme**: Optional light theme for daytime use
 - [ ] **Customizable Layout**: Resizable and rearrangeable UI panels
 - [ ] **Undo/Redo System**: Full undo/redo functionality for edits
@@ -496,7 +510,7 @@ We welcome feature requests from the community! If you have an idea for a featur
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **FFmpeg**: Video processing capabilities
 - **OpenAI Whisper**: Speech recognition and transcription
@@ -505,7 +519,21 @@ We welcome feature requests from the community! If you have an idea for a featur
 
 ---
 
-**Made with ❤️ by the Tooboooring (Shankargouda Hanchinal)**
+**Made with love by the Tooboooring (Shankargouda Hanchinal)**
 
 For questions, issues, or contributions, please visit the [GitHub repository](https://github.com/tooboooring/video_production_by_tooboooring).
 
+---
+
+## WARNING
+
+**VIBE-CODED WARNING**: This codebase was developed with a focus on rapid iteration and functionality over strict code conventions. While the application is functional and tested, the code may contain:
+
+- Inconsistent coding styles and patterns
+- Experimental implementations that may need refactoring
+- Code that works but may not follow all best practices
+- Areas that could benefit from optimization or cleanup
+
+**Use at your own discretion**. This is a working application, but contributors should be aware that some parts of the codebase may require additional polish and standardization. When contributing, please maintain consistency with the existing code style in each module.
+
+**For Production Use**: While functional, this software is provided as-is. Always backup your work and test thoroughly before using in production environments.

@@ -1,8 +1,190 @@
-import { Timeline } from './timeline.js';
+// DEBUG: Check if JavaScript is loading
+console.log("🟢 main.js loading started...");
+
+// Add visible error catcher
+window.addEventListener('error', (e) => {
+    console.error("FATAL ERROR:", e);
+    // Use our custom modal if available
+    if (typeof showModal === 'function') {
+        showModal("JavaScript Error", e.message, "error");
+    } else {
+        alert(`JavaScript Error!\n\nMessage: ${e.message}\nFile: ${e.filename}\nLine: ${e.lineno}`);
+    }
+});
+
+// Import all from timeline.js in a single import
+import { Timeline, saveProject, loadProject, quickSave } from './timeline.js';
 import { Player } from './player.js';
 
+console.log("🟢 Imports successful!");
+console.log("   - Timeline:", typeof Timeline);
+console.log("   - Player:", typeof Player);
+console.log("   - saveProject:", typeof saveProject);
+console.log("   - loadProject:", typeof loadProject);
+console.log("   - quickSave:", typeof quickSave);
+
+// ============================================
+// BEAUTIFUL MODAL & TOAST NOTIFICATION SYSTEM
+// ============================================
+
+/**
+ * Show a beautiful modal dialog
+ * @param {string} title - Modal title
+ * @param {string} message - Modal message
+ * @param {string} type - 'error', 'warning', 'success', 'info'
+ * @returns {Promise} Resolves when modal is closed
+ */
+function showModal(title, message, type = 'info') {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('modal-overlay');
+        const dialog = document.getElementById('modal-dialog');
+        const titleEl = document.getElementById('modal-title');
+        const messageEl = document.getElementById('modal-message');
+        const iconEl = document.getElementById('modal-icon');
+        const closeBtn = document.getElementById('modal-close');
+        const okBtn = document.getElementById('modal-ok-btn');
+        
+        if (!overlay) {
+            // Fallback to alert if modal not in DOM
+            alert(`${title}\n\n${message}`);
+            resolve();
+            return;
+        }
+        
+        // Set content
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        
+        // Set icon based on type
+        const icons = {
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            success: 'fa-check-circle',
+            info: 'fa-info-circle'
+        };
+        iconEl.className = `modal-icon ${type}`;
+        iconEl.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i>`;
+        
+        // Show modal
+        overlay.classList.remove('hidden');
+        
+        // Close handlers
+        const closeModal = () => {
+            overlay.classList.add('hidden');
+            closeBtn.removeEventListener('click', closeModal);
+            okBtn.removeEventListener('click', closeModal);
+            overlay.removeEventListener('click', overlayClick);
+            resolve();
+        };
+        
+        const overlayClick = (e) => {
+            if (e.target === overlay) closeModal();
+        };
+        
+        closeBtn.addEventListener('click', closeModal);
+        okBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', overlayClick);
+        
+        // Focus OK button
+        okBtn.focus();
+    });
+}
+
+// Make showModal globally available
+window.showModal = showModal;
+
+/**
+ * Show a toast notification
+ * @param {string} message - Toast message
+ * @param {string} type - 'error', 'warning', 'success', 'info'
+ * @param {number} duration - Duration in ms (default 4000)
+ */
+function showToast(message, type = 'info', duration = 4000) {
+    // Create container if it doesn't exist
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    
+    // Create toast
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icons = {
+        error: '✕',
+        warning: '⚠',
+        success: '✓',
+        info: 'ℹ'
+    };
+    
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || icons.info}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close">×</button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Close button
+    const closeBtn = toast.querySelector('.toast-close');
+    const removeToast = () => {
+        toast.style.animation = 'toastSlideIn 0.3s ease-out reverse';
+        setTimeout(() => toast.remove(), 300);
+    };
+    closeBtn.addEventListener('click', removeToast);
+    
+    // Auto-remove after duration
+    setTimeout(removeToast, duration);
+}
+
+// Make showToast globally available
+window.showToast = showToast;
+
 // Create a global app object for Python to call
-window.app = {};
+window.app = {
+    currentVideoPath: null,
+    currentVideoFilename: null,
+    isDirty: false,
+    timeline: null,
+    audioTracks: [],
+    aiAnalysisHistory: [],
+    settings: {},
+    
+    // Notification system (calls timeline directly, no circular refs)
+    showNotification(message, type = "info") {
+        console.log(`[${type.toUpperCase()}] ${message}`);
+        // Use timeline's canvas notification if available
+        if (window.app.timeline && window.app.timeline.showNotification) {
+            window.app.timeline.showNotification(message, type, 2000);
+        }
+    }
+};
+// Make save/load functions globally available for keyboard shortcuts
+window.saveProject = saveProject;
+window.loadProject = loadProject;
+window.quickSave = quickSave;
+
+/**
+ * Mark project as having unsaved changes
+ */
+function markDirty() {
+    if (!window.app.isDirty) {
+        window.app.isDirty = true;
+        document.title = "* TooBoooring Studio 1.0";
+        console.log("📝 Project marked as dirty (unsaved changes)");
+    }
+}
+
+/**
+ * Mark project as saved (no unsaved changes)
+ */
+function markClean() {
+    window.app.isDirty = false;
+    document.title = "TooBoooring Studio 1.0";
+    console.log("✅ Project marked as clean (saved)");
+}
 
 // --- 1. Global Variables ---
 let currentVideoInfo = null;
@@ -331,6 +513,16 @@ window.clearConsole = function() {
 // This listener just finds elements. It does NOT call Python.
 window.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Loaded. Finding elements...");
+    console.log("DEBUG: window.saveProject exists?", typeof window.saveProject);
+    console.log("DEBUG: window.loadProject exists?", typeof window.loadProject);
+    console.log("DEBUG: window.quickSave exists?", typeof window.quickSave);
+    
+    // Alert to user that page is loading
+    const statusLabel = document.getElementById('status-label');
+    if (statusLabel) {
+        statusLabel.textContent = "Initializing UI...";
+        statusLabel.style.color = "#4CAF50";
+    }
 
     // --- Tab Switching Functionality ---
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -374,6 +566,18 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('waveform-canvas'),
         document.getElementById('segments-canvas')
     );
+    
+    // Store timeline reference in window.app
+    window.app.timeline = timeline;
+    
+    // Setup auto-save (every 5 minutes) with error handling
+    try {
+        timeline.setupAutoSave(5);
+        console.log("✅ Auto-save enabled (every 5 minutes)");
+    } catch (error) {
+        console.error("❌ Error setting up auto-save:", error);
+        // Continue without auto-save if it fails
+    }
 
     // Ensure timeline is properly initialized
     const timelinePanel = document.querySelector('.timeline-panel');
@@ -997,12 +1201,69 @@ window.addEventListener('pywebviewready', async () => {
             }
         });
     }
+    
+    // --- Project Save/Load Button Event Listeners ---
+    const btnSaveProject = document.getElementById('btn-save-project');
+    if (btnSaveProject) {
+        btnSaveProject.addEventListener('click', async () => {
+            try {
+                const result = await window.saveProject(timeline, { filepath: null, autoSave: false });
+                if (result && result.status === "success") {
+                    markClean();
+                }
+            } catch (error) {
+                console.error("Save project error:", error);
+                alert("Error saving project: " + error.message);
+            }
+        });
+        console.log("✅ Save Project button wired");
+    } else {
+        console.log("ℹ️ Save Project button not found (add to HTML if needed)");
+    }
+    
+    const btnLoadProject = document.getElementById('btn-load-project');
+    if (btnLoadProject) {
+        btnLoadProject.addEventListener('click', async () => {
+            try {
+                // Warn if unsaved changes
+                if (window.app.isDirty) {
+                    const confirmLoad = window.confirm(
+                        "You have unsaved changes. Continue loading?"
+                    );
+                    if (!confirmLoad) return;
+                }
+                
+                const result = await window.loadProject(timeline, null);
+                if (result && result.status === "success") {
+                    markClean();
+                }
+            } catch (error) {
+                console.error("Load project error:", error);
+                alert("Error loading project: " + error.message);
+            }
+        });
+        console.log("✅ Load Project button wired");
+    } else {
+        console.log("ℹ️ Load Project button not found (add to HTML if needed)");
+    }
 
     window.app.addLog("Welcome! Please select a video file to begin.\n");
+    
+    console.log("✅ Project Save/Load system ready!");
+    console.log("   - Press Ctrl+S to save");
+    console.log("   - Press Ctrl+O to open");
+    console.log("   - Auto-save every 5 minutes");
 });
 
 // Clean up temporary files when page is unloading
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', (e) => {
+    // Warn about unsaved changes
+    if (window.app.isDirty) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+    }
+    
+    // Clean up temporary files
     if (window.pywebview && window.pywebview.api && window.pywebview.api.cleanup_temp_files) {
         // Try to clean up, but don't wait (async cleanup)
         window.pywebview.api.cleanup_temp_files().catch(err => {
@@ -1028,7 +1289,8 @@ function checkError(result) {
 /**
  * Process video info after loading (shared by loadVideo and drag-and-drop)
  */
-async function processVideoInfo(videoInfo) {
+// Make processVideoInfo globally accessible for project loading
+window.processVideoInfo = async function processVideoInfo(videoInfo) {
     if (!videoInfo || !videoInfo.fileName) {
         console.error("Invalid videoInfo structure:", videoInfo);
         const statusLabel = document.getElementById('status-label');
@@ -1040,6 +1302,13 @@ async function processVideoInfo(videoInfo) {
     }
     
     currentVideoInfo = videoInfo;
+    
+    // Store video path in window.app for project save/load
+    window.app.currentVideoPath = videoInfo.file_path;
+    window.app.currentVideoFilename = videoInfo.filename;
+    window.app.currentVideoInfo = videoInfo;
+    console.log("📹 Video path stored:", videoInfo.file_path);
+    
     const trackSelector = document.getElementById('audio-track-selector');
     const statusLabel = document.getElementById('status-label');
     
@@ -1075,7 +1344,59 @@ async function processVideoInfo(videoInfo) {
     populateAudioTrackMixer(videoInfo.audioTracks);
 
     player.loadVideo(videoInfo.filePath, videoInfo.audioTracks);
-    timeline.draw([], 0, null); // Clear timeline
+    
+    // Initialize timeline with duration
+    // Preserve existing segments if they exist (e.g., when loading from project)
+    const existingSegments = timeline.segments || [];
+    timeline.duration = videoInfo.duration;
+    timeline.draw(existingSegments, videoInfo.duration, null); // Preserve segments if any
+    
+    // Generate waveform in background
+    window.updateConsole("Generating waveform...\n");
+    if (statusLabel) {
+        statusLabel.textContent = `Loaded: ${videoInfo.fileName} - Generating waveform...`;
+    }
+    
+    try {
+        const canvasWidth = document.getElementById('waveform-canvas').offsetWidth || 800;
+        const waveformsResult = await window.pywebview.api.get_waveforms_all_tracks(
+            videoInfo.filePath,
+            videoInfo.audioTracks,
+            canvasWidth
+        );
+        
+        const { hasError, data: waveformsData } = checkError(waveformsResult);
+        
+        if (!hasError && waveformsData) {
+            const waveforms = waveformsData.waveforms || waveformsData;
+            const trackCount = Object.keys(waveforms).length;
+            
+            if (trackCount > 0) {
+                // Redraw timeline with waveform (keep any existing segments)
+                timeline.draw(timeline.segments || [], videoInfo.duration, waveforms);
+                window.updateConsole(`✅ Waveform generated for ${trackCount} track(s)\n`);
+                if (statusLabel) {
+                    statusLabel.textContent = `Loaded: ${videoInfo.fileName} - Ready!`;
+                }
+            } else {
+                window.updateConsole("⚠️ No waveform data available\n");
+                if (statusLabel) {
+                    statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
+                }
+            }
+        } else {
+            window.updateConsole("ℹ️ Waveform visualization not available (librosa may not be installed)\n");
+            if (statusLabel) {
+                statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
+            }
+        }
+    } catch (waveformError) {
+        console.warn("Waveform generation failed:", waveformError);
+        window.updateConsole(`ℹ️ Waveform not available: ${waveformError.message}\n`);
+        if (statusLabel) {
+            statusLabel.textContent = `Loaded: ${videoInfo.fileName}`;
+        }
+    }
 }
 
 async function loadVideo() {
@@ -1208,11 +1529,15 @@ async function detectSilence() {
                 // Now draw everything
                 timeline.draw(segments, currentVideoInfo.duration, waveforms);
                 statusLabel.textContent = `Found ${segments.length} segments!`;
+                // Mark as having unsaved changes
+                markDirty();
             } else {
                 // No tracks in waveforms
                 timeline.draw(segments, currentVideoInfo.duration, null);
                 statusLabel.textContent = "Segments found (no waveform data).";
                 window.updateConsole(`⚠️ Waveforms response empty (check Python console for errors)\n`);
+                // Mark as having unsaved changes
+                markDirty();
             }
         } else {
             // Still draw, but without waveform
@@ -1220,6 +1545,8 @@ async function detectSilence() {
             statusLabel.textContent = "Segments found (waveform unavailable).";
             const reason = waveformError || waveformsData?.message || 'librosa not installed';
             window.updateConsole(`ℹ️ Waveform visualization disabled: ${reason}\n`);
+            // Mark as having unsaved changes
+            markDirty();
         }
         
         // Update statistics
@@ -1405,6 +1732,9 @@ async function runAIAnalysis() {
             summary: summary,
             modelName: selectedModelName
         });
+        
+        // Mark as having unsaved changes
+        markDirty();
 
     } catch (error) {
         aiAnalysisButton.disabled = false;

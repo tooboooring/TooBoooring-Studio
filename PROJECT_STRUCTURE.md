@@ -54,7 +54,8 @@ temp_repo/
     │   ├── ffmpeg_wrapper.py          # FFmpeg/FFprobe operations
     │   ├── silence_detector.py        # Silence detection logic
     │   ├── video_processor.py         # Video processing logic
-    │   └── settings_manager.py        # Settings persistence
+    │   ├── settings_manager.py        # Settings persistence
+    │   └── project_manager.py         # Project save/load functionality
     │
     ├── utils/                         # Utility functions
     │   ├── __init__.py
@@ -104,6 +105,7 @@ All business logic separated from UI, making it testable and reusable.
 - Silence detection
 - FFmpeg operations
 - Settings management
+- Project save/load (.tbproj files)
 
 ### Utilities (`utils/`)
 Shared utility functions, validators, logging, theme definitions, and waveform generation.

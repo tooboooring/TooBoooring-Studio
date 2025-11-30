@@ -27,6 +27,14 @@ def launch():
     # Set up project path
     setup_project_path()
     
+    # Suppress harmless PyWebView warnings on Windows
+    import warnings
+    import os
+    warnings.filterwarnings("ignore", category=RuntimeWarning, module="pywebview")
+    
+    # Enable debug mode to see JavaScript console output
+    os.environ["PYWEBVIEW_LOG"] = "debug"
+    
     try:
         from video_production_app.web.web_main import main as web_main
         

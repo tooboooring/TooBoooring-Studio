@@ -20,6 +20,7 @@ if __name__ == '__main__':
     from video_production_app.core.silence_detector import detect_silence, parse_segments
     from video_production_app.core.settings_manager import SettingsManager
     from video_production_app.core.video_processor import process_video_logic
+    from video_production_app.core.project_manager import ProjectManager, ProjectManagerError
     from video_production_app.utils.waveform import WaveformGenerator
     from video_production_app.config import ENCODER_OPTIONS, UI_SETTINGS
     from video_production_app.utils.logger import app_logger
@@ -31,6 +32,7 @@ else:
         from ..core.silence_detector import detect_silence, parse_segments
         from ..core.settings_manager import SettingsManager
         from ..core.video_processor import process_video_logic
+        from ..core.project_manager import ProjectManager, ProjectManagerError
         from ..utils.waveform import WaveformGenerator
         from ..config import ENCODER_OPTIONS, UI_SETTINGS
         from ..utils.logger import app_logger
@@ -41,6 +43,7 @@ else:
 class Api:
     def __init__(self):
         self.settings = SettingsManager() # Assumes default config file
+        self.project_manager = ProjectManager()  # Project save/load manager
         self.window = None # We'll set this from main
         self.console_log = [] # To store logs
         self.available_encoders = [] # Store available encoders
@@ -50,6 +53,9 @@ class Api:
         self.multi_track_cache = {}  # Cache multi-track waveforms: {file_path:width: {track_index: data}}
         # Temporary files management
         self.temp_video_files = []  # Track temporary video files for cleanup
+        # Current project state
+        self.current_project_data = None  # Store current project data for auto-save
+        self.current_project_path = None  # Track current project file path
         self.logger.info("API initialized")
     
     def _error_response(self, message: str) -> Dict[str, Any]:
@@ -1998,6 +2004,344 @@ class Api:
         except Exception as e:
             self.logger.error(f"Error analyzing tracks: {e}", exc_info=True)
             return self._error_response(f"Error analyzing tracks: {str(e)}")
+    
+    # ===== PROJECT MANAGEMENT METHODS =====
+    
+    def get_video_metadata(self, video_path: str) -> Dict[str, Any]:
+        """
+        Get metadata for a video file (for project save/load).
+        
+        Args:
+            video_path: Path to video file
+            
+        Returns:
+            Dictionary with video metadata (filename, duration, file_size, etc.)
+        """
+        self.logger.info(f"Getting video metadata for: {video_path}")
+        
+        try:
+            metadata = self.project_manager.get_video_metadata(video_path)
+            self.logger.info(f"Got metadata for {metadata['filename']}")
+            return self._success_response({"metadata": metadata})
+        except ProjectManagerError as e:
+            self.logger.error(f"Project manager error: {e}")
+            return self._error_response(str(e))
+        except Exception as e:
+            self.logger.error(f"Error getting video metadata: {e}", exc_info=True)
+            return self._error_response(f"Failed to get video metadata: {str(e)}")
+    
+    def save_project(
+        self,
+        project_data: Dict[str, Any],
+        filepath: Optional[str] = None,
+        auto_save: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Save current project to a .tbproj file.
+        
+        Args:
+            project_data: Complete project data including video, segments, AI history, etc.
+            filepath: Target filepath (if None, shows save dialog or uses current path)
+            auto_save: If True, uses auto-save naming convention
+            
+        Returns:
+            Dictionary with save status
+        """
+        self.logger.info(f"Saving project (auto_save={auto_save})")
+        
+        try:
+            # If no filepath provided, open save dialog
+            if filepath is None:
+                if auto_save and "video" in project_data:
+                    # Generate auto-save filename
+                    video_path = project_data["video"].get("file_path", "")
+                    if video_path:
+                        suggested_filename = self.project_manager.auto_save_filename(video_path)
+                        # Use default projects directory or video directory
+                        video_dir = Path(video_path).parent
+                        filepath = str(video_dir / suggested_filename)
+                    else:
+                        return self._error_response("No video path available for auto-save")
+                else:
+                    # Show save file dialog
+                    root = Tk()
+                    root.withdraw()
+                    root.attributes('-topmost', True)
+                    
+                    # Suggest filename if video is loaded
+                    initial_file = ""
+                    if "video" in project_data:
+                        video_filename = project_data["video"].get("filename", "")
+                        if video_filename:
+                            initial_file = Path(video_filename).stem + ".tbproj"
+                    
+                    filepath = filedialog.asksaveasfilename(
+                        title="Save Project",
+                        defaultextension=".tbproj",
+                        filetypes=[("TooBoooring Project", "*.tbproj"), ("All Files", "*.*")],
+                        initialfile=initial_file
+                    )
+                    root.destroy()
+                    
+                    if not filepath:
+                        return self._error_response("Save cancelled by user")
+            
+            # Ensure project data has proper structure
+            if "video" not in project_data:
+                return self._error_response("Project data must include video information")
+            
+            # Create or update project data structure
+            if "project_version" not in project_data:
+                # This is new project data, create full structure
+                full_project_data = self.project_manager.create_project_data(
+                    video_metadata=project_data.get("video", {}),
+                    audio_tracks=project_data.get("audio_tracks", []),
+                    segments=project_data.get("segments", []),
+                    ai_analysis_history=project_data.get("ai_analysis_history", []),
+                    settings=project_data.get("settings", {}),
+                    timeline_state=project_data.get("timeline_state", {})
+                )
+            else:
+                # Already a full project, just update modified timestamp
+                full_project_data = project_data
+            
+            # Save the project file
+            result = self.project_manager.save_project_file(full_project_data, filepath)
+            
+            # Store current project path for future saves
+            self.current_project_path = result["filepath"]
+            self.current_project_data = full_project_data
+            
+            self.logger.info(f"Project saved successfully: {result['filepath']}")
+            return self._success_response({
+                "filepath": result["filepath"],
+                "message": result["message"]
+            })
+            
+        except ProjectManagerError as e:
+            self.logger.error(f"Project manager error: {e}")
+            return self._error_response(str(e))
+        except Exception as e:
+            self.logger.error(f"Error saving project: {e}", exc_info=True)
+            return self._error_response(f"Failed to save project: {str(e)}")
+    
+    def load_project(self, filepath: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Load a project from a .tbproj file.
+        
+        Args:
+            filepath: Path to .tbproj file (if None, shows open dialog)
+            
+        Returns:
+            Dictionary with project data
+        """
+        self.logger.info(f"Loading project, filepath={filepath}")
+        
+        try:
+            # If no filepath provided, open file dialog
+            if not filepath:
+                root = Tk()
+                root.withdraw()
+                root.attributes('-topmost', True)
+                
+                filepath = filedialog.askopenfilename(
+                    title="Open Project",
+                    defaultextension=".tbproj",
+                    filetypes=[("TooBoooring Project", "*.tbproj"), ("All Files", "*.*")]
+                )
+                root.destroy()
+                
+                # Check if user cancelled or selected empty
+                if not filepath:
+                    self.logger.info("Load cancelled by user")
+                    return self._error_response("Load cancelled by user")
+            
+            # Extra safety check - ensure filepath is a valid string
+            if not isinstance(filepath, str) or not filepath.strip():
+                self.logger.error(f"Invalid filepath: {filepath} (type: {type(filepath)})")
+                return self._error_response("Invalid file path selected")
+            
+            self.logger.info(f"Loading project from: {filepath}")
+            
+            # Load project file
+            project_data = self.project_manager.load_project_file(filepath)
+            
+            # Validate project
+            validation = self.project_manager.validate_project_data(project_data)
+            
+            if not validation["valid"]:
+                error_msg = "Invalid project file:\n" + "\n".join(validation["errors"])
+                return self._error_response(error_msg)
+            
+            # Store current project path
+            self.current_project_path = filepath
+            self.current_project_data = project_data
+            
+            # Return project data with warnings if any
+            response = {
+                "project_data": project_data,
+                "filepath": filepath,
+                "warnings": validation.get("warnings", []) + project_data.get("warnings", [])
+            }
+            
+            self.logger.info(f"Project loaded successfully: {filepath}")
+            return self._success_response(response)
+            
+        except ProjectManagerError as e:
+            self.logger.error(f"Project manager error: {e}")
+            return self._error_response(str(e))
+        except Exception as e:
+            self.logger.error(f"Error loading project: {e}", exc_info=True)
+            return self._error_response(f"Failed to load project: {str(e)}")
+    
+    def get_recent_projects(self, limit: int = 10) -> Dict[str, Any]:
+        """
+        Get list of recent project files.
+        
+        Args:
+            limit: Maximum number of projects to return
+            
+        Returns:
+            Dictionary with list of recent projects
+        """
+        self.logger.info(f"Getting recent projects (limit={limit})")
+        
+        try:
+            # Check common project locations
+            locations = []
+            
+            # User's documents folder
+            documents = Path.home() / "Documents" / "TooBoooring Studio"
+            if documents.exists():
+                locations.append(str(documents))
+            
+            # Current working directory
+            locations.append(os.getcwd())
+            
+            # Video file directories (if available)
+            if self.current_project_data and "video" in self.current_project_data:
+                video_path = self.current_project_data["video"].get("file_path")
+                if video_path:
+                    video_dir = Path(video_path).parent
+                    if str(video_dir) not in locations:
+                        locations.append(str(video_dir))
+            
+            # Collect recent projects from all locations
+            all_projects = []
+            for location in locations:
+                try:
+                    projects = self.project_manager.get_recent_projects(location, limit=limit*2)
+                    all_projects.extend(projects)
+                except Exception as e:
+                    self.logger.debug(f"Error scanning {location}: {e}")
+                    continue
+            
+            # Remove duplicates and sort by modified time
+            seen = set()
+            unique_projects = []
+            for project in all_projects:
+                filepath = project["filepath"]
+                if filepath not in seen:
+                    seen.add(filepath)
+                    unique_projects.append(project)
+            
+            unique_projects.sort(key=lambda x: x["modified"], reverse=True)
+            recent_projects = unique_projects[:limit]
+            
+            self.logger.info(f"Found {len(recent_projects)} recent projects")
+            return self._success_response({"projects": recent_projects})
+            
+        except Exception as e:
+            self.logger.error(f"Error getting recent projects: {e}", exc_info=True)
+            return self._error_response(f"Failed to get recent projects: {str(e)}")
+    
+    def validate_project_file(self, filepath: str) -> Dict[str, Any]:
+        """
+        Validate a project file without fully loading it.
+        
+        Args:
+            filepath: Path to .tbproj file
+            
+        Returns:
+            Dictionary with validation results
+        """
+        self.logger.info(f"Validating project file: {filepath}")
+        
+        try:
+            # Load project
+            project_data = self.project_manager.load_project_file(filepath)
+            
+            # Validate
+            validation = self.project_manager.validate_project_data(project_data)
+            
+            self.logger.info(f"Validation complete: valid={validation['valid']}")
+            return self._success_response(validation)
+            
+        except ProjectManagerError as e:
+            self.logger.error(f"Project manager error: {e}")
+            return self._error_response(str(e))
+        except Exception as e:
+            self.logger.error(f"Error validating project: {e}", exc_info=True)
+            return self._error_response(f"Failed to validate project: {str(e)}")
+    
+    def export_project_summary(self, filepath: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Generate a human-readable summary of a project.
+        
+        Args:
+            filepath: Path to .tbproj file (if None, uses current project)
+            
+        Returns:
+            Dictionary with summary text
+        """
+        self.logger.info("Generating project summary")
+        
+        try:
+            # Load project data
+            if filepath:
+                project_data = self.project_manager.load_project_file(filepath)
+            elif self.current_project_data:
+                project_data = self.current_project_data
+            else:
+                return self._error_response("No project loaded")
+            
+            # Generate summary
+            summary = self.project_manager.export_project_summary(project_data)
+            
+            self.logger.info("Summary generated successfully")
+            return self._success_response({"summary": summary})
+            
+        except Exception as e:
+            self.logger.error(f"Error generating summary: {e}", exc_info=True)
+            return self._error_response(f"Failed to generate summary: {str(e)}")
+    
+    def get_current_project_path(self) -> Dict[str, Any]:
+        """
+        Get the path of the currently open project.
+        
+        Returns:
+            Dictionary with current project path (None if no project open)
+        """
+        return self._success_response({
+            "filepath": self.current_project_path,
+            "has_project": self.current_project_path is not None
+        })
+    
+    def save_current_project(self) -> Dict[str, Any]:
+        """
+        Quick save to current project file (Ctrl+S equivalent).
+        
+        Returns:
+            Dictionary with save status
+        """
+        if not self.current_project_path:
+            return self._error_response("No project file open. Use 'Save As' instead.")
+        
+        if not self.current_project_data:
+            return self._error_response("No project data to save")
+        
+        self.logger.info(f"Quick saving to: {self.current_project_path}")
+        return self.save_project(self.current_project_data, self.current_project_path)
 
 # --- Main Application ---
 def main():

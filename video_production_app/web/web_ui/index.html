@@ -30,6 +30,12 @@
       </div>
 
       <div class="header-right">
+        <button id="btn-save-project" class="btn-export-header" style="margin-right: 8px;" title="Save Project (Ctrl+S)">
+          <i class="fas fa-save"></i> Save
+        </button>
+        <button id="btn-load-project" class="btn-export-header" style="margin-right: 8px;" title="Open Project (Ctrl+O)">
+          <i class="fas fa-folder-open"></i> Open
+        </button>
         <button id="btn-export-video-header" class="btn-export-header">
           <i class="fas fa-download"></i> Export
         </button>
@@ -403,6 +409,47 @@
 
   </div>
 
+  <!-- Beautiful Modal Dialog for Errors/Alerts -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div id="modal-dialog" class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-icon" id="modal-icon">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 id="modal-title">Error</h3>
+        <button class="modal-close" id="modal-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="modal-message">An error occurred.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="modal-ok-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEBUG: Test if JavaScript runs at all -->
+  <script>
+    console.log("✅ Inline script works!");
+    window.addEventListener('DOMContentLoaded', function() {
+      console.log("✅ DOMContentLoaded fired!");
+      document.getElementById('status-label').textContent = "JavaScript OK - Loading modules...";
+    });
+    
+    // Catch module loading errors
+    window.addEventListener('error', function(e) {
+      console.error("Script error:", e);
+      // Use our custom modal instead of alert
+      if (window.showModal) {
+        window.showModal("Script Error", e.message, "error");
+      } else {
+        alert("Script Error: " + e.message);
+      }
+    });
+  </script>
+  
   <script src="main.js" type="module"></script>
 </body>
 </html>
