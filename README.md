@@ -1,3 +1,12 @@
+# 🎥 TooBoooring Studio (Gemini 3 Edition)
+
+**An Agentic Video Editor that "Thinks" before it cuts.**
+
+⚡ **Vibe Coded**: Built using Gemini 3's agentic coding capabilities via Google Antigravity.
+🧠 **Powered by Gemini 3 Pro**: Uses the new `thinking_config` parameter to reason about narrative flow, not just keywords.
+
+---
+
 # TooBoooring Studio 3.0
 
 > Professional video editing application with AI-powered content analysis, silence detection, and GPU-accelerated encoding

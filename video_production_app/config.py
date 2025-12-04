@@ -135,42 +135,29 @@ UI_SETTINGS = {
     }
 }
 
-# AI Model Definitions & Pricing (per 1 Million tokens)
-# Prices based on Together.ai (as of late 2024/2025)
+# AI Model Definitions
 AI_MODELS = {
-    "Llama 3.3 70B (Recommended)": {
-        "id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-        "price": 0.88,
-        "desc": "The Storyteller. Smooth, natural cuts.",
-        "tooltip": "Personality: Friendly & Lenient\nBest For: Vlogs, Tutorials, Narrative Content\nCut Rate: Low (~5%)\nStrengths: Excellent narrative flow, keeps personality."
+    "Gemini 3 Pro (Recommended)": {
+        "id": "gemini-2.5-pro",
+        "price": 0.00, 
+        "desc": "Google's SOTA Reasoning Model.",
+        "tooltip": "Thinking Process: Enabled\nBest For: Complex narrative editing\nStrengths: 'Thinks' before cutting to ensure continuity."
     },
-    "DeepSeek R1 (Ruthless)": {
-        "id": "deepseek-ai/DeepSeek-R1",
-        "price": 4.00,  # Blended approx
-        "desc": "The Viral Editor. High-density cuts.",
-        "tooltip": "Personality: Ruthless & Strict\nBest For: TikToks, Reels, Highlights\nCut Rate: High (~75%)\nStrengths: Removes ALL fluff. Perfect for short-form."
-    },
-    "Qwen 2.5 72B (Balanced)": {
-        "id": "Qwen/Qwen2.5-72B-Instruct-Turbo",
-        "price": 1.20,
-        "desc": "The Professional. Logical and clean.",
-        "tooltip": "Personality: Balanced & Logical\nBest For: Corporate, Educational, lectures\nCut Rate: Medium (~15%)\nStrengths: Great at following strict formatting rules."
-    },
-    "Llama 3.1 8B (Speed)": {
-        "id": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-        "price": 0.18,
-        "desc": "The Draftsman. Instant results.",
-        "tooltip": "Personality: Fast but Basic\nBest For: Quick tests, Rough cuts\nCut Rate: Variable\nStrengths: Extremely cheap and fast."
+    "Gemini 3 Flash (Speed)": {
+        "id": "gemini-2.5-flash", 
+        "price": 0.00,
+        "desc": "Ultra-fast processing.",
+        "tooltip": "Best For: Rough cuts & fast turnarounds\nStrengths: Lowest latency."
     }
 }
 
 # AI Content Analysis Settings
 AI_ANALYSIS_SETTINGS = {
-    # together.ai API configuration
-    "api_key": os.getenv("TOGETHER_API_KEY", ""),  # Load from .env file or use empty string as fallback
-    "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",  # Default model (Llama 3.3 70B - Recommended)
-    "temperature": 0.7,  # LLM temperature (0.0=deterministic, 0.7=creative/balanced, 1.0=very random)
-    "max_tokens": 8000,  # Maximum response tokens (increased for DeepSeek R1's verbose reasoning)
+    # Google API Key
+    "api_key": os.getenv("GOOGLE_API_KEY", ""),
+    "model": "gemini-2.5-pro",
+    "temperature": 0.7,
+    "max_tokens": 8000,
     
     # Whisper transcription settings
     "whisper_model": "base",  # Options: 'tiny', 'base', 'small', 'medium', 'large'

@@ -460,7 +460,7 @@ class Api:
         segments: List[Dict[str, Any]],
         api_key: str,
         whisper_model: str = "base",
-        together_model: str = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+        together_model: str = "gemini-2.5-pro"
     ) -> Dict[str, Any]:
         """
         Run AI content analysis on video segments.

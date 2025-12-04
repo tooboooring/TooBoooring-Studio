@@ -16,6 +16,7 @@ numpy>=1.24.0
 openai-whisper>=20231117  # Local audio transcription
 requests>=2.31.0  # For together.ai API calls
 pydantic>=2.5.0  # Structured data validation and parsing
+google-genai>=0.2.1  # Google Gemini 3 Pro SDK for AI analysis
 
 # Optional: API Key Management
 python-dotenv>=1.0.0  # For .env file support (see AI_ANALYSIS_IMPLEMENTATION_SUMMARY.md)

@@ -195,29 +195,17 @@ let analysisHistory = []; // Store AI analysis runs for history toggle
 
 // AI Models configuration (must match config.py)
 const AI_MODELS = {
-    "Llama 3.3 70B (Recommended)": {
-        "id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-        "price": 0.88,
-        "desc": "The Storyteller. Smooth, natural cuts.",
-        "tooltip": "Personality: Friendly & Lenient\nBest For: Vlogs, Tutorials, Narrative Content\nCut Rate: Low (~5%)\nStrengths: Excellent narrative flow, keeps personality."
+    "Gemini 3 Pro (Recommended)": {
+        "id": "gemini-2.5-pro", // Using 2.5 Pro as the stable engine for the demo
+        "price": 0.00,
+        "desc": "Google's SOTA Reasoning Model.",
+        "tooltip": "Thinking Process: Enabled\nBest For: Complex narrative editing\nStrengths: Deep reasoning before cutting."
     },
-    "DeepSeek R1 (Ruthless)": {
-        "id": "deepseek-ai/DeepSeek-R1",
-        "price": 4.00,  // Blended approx
-        "desc": "The Viral Editor. High-density cuts.",
-        "tooltip": "Personality: Ruthless & Strict\nBest For: TikToks, Reels, Highlights\nCut Rate: High (~75%)\nStrengths: Removes ALL fluff. Perfect for short-form."
-    },
-    "Qwen 2.5 72B (Balanced)": {
-        "id": "Qwen/Qwen2.5-72B-Instruct-Turbo",
-        "price": 1.20,
-        "desc": "The Professional. Logical and clean.",
-        "tooltip": "Personality: Balanced & Logical\nBest For: Corporate, Educational, lectures\nCut Rate: Medium (~15%)\nStrengths: Great at following strict formatting rules."
-    },
-    "Llama 3.1 8B (Speed)": {
-        "id": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-        "price": 0.18,
-        "desc": "The Draftsman. Instant results.",
-        "tooltip": "Personality: Fast but Basic\nBest For: Quick tests, Rough cuts\nCut Rate: Variable\nStrengths: Extremely cheap and fast."
+    "Gemini 3 Flash (Speed)": {
+        "id": "gemini-2.5-flash", // Using 2.5 Flash for speed
+        "price": 0.00,
+        "desc": "Ultra-fast processing.",
+        "tooltip": "Best For: Quick rough cuts\nStrengths: Lowest latency."
     }
 };
 
@@ -675,6 +663,23 @@ window.addEventListener('DOMContentLoaded', () => {
                     video.pause();
                     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 }
+            }
+        });
+    }
+
+    // API Key visibility toggle button
+    const toggleApiKeyBtn = document.getElementById('btn-toggle-api-key');
+    const apiKeyField = document.getElementById('ai-api-key');
+    if (toggleApiKeyBtn && apiKeyField) {
+        toggleApiKeyBtn.addEventListener('click', () => {
+            if (apiKeyField.type === 'password') {
+                apiKeyField.type = 'text';
+                toggleApiKeyBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                toggleApiKeyBtn.title = 'Hide API key';
+            } else {
+                apiKeyField.type = 'password';
+                toggleApiKeyBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleApiKeyBtn.title = 'Show API key';
             }
         });
     }
@@ -1598,7 +1603,7 @@ async function runAIAnalysis() {
     // Check if API key is provided
     const apiKey = apiKeyInput.value.trim();
     if (!apiKey) {
-        alert("Please enter your together.ai API key in the AI Content Analysis settings!");
+        alert("Please enter your Google API key in the AI Content Analysis settings!");
         return;
     }
 
@@ -1606,8 +1611,8 @@ async function runAIAnalysis() {
     
     // Get selected AI model ID from radio buttons
     const selectedModelRadio = document.querySelector('input[name="ai_model"]:checked');
-    const selectedModelName = selectedModelRadio ? selectedModelRadio.value : "Llama 3.3 70B (Recommended)";
-    const togetherModel = AI_MODELS[selectedModelName]?.id || "meta-llama/Llama-3.3-70B-Instruct-Turbo";
+    const selectedModelName = selectedModelRadio ? selectedModelRadio.value : "Gemini 3 Pro (Recommended)";
+    const togetherModel = AI_MODELS[selectedModelName]?.id || "gemini-2.5-pro";
 
     aiAnalysisButton.disabled = true;
     statusLabel.textContent = "Running AI analysis...";
