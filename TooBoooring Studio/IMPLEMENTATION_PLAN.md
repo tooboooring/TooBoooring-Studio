@@ -1,44 +1,43 @@
-# TooBoooring Studio - Implementation Plan & Feature List
+# TooBoooring Studio - Implementation Plan
 
 ## Overview
-**TooBoooring Studio** is being rebuilt from the ground up as a modern, web-based application. This transition moves away from the legacy Tkinter desktop UI to a sleek, browser-based frontend (HTML/CSS/Vanilla JS) powered by a robust Python backend. The app will retain all the powerful features of the old "Silence Cutter" while introducing new AI-driven capabilities like Whisper transcription.
+**TooBoooring Studio** is a robust, web-based video editing and transcription application built as a comprehensive college project. It integrates a highly interactive, browser-based video timeline with a powerful Python backend. By leveraging an open-source React-based UI core and customizing it, we are able to focus our primary development efforts on integrating advanced backend features like AI transcription (Whisper) and precise audio silence detection (FFmpeg).
 
 ---
 
 ## 🛠️ Technology Stack
-- **Frontend (UI)**: Vanilla HTML5, CSS3, and JavaScript. 
-- **Backend (API & Processing)**: Python (FastAPI) to handle heavy lifting, file operations, and serve the frontend.
+- **Frontend (UI)**: Vite + React 19, Tailwind CSS, Zustand (state management). *Baseline adapted from open-source React video editor principles.*
+- **Backend (API & Processing)**: Python (FastAPI) to handle heavy lifting, file operations, and serve AI tasks.
 - **Media Engine**: FFmpeg (for video slicing, encoding, audio extraction).
-- **AI/ML Engine**: OpenAI Whisper (for highly accurate local transcription).
-- **Communication**: REST API calls (AJAX/Fetch) between the JS frontend and Python backend.
+- **AI Engine**: OpenAI Whisper (for highly accurate local transcription).
 
 ---
 
-## 📋 Feature List
+## 📋 Comprehensive Feature List
 
-### 1. Core Video Processing (The "Silence Cutter" Legacy)
-- **Silence Detection**: Automatically scan audio tracks to detect silent segments based on user-defined volume thresholds (dB) and durations.
-- **Precision Cutting**: Slice and stitch video files together using FFmpeg to seamlessly remove dead air.
-- **Batch Processing**: Queue up multiple video files for automated, sequential processing without user intervention.
-- **Custom Encoder Support**: Support for hardware acceleration (e.g., NVIDIA NVENC) and CPU encoders (x264).
+### 1. Frontend Video Editor (Web UI)
+- **Interactive Timeline**: A dynamic waveform generator and multi-track timeline built in React.
+- **Frame Preview**: Video frame preview with time-based navigation controls synchronized with the timeline.
+- **Custom Integrations**: Custom UI components ("TooBoooring Tools") that allow the user to trigger backend AI tasks directly from the editor.
+- **Drag & Drop Loading**: Easily drop media files into the browser to load them.
 
-### 2. The New Timeline & Preview (Web UI)
-- **HTML5 Video Player**: Real-time video preview in the browser.
-- **Interactive Waveform**: Visual representation of audio tracks, highlighting which segments will be cut (silence) and kept (speech).
-- **Drag & Drop**: Easily drop media files directly into the browser to load them into the app.
+### 2. Backend Core FFmpeg & Processing Logic
+- **Hardware Encoder Detection**: Automatically detect available encoders (e.g., NVENC, CPU x264).
+- **Silence Detection**: Run FFmpeg silence detection based on customizable dB thresholds and minimum durations.
+- **Segment Parsing & Validation**: Convert FFmpeg silence outputs into usable segments that are passed back to the React frontend.
+- **Video Processing Engine**: Slice and stitch video files together to seamlessly remove dead air.
 
-### 3. Transcription & AI (New)
-- **Whisper Integration**: Extract audio and run it through a local Whisper model to generate highly accurate transcripts.
-- **Text-to-Video Synchronization**: Map generated text to video timestamps. *(Potential feature: "Edit by text" - delete a word in the transcript to cut it from the video).*
+### 3. Application State & Project Management
+- **Settings Persistence**: Load/save configuration settings (JSON format).
+- **Project Files (`.tbproj`)**: Save the entire editing session (loaded videos, detected segments, selected audio tracks) and resume later.
+- **Batch Processing Queue**: Queue up multiple video files for automated processing.
 
-### 4. Project & Settings Management
-- **Project Files (`.tbproj`)**: Save current editing sessions (including loaded videos, detected silences, and settings) and resume them later.
-- **Advanced Configuration**: UI controls to fine-tune silence threshold, padding around cuts, and audio track selection.
+### 4. AI & Transcription
+- **Whisper Integration**: Extract audio and run it through a local Whisper model to generate highly accurate transcripts via FastAPI.
+- **Text-to-Video Synchronization**: Map generated text to video timestamps on the React timeline.
 
 ---
 
-## 🚀 Phase 1: Foundation Setup (Next Steps)
-1. **Initialize Directory Structure**: Set up the backend (`app/`) and frontend (`static/`) folders inside `TooBoooring Studio`.
-2. **Set up the Backend Server**: Create a basic Python FastAPI script (`main.py`) to serve the HTML files and provide a local API at `http://localhost:8000`.
-3. **Build the Skeleton UI**: Create the `index.html` layout for the main editor, timeline area, and settings sidebar.
-4. **Connect Frontend to Backend**: Establish API routes so the frontend can send commands (like uploading/loading a video) to the Python backend.
+## 🚀 Architecture Guidelines
+- **Separation of Concerns**: The React frontend purely handles the UI state and timeline visualization. All intense media manipulation and AI processing is offloaded to the FastAPI backend via REST API calls.
+- **Testing**: Every major integration must be verified in the app and have an automated test (Rule 4).
