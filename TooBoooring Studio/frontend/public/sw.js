@@ -1,9 +1,9 @@
-// __FREECUT_BUILD_ID__ is replaced at build time (see serviceWorkerVersionPlugin in
+// __TOOBOOORING_STUDIO_BUILD_ID__ is replaced at build time (see serviceWorkerVersionPlugin in
 // vite.config.ts) with the hashed entry-chunk filename, so the cache name — and the SW
 // file bytes — change on every deploy. That lets registration.update() detect new
 // versions and lets `activate` purge the previous deploy's cached chunks. In dev the SW
 // is never registered (PROD-gated in main.tsx), so the unreplaced literal is harmless.
-const CACHE_VERSION = 'tooboooring-app-shell-__FREECUT_BUILD_ID__'
+const CACHE_VERSION = 'tooboooring-app-shell-__TOOBOOORING_STUDIO_BUILD_ID__'
 const APP_SHELL_URLS = [
   '/',
   '/index.html',

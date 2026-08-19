@@ -93,10 +93,10 @@ async function initializeProxyState(mediaItems: MediaMetadata[]): Promise<void> 
 type MediaLibraryStoreApi = UseBoundStore<StoreApi<MediaLibraryState & MediaLibraryActions>>
 
 declare global {
-  var __FREECUT_MEDIA_LIBRARY_STORE__: MediaLibraryStoreApi | undefined
+  var __TOOBOOORING_STUDIO_MEDIA_LIBRARY_STORE__: MediaLibraryStoreApi | undefined
 }
 
-const hotStore = import.meta.env.DEV ? globalThis.__FREECUT_MEDIA_LIBRARY_STORE__ : undefined
+const hotStore = import.meta.env.DEV ? globalThis.__TOOBOOORING_STUDIO_MEDIA_LIBRARY_STORE__ : undefined
 
 const newStore: MediaLibraryStoreApi =
   hotStore ??
@@ -643,7 +643,7 @@ const newStore: MediaLibraryStoreApi =
 // scenes" and requires a hard refresh to reload via `loadMediaItems`.
 // DEV-only: prod builds don't HMR so the cache is harmless to skip.
 if (import.meta.env.DEV) {
-  globalThis.__FREECUT_MEDIA_LIBRARY_STORE__ = newStore
+  globalThis.__TOOBOOORING_STUDIO_MEDIA_LIBRARY_STORE__ = newStore
 }
 
 export const useMediaLibraryStore = newStore

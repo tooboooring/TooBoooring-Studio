@@ -74,10 +74,10 @@ const INITIAL_STATE: SceneBrowserState = {
 type SceneBrowserStoreApi = UseBoundStore<StoreApi<SceneBrowserState & SceneBrowserActions>>
 
 declare global {
-  var __FREECUT_SCENE_BROWSER_STORE__: SceneBrowserStoreApi | undefined
+  var __TOOBOOORING_STUDIO_SCENE_BROWSER_STORE__: SceneBrowserStoreApi | undefined
 }
 
-const hotStore = import.meta.env.DEV ? globalThis.__FREECUT_SCENE_BROWSER_STORE__ : undefined
+const hotStore = import.meta.env.DEV ? globalThis.__TOOBOOORING_STUDIO_SCENE_BROWSER_STORE__ : undefined
 
 // Preserve query/scope/color-mode/reference across Vite HMR in dev so a
 // file save doesn't wipe the panel's current search context.
@@ -126,7 +126,7 @@ const sceneBrowserStore: SceneBrowserStoreApi =
   }))
 
 if (import.meta.env.DEV) {
-  globalThis.__FREECUT_SCENE_BROWSER_STORE__ = sceneBrowserStore
+  globalThis.__TOOBOOORING_STUDIO_SCENE_BROWSER_STORE__ = sceneBrowserStore
 }
 
 export const useSceneBrowserStore = sceneBrowserStore

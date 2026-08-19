@@ -46,10 +46,10 @@ RUN npm run build
 # mounted and WebGPU uses the real GPU; otherwise the bundled Mesa lavapipe
 # provides software WebGPU. --no-sandbox is required running Chrome as root.
 # (To force software even on a GPU host: -e VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json)
-ENV FREECUT_CHROME_ARGS="--no-sandbox"
+ENV TOOBOOORING_STUDIO_CHROME_ARGS="--no-sandbox"
 # The container port must accept traffic from the published Docker interface.
 # Native serve.mjs runs remain loopback-only unless explicitly overridden.
-ENV FREECUT_HOST=0.0.0.0
+ENV TOOBOOORING_STUDIO_HOST=0.0.0.0
 
 EXPOSE 8787
 # Exec form keeps Node as PID 1 so Docker's SIGTERM reaches the graceful

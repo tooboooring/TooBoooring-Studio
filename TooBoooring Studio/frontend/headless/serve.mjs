@@ -105,12 +105,12 @@ const SERVE_OPTIONS = new Set([
 export function resolveHost(args = {}, env = process.env) {
   const host = Object.prototype.hasOwnProperty.call(args, 'host')
     ? args.host
-    : Object.prototype.hasOwnProperty.call(env, 'FREECUT_HOST')
-      ? env.FREECUT_HOST
+    : Object.prototype.hasOwnProperty.call(env, 'TOOBOOORING_STUDIO_HOST')
+      ? env.TOOBOOORING_STUDIO_HOST
       : '127.0.0.1'
 
   if (typeof host !== 'string' || host.trim() === '') {
-    throw new Error('Host must be a non-empty string (--host or FREECUT_HOST)')
+    throw new Error('Host must be a non-empty string (--host or TOOBOOORING_STUDIO_HOST)')
   }
   return host.trim()
 }

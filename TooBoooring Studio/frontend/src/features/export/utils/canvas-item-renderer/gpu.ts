@@ -333,15 +333,15 @@ export function renderPreviewVideoGpuEffectsToCanvas(
     if (!import.meta.env.DEV) return
     if (typeof window === 'undefined') return
     const debugWindow = window as Window & {
-      __FREECUT_GPU_EFFECT_FAST_PATH__?: {
+      __TOOBOOORING_STUDIO_GPU_EFFECT_FAST_PATH__?: {
         hits: number
         skips: Record<string, number>
         last: Record<string, unknown> | null
       }
     }
     const stats =
-      debugWindow.__FREECUT_GPU_EFFECT_FAST_PATH__ ??
-      (debugWindow.__FREECUT_GPU_EFFECT_FAST_PATH__ = {
+      debugWindow.__TOOBOOORING_STUDIO_GPU_EFFECT_FAST_PATH__ ??
+      (debugWindow.__TOOBOOORING_STUDIO_GPU_EFFECT_FAST_PATH__ = {
         hits: 0,
         skips: {},
         last: null,
